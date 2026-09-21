@@ -698,6 +698,20 @@ tbody tr:hover {
         text-overflow: ellipsis;
     }
 }
+
+.marks-grid-wrapper{overflow:auto;max-width:100%;border:1px solid #dbe3ee;border-radius:10px}
+.marks-table{width:max-content;min-width:100%;border-collapse:collapse;font-size:13px;background:#fff}
+.marks-table th,.marks-table td{border:1px solid #dbe3ee;padding:7px 8px;text-align:center;white-space:nowrap}
+.marks-table th{background:#eef4fb;color:#123b73;position:sticky;top:0;z-index:2}
+.marks-table th.sticky-roll,.marks-table td.sticky-roll{position:sticky;left:0;z-index:3;background:#fff}
+.marks-table th.sticky-name,.marks-table td.sticky-name{position:sticky;left:70px;z-index:3;background:#fff;text-align:left;min-width:190px}
+.marks-table th.sticky-roll,.marks-table th.sticky-name{background:#eef4fb;z-index:4}
+.marks-input{width:64px;box-sizing:border-box;padding:7px;border:1px solid #b8c6d8;border-radius:6px;text-align:center}
+.marks-input:focus{outline:2px solid #7aa7d9;border-color:#4d83bd}
+.marks-calculated{font-weight:700;background:#f8fafc}
+.marks-grade{font-weight:800}
+.marks-error{color:#b91c1c;font-size:12px;margin-top:8px}
+@media(max-width:800px){.marks-table th.sticky-name,.marks-table td.sticky-name{left:60px;min-width:160px}.marks-input{width:58px}}
 </style>
 </head>
 
@@ -1203,7 +1217,7 @@ tbody tr:hover {
 
 
         <!-- =================================================
-             MARKS
+             PLACEHOLDER MODULES
         ================================================== -->
 
         <section
@@ -1212,24 +1226,19 @@ tbody tr:hover {
 
             <div class="page-header">
                 <div>
-                    <h2>Marks</h2>
+                    <h2>Marks Entry</h2>
                     <div class="creator-credit">
-                        Enter and manage examination marks
+                        Enter and save examination marks
                     </div>
                 </div>
             </div>
 
-            <div class="card">
-                <h3 style="color:#123b73;margin-bottom:14px">
-                    Academic Context
-                </h3>
-
+            <div class="card filter-card">
                 <div class="filter-grid">
                     <div class="filter-item">
                         <label for="marksSession">Academic Session</label>
                         <select id="marksSession"></select>
                     </div>
-
                     <div class="filter-item">
                         <label for="marksClass">Class</label>
                         <select id="marksClass">
@@ -1243,7 +1252,6 @@ tbody tr:hover {
                             <option value="8">Class VIII</option>
                         </select>
                     </div>
-
                     <div class="filter-item">
                         <label for="marksExam">Examination</label>
                         <select id="marksExam">
@@ -1256,20 +1264,12 @@ tbody tr:hover {
             </div>
 
             <div class="card">
-                <div id="marksContextStatus" class="record-count">
-                    Select the academic context to load students and subjects.
+                <div class="table-top">
+                    <div id="marksRecordCount" class="record-count">Select a session and class.</div>
+                    <button id="saveMarksButton" class="btn btn-primary">Save All Marks</button>
                 </div>
-                <div id="marksSubjects" style="margin-top:14px"></div>
-            </div>
-
-            <div class="card">
-                <h3 style="color:#123b73;margin-bottom:10px">
-                    Students
-                </h3>
-                <div id="marksStudentsContainer" class="table-wrapper">
-                    <div class="empty-state">
-                        Select Session, Class and Examination.
-                    </div>
+                <div id="marksTableContainer" class="marks-grid-wrapper">
+                    <div class="empty-state">Select a session and class to load marks.</div>
                 </div>
             </div>
 
@@ -1741,6 +1741,11 @@ let studentsData = [];
 
 let editingStudent = null;
 
+let marksSubjects = [];
+let marksRecords = [];
+let marksValues = {};
+let marksLoading = false;
+
 
 /* =========================================================
    ELEMENTS
@@ -1772,24 +1777,6 @@ const logoutButton =
 
 const sessionFilter =
     document.getElementById("sessionFilter");
-
-const marksSession =
-    document.getElementById("marksSession");
-
-const marksClass =
-    document.getElementById("marksClass");
-
-const marksExam =
-    document.getElementById("marksExam");
-
-const marksContextStatus =
-    document.getElementById("marksContextStatus");
-
-const marksSubjects =
-    document.getElementById("marksSubjects");
-
-const marksStudentsContainer =
-    document.getElementById("marksStudentsContainer");
 
 const classFilter =
     document.getElementById("classFilter");
@@ -1960,6 +1947,8 @@ async function showApplication(user) {
 
 
         await loadSessions();
+    populateMarksSessions();
+        populateMarksSessions();
 
         await loadStudents();
 
@@ -2906,140 +2895,256 @@ async function updateDashboardCounts() {
 
 
 /* =========================================================
-   MARKS MODULE — CONTEXT + DATA LOADING
+   MARKS MODULE
 ========================================================= */
 
-const SUBJECTS_BY_CLASS = {
-    1: ["Urdu", "English", "Mathematics"],
-    2: ["Urdu", "English", "Mathematics"],
-    3: ["Urdu", "English", "Hindi", "Mathematics", "Environmental Science"],
-    4: ["Urdu", "English", "Hindi", "Mathematics", "Environmental Science"],
-    5: ["Urdu", "English", "Hindi", "Mathematics", "Environmental Science"],
-    6: ["Urdu", "English", "Hindi", "Mathematics", "Science", "Social Science"],
-    7: ["Urdu", "English", "Hindi", "Mathematics", "Science", "Social Science"],
-    8: ["Urdu", "English", "Hindi", "Mathematics", "Science", "Social Science"]
-};
+const marksSession = document.getElementById("marksSession");
+const marksClass = document.getElementById("marksClass");
+const marksExam = document.getElementById("marksExam");
+const marksTableContainer = document.getElementById("marksTableContainer");
+const marksRecordCount = document.getElementById("marksRecordCount");
+const saveMarksButton = document.getElementById("saveMarksButton");
+
+function gradeFromPercentage(pct) {
+    if (pct === null || Number.isNaN(pct)) return "";
+    if (pct >= 80.5) return "A";
+    if (pct >= 60.5) return "B";
+    if (pct >= 40.5) return "C";
+    if (pct >= 32.5) return "D";
+    return "E";
+}
 
 function populateMarksSessions() {
     if (!marksSession) return;
-
-    marksSession.innerHTML = "";
-
-    sessions.forEach(session => {
-        const option = document.createElement("option");
-        option.value = session.id;
-        option.textContent = session.session_name;
-        if (session.is_active) option.selected = true;
-        marksSession.appendChild(option);
-    });
-
-    if (!sessions.length) {
-        marksSession.innerHTML = `<option value="">No sessions available</option>`;
-    }
+    marksSession.innerHTML = sessions.length
+        ? sessions.map(s => `<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("")
+        : `<option value="">No sessions</option>`;
+    const active = sessions.find(s => s.is_active);
+    if (active) marksSession.value = String(active.id);
+    else if (sessionFilter && sessionFilter.value) marksSession.value = sessionFilter.value;
 }
 
-function renderMarksSubjects(classNo) {
-    const subjects = SUBJECTS_BY_CLASS[Number(classNo)] || [];
-
-    marksSubjects.innerHTML = `
-        <div style="font-weight:600;color:#123b73;margin-bottom:8px">
-            Subjects for ${escapeHtml(className(Number(classNo)))}
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px">
-            ${subjects.map(subject => `
-                <span style="padding:7px 11px;border:1px solid #d7e0ec;border-radius:8px;background:#f7f9fc">
-                    ${escapeHtml(subject)}
-                </span>
-            `).join("")}
-        </div>`;
-}
-
-async function loadMarksContext() {
+async function loadMarksGrid() {
+    if (!marksSession || !marksClass || !marksExam) return;
     const sessionId = marksSession.value;
     const classNo = Number(marksClass.value);
-    const examination = marksExam.value;
+    const exam = marksExam.value;
 
-    renderMarksSubjects(classNo);
-
-    if (!sessionId || !classNo || !examination) {
-        marksContextStatus.textContent = "Please select Session, Class and Examination.";
-        marksStudentsContainer.innerHTML = `<div class="empty-state">Please select all three options.</div>`;
+    if (!sessionId) {
+        marksTableContainer.innerHTML = `<div class="empty-state">No academic session is available.</div>`;
+        marksRecordCount.textContent = "No session selected.";
         return;
     }
 
-    marksContextStatus.textContent = "Loading students...";
-    marksStudentsContainer.innerHTML = `<div class="loading">Loading students...</div>`;
+    marksLoading = true;
+    marksTableContainer.innerHTML = `<div class="loading">Loading marks...</div>`;
 
-    const { data, error } = await supabaseClient
+    const { data: subjects, error: subjectError } = await supabaseClient
+        .from("subjects")
+        .select("id, subject_name, subject_code, display_order")
+        .eq("class_no", classNo)
+        .order("display_order", { ascending: true });
+
+    if (subjectError) {
+        marksTableContainer.innerHTML = `<div class="empty-state">Unable to load subjects.<br><br>${escapeHtml(subjectError.message)}</div>`;
+        marksLoading = false;
+        return;
+    }
+
+    marksSubjects = subjects || [];
+
+    const { data: records, error: recordError } = await supabaseClient
         .from("academic_records")
         .select(`
-            id,
-            roll_no,
-            status,
-            students (
-                student_id,
-                student_name
-            )
+            id, session_id, student_profile_id, class_no, roll_no, status,
+            students ( id, student_id, student_name )
         `)
         .eq("session_id", sessionId)
         .eq("class_no", classNo)
         .order("roll_no", { ascending: true });
 
+    if (recordError) {
+        marksTableContainer.innerHTML = `<div class="empty-state">Unable to load students.<br><br>${escapeHtml(recordError.message)}</div>`;
+        marksLoading = false;
+        return;
+    }
+
+    marksRecords = records || [];
+    marksValues = {};
+
+    const recordIds = marksRecords.map(r => r.id);
+    if (recordIds.length && marksSubjects.length) {
+        const { data: markRows, error: marksError } = await supabaseClient
+            .from("exam_marks")
+            .select("academic_record_id, subject_id, examination, marks, full_marks")
+            .in("academic_record_id", recordIds)
+            .in("subject_id", marksSubjects.map(s => s.id));
+
+        if (marksError) {
+            marksTableContainer.innerHTML = `<div class="empty-state">Unable to load saved marks.<br><br>${escapeHtml(marksError.message)}</div>`;
+            marksLoading = false;
+            return;
+        }
+
+        (markRows || []).forEach(m => {
+            marksValues[`${m.academic_record_id}_${m.subject_id}_${m.examination}`] = m.marks;
+        });
+    }
+
+    renderMarksGrid();
+    marksLoading = false;
+}
+
+function getMark(recordId, subjectId, exam) {
+    const key = `${recordId}_${subjectId}_${exam}`;
+    const value = marksValues[key];
+    return value === null || value === undefined ? "" : value;
+}
+
+function setMark(recordId, subjectId, exam, value) {
+    const key = `${recordId}_${subjectId}_${exam}`;
+    marksValues[key] = value === "" ? null : Number(value);
+}
+
+function calculateRow(recordId) {
+    let total = 0;
+    let entered = 0;
+    const finalExam = marksExam.value === "Final";
+
+    marksSubjects.forEach(subject => {
+        let value = null;
+        if (finalExam) {
+            const half = marksValues[`${recordId}_${subject.id}_Half-Yearly`];
+            const annual = marksValues[`${recordId}_${subject.id}_Annual`];
+            if (half !== null && half !== undefined && half !== "") value = Number(half);
+            if (annual !== null && annual !== undefined && annual !== "") value = (value || 0) + Number(annual);
+            if ((half !== null && half !== undefined && half !== "") || (annual !== null && annual !== undefined && annual !== "")) entered++;
+        } else {
+            value = marksValues[`${recordId}_${subject.id}_${marksExam.value}`];
+            if (value !== null && value !== undefined && value !== "") entered++;
+        }
+        if (value !== null && value !== undefined && value !== "") total += Number(value);
+    });
+
+    const max = marksSubjects.length * (finalExam ? 100 : 50);
+    const pct = max ? (total / max) * 100 : 0;
+    return { total, pct, grade: entered ? gradeFromPercentage(pct) : "", max };
+}
+
+function renderMarksGrid() {
+    if (!marksRecords.length) {
+        marksRecordCount.textContent = "0 students";
+        marksTableContainer.innerHTML = `<div class="empty-state">No students found for ${escapeHtml(className(Number(marksClass.value)))} in the selected session.</div>`;
+        return;
+    }
+
+    if (!marksSubjects.length) {
+        marksRecordCount.textContent = `${marksRecords.length} students`;
+        marksTableContainer.innerHTML = `<div class="empty-state">No subjects are configured for this class.</div>`;
+        return;
+    }
+
+    const finalExam = marksExam.value === "Final";
+    const maxPerSubject = finalExam ? 100 : 50;
+    marksRecordCount.textContent = `${marksRecords.length} students • ${marksSubjects.length} subjects • ${marksExam.value}`;
+
+    const head = marksSubjects.map(s => `<th>${escapeHtml(s.subject_name)}<br><small>/ ${maxPerSubject}</small></th>`).join("");
+    const rows = marksRecords.map((record, index) => {
+        const calc = calculateRow(record.id);
+        const cells = marksSubjects.map(subject => {
+            if (finalExam) {
+                const half = getMark(record.id, subject.id, "Half-Yearly");
+                const annual = getMark(record.id, subject.id, "Annual");
+                const value = (half === "" && annual === "") ? "" : Number(half || 0) + Number(annual || 0);
+                return `<td class="marks-calculated">${value === "" ? "" : value}</td>`;
+            }
+            const value = getMark(record.id, subject.id, marksExam.value);
+            const disabled = currentRole !== "admin" ? "disabled" : "";
+            return `<td><input class="marks-input" type="number" min="0" max="50" step="0.01" value="${value === "" ? "" : escapeHtml(String(value))}" data-record="${record.id}" data-subject="${subject.id}" ${disabled}></td>`;
+        }).join("");
+        return `<tr><td class="sticky-roll">${escapeHtml(String(record.roll_no ?? ""))}</td><td class="sticky-name">${escapeHtml(record.students?.student_name || "")}</td>${cells}<td class="marks-calculated" data-total="${record.id}">${calc.total || (calc.total === 0 && calc.entered) ? calc.total : ""}</td><td class="marks-calculated" data-pct="${record.id}">${calc.total ? calc.pct.toFixed(2) + "%" : ""}</td><td class="marks-calculated marks-grade" data-grade="${record.id}">${escapeHtml(calc.grade)}</td></tr>`;
+    }).join("");
+
+    marksTableContainer.innerHTML = `<table class="marks-table"><thead><tr><th class="sticky-roll">Roll</th><th class="sticky-name">Student Name</th>${head}<th>Total</th><th>Percentage</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+    marksTableContainer.querySelectorAll(".marks-input").forEach(input => {
+        input.addEventListener("input", () => {
+            let value = input.value.trim();
+            if (value !== "") {
+                let n = Number(value);
+                if (!Number.isFinite(n)) n = 0;
+                if (n < 0) n = 0;
+                if (n > 50) n = 50;
+                input.value = n;
+                setMark(Number(input.dataset.record), Number(input.dataset.subject), marksExam.value, n);
+            } else {
+                setMark(Number(input.dataset.record), Number(input.dataset.subject), marksExam.value, null);
+            }
+            const calc = calculateRow(Number(input.dataset.record));
+            const total = marksTableContainer.querySelector(`[data-total="${input.dataset.record}"]`);
+            const pct = marksTableContainer.querySelector(`[data-pct="${input.dataset.record}"]`);
+            const grade = marksTableContainer.querySelector(`[data-grade="${input.dataset.record}"]`);
+            total.textContent = calc.total || calc.total === 0 ? calc.total : "";
+            pct.textContent = calc.total ? calc.pct.toFixed(2) + "%" : "";
+            grade.textContent = calc.grade;
+        });
+    });
+}
+
+async function saveMarks() {
+    if (currentRole !== "admin") {
+        showToast("View Only users cannot save marks.", "error");
+        return;
+    }
+    if (marksExam.value === "Final") {
+        showToast("Final marks are calculated from Half-Yearly and Annual marks and are not entered separately.", "info");
+        return;
+    }
+    if (!marksRecords.length || !marksSubjects.length) {
+        showToast("Load a class before saving marks.", "error");
+        return;
+    }
+
+    saveMarksButton.disabled = true;
+    saveMarksButton.textContent = "Saving...";
+
+    const rows = [];
+    marksRecords.forEach(record => {
+        marksSubjects.forEach(subject => {
+            const value = marksValues[`${record.id}_${subject.id}_${marksExam.value}`];
+            if (value !== undefined) {
+                rows.push({
+                    academic_record_id: record.id,
+                    subject_id: subject.id,
+                    examination: marksExam.value,
+                    marks: value === null || value === "" ? null : Number(value),
+                    full_marks: 50
+                });
+            }
+        });
+    });
+
+    const { error } = await supabaseClient
+        .from("exam_marks")
+        .upsert(rows, { onConflict: "academic_record_id,subject_id,examination" });
+
+    saveMarksButton.disabled = false;
+    saveMarksButton.textContent = "Save All Marks";
+
     if (error) {
         console.error(error);
-        marksContextStatus.textContent = "Unable to load students.";
-        marksStudentsContainer.innerHTML = `
-            <div class="empty-state">
-                ${escapeHtml(error.message)}
-            </div>`;
+        showToast("Unable to save marks: " + error.message, "error");
         return;
     }
 
-    const students = data || [];
-    const subjects = SUBJECTS_BY_CLASS[classNo] || [];
-
-    marksContextStatus.textContent =
-        `${students.length} students • ${subjects.length} subjects • ${examination}`;
-
-    if (!students.length) {
-        marksStudentsContainer.innerHTML = `
-            <div class="empty-state">No students found for this Session and Class.</div>`;
-        return;
-    }
-
-    marksStudentsContainer.innerHTML = `
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Roll</th>
-                    <th>Student Name</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${students.map(student => `
-                    <tr>
-                        <td>${escapeHtml(String(student.roll_no ?? ""))}</td>
-                        <td>${escapeHtml(student.students?.student_name || "")}</td>
-                        <td>${escapeHtml(student.status || "")}</td>
-                    </tr>
-                `).join("")}
-            </tbody>
-        </table>`;
+    showToast("Marks saved successfully.", "success");
+    await loadMarksGrid();
 }
 
-function initializeMarksModule() {
-    populateMarksSessions();
-    if (sessions.length) {
-        const active = sessions.find(session => session.is_active);
-        if (active) marksSession.value = String(active.id);
-    }
-    renderMarksSubjects(marksClass.value);
-}
-
-marksSession.addEventListener("change", loadMarksContext);
-marksClass.addEventListener("change", loadMarksContext);
-marksExam.addEventListener("change", loadMarksContext);
+if (marksSession) marksSession.addEventListener("change", loadMarksGrid);
+if (marksClass) marksClass.addEventListener("change", loadMarksGrid);
+if (marksExam) marksExam.addEventListener("change", loadMarksGrid);
+if (saveMarksButton) saveMarksButton.addEventListener("click", saveMarks);
 
 /* =========================================================
    NAVIGATION
@@ -3104,13 +3209,9 @@ document
 
                     }
 
-                    if (
-                        section === "marks"
-                    ) {
-
-                        initializeMarksModule();
-                        loadMarksContext();
-
+                    if (section === "marks") {
+                        populateMarksSessions();
+                        loadMarksGrid();
                     }
 
                 }
