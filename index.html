@@ -3427,6 +3427,9 @@ async function printClassFolio(){
    SECTION NAVIGATION
 ========================================================= */
 function showSection(section) {
+    // Reset temporary UI state every time a module is opened.
+    // This never changes or deletes saved Supabase data.
+    resetModuleState(section);
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.section === section));
     document.querySelectorAll(".app-section").forEach(item => item.classList.add("hidden"));
     const target = document.getElementById(section + "Section");
