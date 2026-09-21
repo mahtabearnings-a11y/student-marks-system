@@ -30,6 +30,7 @@ th,td{border:1px solid #cbd5e1;padding:7px;text-align:center}
 th{background:#e9eff6}td.name{text-align:left;white-space:nowrap}
 .badge{display:inline-block;border-radius:15px;padding:3px 8px;background:#e9eff6;font-weight:700}
 #toast{display:none;position:fixed;right:15px;bottom:15px;background:#182233;color:#fff;padding:11px 15px;border-radius:9px;z-index:100}
+#accessGate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:#eef2f7}.gate-card{width:min(420px,100%);background:#fff;border-radius:16px;padding:26px;box-shadow:0 6px 24px #00000015;text-align:center}.gate-card h1{margin:0 0 6px;color:#173b63}.gate-card p{color:#64748b;font-size:14px}.gate-card input{margin-top:8px;text-align:center}.gate-error{color:#b42318;font-size:13px;min-height:18px;margin-top:8px}
 .print-area{display:none}
 
 /* Printable class-specific folio */
@@ -61,7 +62,17 @@ th{background:#e9eff6}td.name{text-align:left;white-space:nowrap}
 </style>
 </head>
 <body>
-<div class="app no-print">
+<div id="accessGate">
+  <div class="gate-card">
+    <h1>U.M.S SASAULI URDU</h1>
+    <p>Student Marks Management System</p>
+    <label for="schoolPassword">School Password</label>
+    <input id="schoolPassword" type="password" placeholder="Enter school password" autocomplete="current-password" onkeydown="if(event.key==='Enter')unlockSystem()">
+    <button style="width:100%;margin-top:12px" onclick="unlockSystem()">Enter System</button>
+    <div id="gateError" class="gate-error"></div>
+  </div>
+</div>
+<div class="app no-print" id="mainApp" style="display:none">
 <header>
 <h1>U.M.S SASAULI URDU</h1>
 <p>Student Marks Management & Printable Marks Details</p>
@@ -138,20 +149,9 @@ th{background:#e9eff6}td.name{text-align:left;white-space:nowrap}
 </section>
 
 <section class="card no-print" id="cloudCard">
-<h2>Online / Cloud Data</h2>
-<p class="small">Use Supabase to keep student data online so multiple authorised people can work on the same marks database.</p>
-<div class="grid">
-<div><label>Supabase Project URL</label><input id="sbUrl" placeholder="https://your-project.supabase.co"></div>
-<div><label>Supabase Anon Public Key</label><input id="sbKey" placeholder="Paste your anon/public key"></div>
-<div><label>Email</label><input id="sbEmail" type="email" placeholder="teacher@example.com"></div>
-<div><label>Password</label><input id="sbPassword" type="password" placeholder="Password"></div>
-</div>
-<div class="actions">
-<button onclick="connectCloud()">Connect / Sign In</button>
-<button class="secondary" onclick="signUpCloud()">Create Account</button>
-<button class="danger" onclick="signOutCloud()">Sign Out</button>
-</div>
-<p id="cloudStatus" class="small">Cloud: Not connected</p>
+<h2>☁️ Online / Cloud Data</h2>
+<p class="small">Cloud database is configured automatically. Teachers do not need to enter Supabase details.</p>
+<p id="cloudStatus" class="small">Cloud: Connecting...</p>
 </section>
 
 <div id="printArea" class="print-area"></div>
@@ -189,7 +189,7 @@ function resetCurrentSubjects(){settings[cls()]=[...DEFAULTS[cls()]];localStorag
 function renderMarkInputs(){let fm=Number($("fullMarks").value)||50;$("markInputs").innerHTML=subs().map((s,i)=>`<div><label>${esc(s)} (${fm})</label><input id="m${i}" type="number" min="0" max="${fm}" step="0.01"></div>`).join("")}
 function clearStudent(render=true){editingId=null;$("roll").value="";$("studentName").value="";renderMarkInputs();if(render)renderList()}
 function getMarks(){let fm=Number($("fullMarks").value)||50,m={};subs().forEach((s,i)=>{let v=Number($("m"+i).value||0);if(v<0||v>fm)throw Error(s+" must be between 0 and "+fm);m[s]=v});return m}
-function saveStudent(){try{saveMeta();let roll=Number($("roll").value),name=$("studentName").value.trim();if(!roll||!name){alert("Enter roll number and student name.");return}let obj={id:editingId||crypto.randomUUID(),cls:cls(),section:sec(),roll,name,marks:getMarks(),fullMarks:Number($("fullMarks").value)||50};let idx=students.findIndex(x=>x.id===editingId);if(idx>=0)students[idx]=obj;else{if(students.some(x=>x.cls===obj.cls&&(x.section||"")===obj.section&&x.roll===obj.roll)){alert("That roll number already exists in this class/section.");return}students.push(obj)}students.sort((a,b)=>Number(a.cls)-Number(b.cls)||(a.section||"").localeCompare(b.section||"")||a.roll-b.roll);localStorage.setItem("folio_students_v4",JSON.stringify(students)); if(sb&&cloudUser){ cloudUpsertStudent(obj).then(()=>toast("Student saved online")).catch(e=>toast("Saved locally; cloud error: "+e.message)); } else { toast("Student saved locally"); } clearStudent();}catch(e){alert(e.message)}}
+function saveStudent(){try{saveMeta();let roll=Number($("roll").value),name=$("studentName").value.trim();if(!roll||!name){alert("Enter roll number and student name.");return}let obj={id:editingId||crypto.randomUUID(),cls:cls(),section:sec(),roll,name,marks:getMarks(),fullMarks:Number($("fullMarks").value)||50};let idx=students.findIndex(x=>x.id===editingId);if(idx>=0)students[idx]=obj;else{if(students.some(x=>x.cls===obj.cls&&(x.section||"")===obj.section&&x.roll===obj.roll)){alert("That roll number already exists in this class/section.");return}students.push(obj)}students.sort((a,b)=>Number(a.cls)-Number(b.cls)||(a.section||"").localeCompare(b.section||"")||a.roll-b.roll);localStorage.setItem("folio_students_v4",JSON.stringify(students)); if(sb){ cloudUpsertStudent(obj).then(()=>toast("Student saved online")).catch(e=>toast("Saved locally; cloud error: "+e.message)); } else { toast("Student saved locally"); } clearStudent();}catch(e){alert(e.message)}}
 function calc(x){let vals=Object.values(x.marks||{}),fm=x.fullMarks||50,total=vals.reduce((a,b)=>a+Number(b),0),max=vals.length*fm,p=max?100*total/max:0;return{total,max,pct:p,grade:p>=81?"A":p>=61?"B":p>=41?"C":p>=33?"D":"F"}}
 function currentStudents(){
 let q=$("search").value.toLowerCase();
@@ -215,7 +215,7 @@ return data;
 }
 function renderList(){let s=subs(),data=currentStudents();$("listHead").innerHTML="<tr><th>Roll</th><th>Student Name</th>"+s.map(x=>`<th>${esc(x)}</th>`).join("")+"<th>Total</th><th>%</th><th>Grade</th><th>Action</th></tr>";$("listBody").innerHTML=data.map(x=>{let c=calc(x);return `<tr><td>${x.roll}</td><td class="name">${esc(x.name)}</td>${s.map(z=>`<td>${x.marks[z]??""}</td>`).join("")}<td>${c.total}/${c.max}</td><td>${c.pct.toFixed(1)}%</td><td><span class="badge">${c.grade}</span></td><td><button onclick="editStudent('${x.id}')">Edit</button> <button class="danger" onclick="removeStudent('${x.id}')">Delete</button></td></tr>`}).join("")||`<tr><td colspan="${s.length+6}">No students found.</td></tr>`;let cs=data.map(calc),avg=cs.length?cs.reduce((a,b)=>a+b.pct,0)/cs.length:0;$("statCount").textContent=data.length;$("statAvg").textContent=avg.toFixed(1)+"%";$("statPass").textContent=cs.filter(x=>x.pct>=33).length;$("statFail").textContent=cs.filter(x=>x.pct<33).length}
 function editStudent(id){let x=students.find(z=>z.id===id);if(!x)return;$("classSel").value=x.cls;$("section").value=x.section||"";$("fullMarks").value=x.fullMarks||50;renderSubjectSettings();renderMarkInputs();$("roll").value=x.roll;$("studentName").value=x.name;subs().forEach((s,i)=>$("m"+i).value=x.marks[s]??"");editingId=id;window.scrollTo({top:0,behavior:"smooth"});toast("Editing "+x.name)}
-function removeStudent(id){let x=students.find(z=>z.id===id);if(x&&confirm("Delete "+x.name+" (Roll "+x.roll+")?")){students=students.filter(z=>z.id!==id);localStorage.setItem("folio_students_v4",JSON.stringify(students)); if(sb&&cloudUser){cloudDeleteStudent(id).then(()=>toast("Student deleted online")).catch(e=>toast("Deleted locally; cloud error: "+e.message));} else {toast("Student deleted locally")} renderList();}}
+function removeStudent(id){let x=students.find(z=>z.id===id);if(x&&confirm("Delete "+x.name+" (Roll "+x.roll+")?")){students=students.filter(z=>z.id!==id);localStorage.setItem("folio_students_v4",JSON.stringify(students)); if(sb){cloudDeleteStudent(id).then(()=>toast("Student deleted online")).catch(e=>toast("Deleted locally; cloud error: "+e.message));} else {toast("Student deleted locally")} renderList();}}
 function printFolio(){
 saveMeta();let m=meta(),data=students.filter(x=>x.cls===cls()&&(x.section||"")===sec()).sort((a,b)=>a.roll-b.roll),s=subs(),fm=m.fullMarks;
 let rowsPerPage=28,pages=[];
@@ -244,82 +244,58 @@ init();
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-let sb=null, cloudUser=null;
-const SB_CFG_KEY='marks_supabase_cfg_v1';
-function cloudCfg(){
-  return {url:$('sbUrl').value.trim(),key:$('sbKey').value.trim()};
-}
-function loadCloudCfg(){
-  const c=JSON.parse(localStorage.getItem(SB_CFG_KEY)||'{}');
-  if(c.url)$('sbUrl').value=c.url;
-  if(c.key)$('sbKey').value=c.key;
+const SCHOOL_PASSWORD='Mahtab@123';
+const SUPABASE_URL='https://fegrjxawwhnaxvqbjesf.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_NIfpJE60FAdsZQkLhxJYGA_m-y9xJli';
+let sb=null;
+function unlockSystem(){
+  const v=$('schoolPassword').value;
+  if(v!==SCHOOL_PASSWORD){$('gateError').textContent='Incorrect school password.';return}
+  localStorage.setItem('marks_school_access','1');
+  $('accessGate').style.display='none';$('mainApp').style.display='block';
+  connectCloudAutomatically();
 }
 function cloudStatus(t){$('cloudStatus').textContent=t}
-async function connectCloud(){
-  const c=cloudCfg();
-  if(!c.url||!c.key){cloudStatus('Cloud: Enter Supabase URL and anon key first.');return}
-  localStorage.setItem(SB_CFG_KEY,JSON.stringify(c));
+async function connectCloudAutomatically(){
   try{
-    sb=window.supabase.createClient(c.url,c.key);
-    const {data,error}=await sb.auth.signInWithPassword({email:$('sbEmail').value.trim(),password:$('sbPassword').value});
-    if(error)throw error;
-    cloudUser=data.user;
-    cloudStatus('Cloud: Connected as '+cloudUser.email);
+    sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+    cloudStatus('Cloud: Connecting...');
     await pullCloud();
     startRealtime();
   }catch(e){cloudStatus('Cloud error: '+e.message)}
 }
-async function signUpCloud(){
-  const c=cloudCfg();
-  if(!c.url||!c.key){cloudStatus('Cloud: Enter Supabase URL and anon key first.');return}
-  localStorage.setItem(SB_CFG_KEY,JSON.stringify(c));
-  try{
-    sb=window.supabase.createClient(c.url,c.key);
-    const {data,error}=await sb.auth.signUp({email:$('sbEmail').value.trim(),password:$('sbPassword').value});
-    if(error)throw error;
-    cloudUser=data.user;
-    cloudStatus(data.session?'Cloud: Account created and connected.':'Cloud: Account created. Check email confirmation if enabled.');
-    if(data.session){ await pullCloud(); startRealtime(); }
-  }catch(e){cloudStatus('Cloud error: '+e.message)}
-}
-async function signOutCloud(){
-  if(sb)await sb.auth.signOut();
-  cloudUser=null;cloudStatus('Cloud: Signed out');
-}
 async function cloudUpsertStudent(obj){
-  if(!sb||!cloudUser)return;
-  const row={id:obj.id,class_no:Number(obj.cls),section:obj.section||'',roll:Number(obj.roll),student_name:obj.name,marks:obj.marks,full_marks:Number(obj.fullMarks||50),updated_at:new Date().toISOString(),updated_by:cloudUser.id};
+  if(!sb)return;
+  const row={id:obj.id,class_no:Number(obj.cls),section:obj.section||'',roll:Number(obj.roll),student_name:obj.name,marks:obj.marks,full_marks:Number(obj.fullMarks||50),updated_at:new Date().toISOString(),updated_by:null};
   const {error}=await sb.from('student_marks').upsert(row);
   if(error)throw error;
 }
 async function cloudDeleteStudent(id){
-  if(!sb||!cloudUser)return;
+  if(!sb)return;
   const {error}=await sb.from('student_marks').delete().eq('id',id);
   if(error)throw error;
 }
 async function pullCloud(){
-  if(!sb||!cloudUser)return;
+  if(!sb)return;
   const {data,error}=await sb.from('student_marks').select('*').order('class_no').order('roll');
   if(error){cloudStatus('Cloud read error: '+error.message);return}
   students=(data||[]).map(r=>({id:r.id,cls:String(r.class_no),section:r.section||'',roll:r.roll,name:r.student_name,marks:r.marks||{},fullMarks:r.full_marks||50}));
-  localStorage.setItem("folio_students_v4",JSON.stringify(students));
+  localStorage.setItem('folio_students_v4',JSON.stringify(students));
   renderList();cloudStatus('Cloud: Synced '+students.length+' students');
 }
-</script>
-
-<script>loadCloudCfg();</script>
-
-<script>
 function startRealtime(){
-  if(!sb||!cloudUser)return;
+  if(!sb)return;
   try{
     sb.channel('student-marks-live')
-      .on('postgres_changes',{event:'*',schema:'public',table:'student_marks'},payload=>{
-        pullCloud();
-      }).subscribe();
-    cloudStatus('Cloud: Connected + live sync enabled');
+      .on('postgres_changes',{event:'*',schema:'public',table:'student_marks'},()=>pullCloud())
+      .subscribe(status=>{if(status==='SUBSCRIBED')cloudStatus('Cloud: Connected + live sync enabled');});
   }catch(e){cloudStatus('Cloud connected; live sync unavailable: '+e.message)}
 }
+window.addEventListener('DOMContentLoaded',()=>{
+  if(localStorage.getItem('marks_school_access')==='1'){
+    $('accessGate').style.display='none';$('mainApp').style.display='block';connectCloudAutomatically();
+  }
+});
 </script>
 </body>
 </html>
