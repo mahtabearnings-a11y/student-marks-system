@@ -1203,24 +1203,74 @@ tbody tr:hover {
 
 
         <!-- =================================================
-             PLACEHOLDER MODULES
+             MARKS
         ================================================== -->
 
         <section
             id="marksSection"
             class="app-section hidden">
 
+            <div class="page-header">
+                <div>
+                    <h2>Marks</h2>
+                    <div class="creator-credit">
+                        Enter and manage examination marks
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
+                <h3 style="color:#123b73;margin-bottom:14px">
+                    Academic Context
+                </h3>
 
-                <h2 style="color:#123b73;margin-bottom:10px">
-                    Marks
-                </h2>
+                <div class="filter-grid">
+                    <div class="filter-item">
+                        <label for="marksSession">Academic Session</label>
+                        <select id="marksSession"></select>
+                    </div>
 
-                <p style="color:#6b7280">
-                    The Marks module will be connected after
-                    the Students module has been tested.
-                </p>
+                    <div class="filter-item">
+                        <label for="marksClass">Class</label>
+                        <select id="marksClass">
+                            <option value="1">Class I</option>
+                            <option value="2">Class II</option>
+                            <option value="3">Class III</option>
+                            <option value="4">Class IV</option>
+                            <option value="5">Class V</option>
+                            <option value="6">Class VI</option>
+                            <option value="7">Class VII</option>
+                            <option value="8">Class VIII</option>
+                        </select>
+                    </div>
 
+                    <div class="filter-item">
+                        <label for="marksExam">Examination</label>
+                        <select id="marksExam">
+                            <option value="Half-Yearly">Half-Yearly</option>
+                            <option value="Annual">Annual</option>
+                            <option value="Final">Final</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div id="marksContextStatus" class="record-count">
+                    Select the academic context to load students and subjects.
+                </div>
+                <div id="marksSubjects" style="margin-top:14px"></div>
+            </div>
+
+            <div class="card">
+                <h3 style="color:#123b73;margin-bottom:10px">
+                    Students
+                </h3>
+                <div id="marksStudentsContainer" class="table-wrapper">
+                    <div class="empty-state">
+                        Select Session, Class and Examination.
+                    </div>
+                </div>
             </div>
 
         </section>
@@ -1363,13 +1413,12 @@ tbody tr:hover {
                     <div class="form-group">
 
                         <label for="formFatherName">
-                            Father's Name *
+                            Father's Name
                         </label>
 
                         <input
                             type="text"
                             id="formFatherName"
-                            required
                         >
 
                     </div>
@@ -1378,13 +1427,12 @@ tbody tr:hover {
                     <div class="form-group">
 
                         <label for="formMotherName">
-                            Mother's Name *
+                            Mother's Name
                         </label>
 
                         <input
                             type="text"
                             id="formMotherName"
-                            required
                         >
 
                     </div>
@@ -1393,13 +1441,12 @@ tbody tr:hover {
                     <div class="form-group">
 
                         <label for="formDob">
-                            Date of Birth *
+                            Date of Birth
                         </label>
 
                         <input
                             type="date"
                             id="formDob"
-                            required
                         >
 
                     </div>
@@ -1408,10 +1455,10 @@ tbody tr:hover {
                     <div class="form-group">
 
                         <label for="formGender">
-                            Gender *
+                            Gender
                         </label>
 
-                        <select id="formGender" required>
+                        <select id="formGender">
 
                             <option value="">
                                 Select
@@ -1482,14 +1529,13 @@ tbody tr:hover {
                     <div class="form-group">
 
                         <label for="formRoll">
-                            Roll Number *
+                            Roll Number
                         </label>
 
                         <input
                             type="number"
                             id="formRoll"
                             min="0"
-                            required
                         >
 
                     </div>
@@ -1726,6 +1772,24 @@ const logoutButton =
 
 const sessionFilter =
     document.getElementById("sessionFilter");
+
+const marksSession =
+    document.getElementById("marksSession");
+
+const marksClass =
+    document.getElementById("marksClass");
+
+const marksExam =
+    document.getElementById("marksExam");
+
+const marksContextStatus =
+    document.getElementById("marksContextStatus");
+
+const marksSubjects =
+    document.getElementById("marksSubjects");
+
+const marksStudentsContainer =
+    document.getElementById("marksStudentsContainer");
 
 const classFilter =
     document.getElementById("classFilter");
@@ -2842,6 +2906,142 @@ async function updateDashboardCounts() {
 
 
 /* =========================================================
+   MARKS MODULE — CONTEXT + DATA LOADING
+========================================================= */
+
+const SUBJECTS_BY_CLASS = {
+    1: ["Urdu", "English", "Mathematics"],
+    2: ["Urdu", "English", "Mathematics"],
+    3: ["Urdu", "English", "Hindi", "Mathematics", "Environmental Science"],
+    4: ["Urdu", "English", "Hindi", "Mathematics", "Environmental Science"],
+    5: ["Urdu", "English", "Hindi", "Mathematics", "Environmental Science"],
+    6: ["Urdu", "English", "Hindi", "Mathematics", "Science", "Social Science"],
+    7: ["Urdu", "English", "Hindi", "Mathematics", "Science", "Social Science"],
+    8: ["Urdu", "English", "Hindi", "Mathematics", "Science", "Social Science"]
+};
+
+function populateMarksSessions() {
+    if (!marksSession) return;
+
+    marksSession.innerHTML = "";
+
+    sessions.forEach(session => {
+        const option = document.createElement("option");
+        option.value = session.id;
+        option.textContent = session.session_name;
+        if (session.is_active) option.selected = true;
+        marksSession.appendChild(option);
+    });
+
+    if (!sessions.length) {
+        marksSession.innerHTML = `<option value="">No sessions available</option>`;
+    }
+}
+
+function renderMarksSubjects(classNo) {
+    const subjects = SUBJECTS_BY_CLASS[Number(classNo)] || [];
+
+    marksSubjects.innerHTML = `
+        <div style="font-weight:600;color:#123b73;margin-bottom:8px">
+            Subjects for ${escapeHtml(className(Number(classNo)))}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${subjects.map(subject => `
+                <span style="padding:7px 11px;border:1px solid #d7e0ec;border-radius:8px;background:#f7f9fc">
+                    ${escapeHtml(subject)}
+                </span>
+            `).join("")}
+        </div>`;
+}
+
+async function loadMarksContext() {
+    const sessionId = marksSession.value;
+    const classNo = Number(marksClass.value);
+    const examination = marksExam.value;
+
+    renderMarksSubjects(classNo);
+
+    if (!sessionId || !classNo || !examination) {
+        marksContextStatus.textContent = "Please select Session, Class and Examination.";
+        marksStudentsContainer.innerHTML = `<div class="empty-state">Please select all three options.</div>`;
+        return;
+    }
+
+    marksContextStatus.textContent = "Loading students...";
+    marksStudentsContainer.innerHTML = `<div class="loading">Loading students...</div>`;
+
+    const { data, error } = await supabaseClient
+        .from("academic_records")
+        .select(`
+            id,
+            roll_no,
+            status,
+            students (
+                student_id,
+                student_name
+            )
+        `)
+        .eq("session_id", sessionId)
+        .eq("class_no", classNo)
+        .order("roll_no", { ascending: true });
+
+    if (error) {
+        console.error(error);
+        marksContextStatus.textContent = "Unable to load students.";
+        marksStudentsContainer.innerHTML = `
+            <div class="empty-state">
+                ${escapeHtml(error.message)}
+            </div>`;
+        return;
+    }
+
+    const students = data || [];
+    const subjects = SUBJECTS_BY_CLASS[classNo] || [];
+
+    marksContextStatus.textContent =
+        `${students.length} students • ${subjects.length} subjects • ${examination}`;
+
+    if (!students.length) {
+        marksStudentsContainer.innerHTML = `
+            <div class="empty-state">No students found for this Session and Class.</div>`;
+        return;
+    }
+
+    marksStudentsContainer.innerHTML = `
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Roll</th>
+                    <th>Student Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${students.map(student => `
+                    <tr>
+                        <td>${escapeHtml(String(student.roll_no ?? ""))}</td>
+                        <td>${escapeHtml(student.students?.student_name || "")}</td>
+                        <td>${escapeHtml(student.status || "")}</td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>`;
+}
+
+function initializeMarksModule() {
+    populateMarksSessions();
+    if (sessions.length) {
+        const active = sessions.find(session => session.is_active);
+        if (active) marksSession.value = String(active.id);
+    }
+    renderMarksSubjects(marksClass.value);
+}
+
+marksSession.addEventListener("change", loadMarksContext);
+marksClass.addEventListener("change", loadMarksContext);
+marksExam.addEventListener("change", loadMarksContext);
+
+/* =========================================================
    NAVIGATION
 ========================================================= */
 
@@ -2901,6 +3101,15 @@ document
                     ) {
 
                         loadStudents();
+
+                    }
+
+                    if (
+                        section === "marks"
+                    ) {
+
+                        initializeMarksModule();
+                        loadMarksContext();
 
                     }
 
@@ -3204,109 +3413,7 @@ saveStudentButton.addEventListener(
         if (!studentName) {
 
             showToast(
-                "Please enter the student name.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        const fatherName =
-            document
-                .getElementById(
-                    "formFatherName"
-                )
-                .value
-                .trim();
-
-
-        if (!fatherName) {
-
-            showToast(
-                "Please enter the father's name.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        const motherName =
-            document
-                .getElementById(
-                    "formMotherName"
-                )
-                .value
-                .trim();
-
-
-        if (!motherName) {
-
-            showToast(
-                "Please enter the mother's name.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        const dob =
-            document
-                .getElementById(
-                    "formDob"
-                )
-                .value;
-
-
-        if (!dob) {
-
-            showToast(
-                "Please enter the date of birth.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        const gender =
-            document
-                .getElementById(
-                    "formGender"
-                )
-                .value;
-
-
-        if (!gender) {
-
-            showToast(
-                "Please select the gender.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        const rollRaw =
-            document
-                .getElementById(
-                    "formRoll"
-                )
-                .value;
-
-
-        if (rollRaw === "") {
-
-            showToast(
-                "Please enter the roll number.",
+                "Student Name is required.",
                 "error"
             );
 
@@ -3328,6 +3435,38 @@ saveStudentButton.addEventListener(
             studentIdRaw || null;
 
 
+        const fatherName =
+            document
+                .getElementById(
+                    "formFatherName"
+                )
+                .value
+                .trim() || null;
+
+
+        const motherName =
+            document
+                .getElementById(
+                    "formMotherName"
+                )
+                .value
+                .trim() || null;
+
+
+        const dob =
+            document
+                .getElementById(
+                    "formDob"
+                )
+                .value || null;
+
+
+        const gender =
+            document
+                .getElementById(
+                    "formGender"
+                )
+                .value || null;
 
 
         const classNo =
@@ -3340,8 +3479,18 @@ saveStudentButton.addEventListener(
             );
 
 
+        const rollRaw =
+            document
+                .getElementById(
+                    "formRoll"
+                )
+                .value;
+
+
         const rollNo =
-            Number(rollRaw);
+            rollRaw === ""
+                ? null
+                : Number(rollRaw);
 
 
         const status =
@@ -3713,14 +3862,32 @@ window.deleteStudent =
         }
 
 
-        const confirmed =
+        const firstConfirm =
             confirm(
-                `Are you sure you want to permanently delete "${student.studentName}"?\n\nThis action cannot be undone. The academic record for this session and, if no other academic records remain, the permanent student profile may be deleted.`
+                `DELETE STUDENT\n\n${student.studentName}\n\nThis is a permanent deletion action. The academic record for this session and the permanent student profile may be deleted.\n\nAre you sure you want to continue?`
             );
 
 
-        if (!confirmed) {
+        if (!firstConfirm) {
             return;
+        }
+
+
+        const secondConfirm =
+            prompt(
+                `To permanently delete "${student.studentName}", type DELETE`
+            );
+
+
+        if (secondConfirm !== "DELETE") {
+
+            showToast(
+                "Deletion cancelled.",
+                "error"
+            );
+
+            return;
+
         }
 
 
