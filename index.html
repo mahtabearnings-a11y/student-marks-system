@@ -3060,7 +3060,7 @@ function renderMarksGrid() {
             }
             const value = getMark(record.id, subject.id, marksExam.value);
             const disabled = currentRole !== "admin" ? "disabled" : "";
-            return `<td><input class="marks-input" type="number" min="0" max="50" step="0.01" value="${value === "" ? "" : escapeHtml(String(value))}" data-record="${record.id}" data-subject="${subject.id}" ${disabled}></td>`;
+            return `<td><input class="marks-input" type="number" min="0" max="50" step="1" value="${value === "" ? "" : escapeHtml(String(value))}" data-record="${record.id}" data-subject="${subject.id}" ${disabled}></td>`;
         }).join("");
         return `<tr><td class="sticky-roll">${escapeHtml(String(record.roll_no ?? ""))}</td><td class="sticky-name">${escapeHtml(record.students?.student_name || "")}</td>${cells}<td class="marks-calculated" data-total="${record.id}">${calc.total || (calc.total === 0 && calc.entered) ? calc.total : ""}</td><td class="marks-calculated" data-pct="${record.id}">${calc.total ? calc.pct.toFixed(2) + "%" : ""}</td><td class="marks-calculated marks-grade" data-grade="${record.id}">${escapeHtml(calc.grade)}</td></tr>`;
     }).join("");
@@ -3072,11 +3072,22 @@ function renderMarksGrid() {
             let value = input.value.trim();
             if (value !== "") {
                 let n = Number(value);
-                if (!Number.isFinite(n)) n = 0;
-                if (n < 0) n = 0;
-                if (n > 50) n = 50;
-                input.value = n;
-                setMark(Number(input.dataset.record), Number(input.dataset.subject), marksExam.value, n);
+                if (!Number.isFinite(n)) {
+                    input.value = "";
+                    setMark(Number(input.dataset.record), Number(input.dataset.subject), marksExam.value, null);
+                    showToast("Please enter a valid mark.", "error");
+                } else if (n < 0) {
+                    input.value = "";
+                    setMark(Number(input.dataset.record), Number(input.dataset.subject), marksExam.value, null);
+                    showToast("Marks cannot be negative.", "error");
+                } else if (n > 50) {
+                    input.value = "";
+                    setMark(Number(input.dataset.record), Number(input.dataset.subject), marksExam.value, null);
+                    showToast("Marks cannot be more than 50.", "error");
+                } else {
+                    input.value = n;
+                    setMark(Number(input.dataset.record), Number(input.dataset.subject), marksExam.value, n);
+                }
             } else {
                 setMark(Number(input.dataset.record), Number(input.dataset.subject), marksExam.value, null);
             }
@@ -3963,32 +3974,14 @@ window.deleteStudent =
         }
 
 
-        const firstConfirm =
+        const confirmed =
             confirm(
-                `DELETE STUDENT\n\n${student.studentName}\n\nThis is a permanent deletion action. The academic record for this session and the permanent student profile may be deleted.\n\nAre you sure you want to continue?`
+                `Are you sure you want to permanently delete "${student.studentName}"?\n\nThis action cannot be undone.`
             );
 
 
-        if (!firstConfirm) {
+        if (!confirmed) {
             return;
-        }
-
-
-        const secondConfirm =
-            prompt(
-                `To permanently delete "${student.studentName}", type DELETE`
-            );
-
-
-        if (secondConfirm !== "DELETE") {
-
-            showToast(
-                "Deletion cancelled.",
-                "error"
-            );
-
-            return;
-
         }
 
 
