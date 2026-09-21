@@ -31,33 +31,27 @@ th{background:#e9eff6}td.name{text-align:left;white-space:nowrap}
 .badge{display:inline-block;border-radius:15px;padding:3px 8px;background:#e9eff6;font-weight:700}
 #toast{display:none;position:fixed;right:15px;bottom:15px;background:#182233;color:#fff;padding:11px 15px;border-radius:9px;z-index:100}
 #accessGate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:#eef2f7}.gate-card{width:min(420px,100%);background:#fff;border-radius:16px;padding:26px;box-shadow:0 6px 24px #00000015;text-align:center}.gate-card h1{margin:0 0 6px;color:#173b63}.gate-card p{color:#64748b;font-size:14px}.gate-card input{margin-top:8px;text-align:center}.gate-error{color:#b42318;font-size:13px;min-height:18px;margin-top:8px}
-.print-area{display:none}
+ .print-area{display:none}
 
-/* Printable class-specific folio */
-.folio-page{width:277mm;min-height:190mm;margin:0 auto;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif}
-.folio-header{text-align:center;line-height:1.25}
-.folio-header .school{font-size:17px;font-weight:700;text-transform:uppercase}
+/* Printable folio - used only by the print document */
+.folio-page{width:100%;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif}
+.folio-header{text-align:center;line-height:1.2}
+.folio-header .school{font-size:15px;font-weight:700;text-transform:uppercase}
 .folio-header .location{font-size:10px;margin-top:2px}
-.folio-header .exam{font-size:12px;font-weight:700;margin-top:4px}
+.folio-header .exam{font-size:12px;font-weight:700;margin-top:3px}
 .folio-header .session{font-size:11px;font-weight:700}
 .folio-header .title{font-size:15px;font-weight:700;text-decoration:underline;margin-top:3px}
-.folio-meta{display:grid;grid-template-columns:1fr 1fr;column-gap:18px;margin:10px 0 8px;font-size:9.5px}
-.folio-meta div{border-bottom:1px dotted #555;padding:3px 0;min-height:16px}
-.folio-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9.2px}
-.folio-table th,.folio-table td{border:1px solid #222;padding:4px 3px;text-align:center;vertical-align:middle;height:20px}
-.folio-table th{font-weight:700;background:#f7f7f7;height:78px;padding:0 2px}.folio-table th .rotate-head{display:inline-block;transform:rotate(-90deg);white-space:nowrap;line-height:1}
-.folio-table th.sl{width:7%}.folio-table th.roll{width:7%}.folio-table th.name{width:22%}
-.folio-table th.sub{width:auto}.folio-table th.total{width:8%}.folio-table th.grade{width:10%}
-.folio-table td.name{text-align:left;padding-left:4px}
-.folio-note{font-size:8px;margin-top:5px}
-.folio-sign{display:flex;justify-content:space-between;margin-top:28px;font-size:9px}
-.page-number{text-align:right;font-size:8px;margin-top:5px}
-@media print{
- @page{size:A4 portrait;margin:8mm}
- body{background:#fff}.no-print{display:none!important}.print-area{display:block!important}
- .folio-page{width:auto;min-height:0;margin:0;page-break-after:always}
- .folio-page:last-child{page-break-after:auto}
-}
+.folio-meta{display:grid;grid-template-columns:1fr 1fr;column-gap:16px;margin:8px 0 7px;font-size:9.5px}
+.folio-meta div{border-bottom:1px dotted #555;padding:2px 0;min-height:15px}
+.folio-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
+.folio-table th,.folio-table td{border:1px solid #222;text-align:center;vertical-align:middle}
+.folio-table th{font-weight:700;background:#f7f7f7;height:72px;padding:0;position:relative;overflow:hidden}
+.folio-table th .rotate-head{position:absolute;left:50%;top:50%;white-space:nowrap;line-height:1;font-size:13px;font-weight:700;transform:translate(-50%,-50%) rotate(-90deg);transform-origin:center center}
+.folio-table td{height:25px;padding:3px 2px}
+.folio-table td.name{text-align:left;padding-left:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.folio-note{font-size:9px;margin-top:4px}
+.folio-sign{display:flex;justify-content:space-between;margin-top:16px;font-size:10px}
+.page-number{text-align:right;font-size:9px;margin-top:4px}
 @media(max-width:650px){.stats{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
@@ -224,17 +218,38 @@ function printFolio(){
   const s=subs(), fm=m.fullMarks;
   if(!data.length){ alert("No students found for this class and section."); return; }
 
-  const rowsPerPage=24;
-  const totalPages=Math.ceil(data.length/rowsPerPage);
-  let pages=[];
+  const rowsPerPage = 24;
+  const totalPages = Math.ceil(data.length/rowsPerPage);
+  const n = s.length;
 
+  // Widths are deliberately allocated according to the number of subjects
+  // so every column gets its own space on A4 portrait.
+  let slW=5, rollW=6, nameW, subW, totalW, gradeW;
+  if(n<=3){ nameW=28; subW=13; totalW=7; gradeW=15; }
+  else if(n===4){ nameW=26; subW=11; totalW=7; gradeW=12; }
+  else if(n===5){ nameW=25; subW=10; totalW=6; gradeW=8; }
+  else { nameW=23; subW=Math.max(7,Math.floor((100-slW-rollW-nameW-5-7)/n*10)/10); totalW=5; gradeW=7; }
+  const used=slW+rollW+nameW+subW*n+totalW+gradeW;
+  if(used!==100){ gradeW += 100-used; }
+
+  let pages=[];
   for(let start=0; start<data.length; start+=rowsPerPage){
     const chunk=data.slice(start,start+rowsPerPage);
     const rows=chunk.map((x,i)=>{
       const c=calc(x);
-      return `<tr><td>${start+i+1}</td><td>${x.roll}</td><td class="name">${esc(x.name)}</td>${s.map(z=>`<td>${x.marks[z]??""}</td>`).join("")}<td>${c.total}</td><td>${c.pct.toFixed(1)}% / ${c.grade}</td></tr>`;
+      return `<tr>
+        <td>${start+i+1}</td><td>${x.roll}</td><td class="name">${esc(x.name)}</td>
+        ${s.map(z=>`<td>${x.marks[z]??""}</td>`).join("")}
+        <td>${c.total}</td><td>${c.pct.toFixed(1)}% / ${c.grade}</td>
+      </tr>`;
     }).join("");
-    const th=s.map(z=>`<th class="sub"><span>${esc(z)} (${fm})</span></th>`).join("");
+
+    const th=s.map(z=>`<th class="sub"><span class="rotate-head">${esc(z)} (${fm})</span></th>`).join("");
+    const colgroup=`<colgroup>
+      <col style="width:${slW}%"><col style="width:${rollW}%"><col style="width:${nameW}%">
+      ${s.map(()=>`<col style="width:${subW}%">`).join("")}
+      <col style="width:${totalW}%"><col style="width:${gradeW}%">
+    </colgroup>`;
 
     pages.push(`<section class="folio-page">
       <div class="folio-header">
@@ -250,10 +265,18 @@ function printFolio(){
         <div><b>Section:</b> ${esc(sec()||"-")}</div><div><b>Total Full Marks:</b> ${s.length*fm}</div>
         <div><b>Examination:</b> ${esc(m.exam)}</div><div><b>Students:</b> ${data.length}</div>
       </div>
-      <table class="folio-table"><thead><tr>
-        <th class="sl"><span>Sl. No.</span></th><th class="roll"><span>Roll No.</span></th><th class="name"><span>Student Name</span></th>${th}
-        <th class="total"><span>Total</span></th><th class="grade"><span>Grade / Percentage</span></th>
-      </tr></thead><tbody>${rows}</tbody></table>
+      <table class="folio-table">
+        ${colgroup}
+        <thead><tr>
+          <th><span class="rotate-head">Sl. No.</span></th>
+          <th><span class="rotate-head">Roll No.</span></th>
+          <th><span class="rotate-head">Student Name</span></th>
+          ${th}
+          <th><span class="rotate-head">Total</span></th>
+          <th><span class="rotate-head">Grade / Percentage</span></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
       <div class="folio-note">Grade: A 81–100% &nbsp; B 61–80% &nbsp; C 41–60% &nbsp; D 33–40% &nbsp; F below 33%.</div>
       <div class="folio-sign"><span>Teacher's Signature: ____________________</span><span>Head Teacher's Signature & Seal: ____________________</span></div>
       <div class="page-number">Class ${esc(cls())} • Page ${Math.floor(start/rowsPerPage)+1} of ${totalPages}</div>
@@ -261,9 +284,14 @@ function printFolio(){
   }
 
   const printWindow=window.open("","_blank");
-  if(!printWindow){ alert("Please allow pop-ups for this website to print the marks folio."); return; }
+  if(!printWindow){
+    alert("Please allow pop-ups for this website to print the marks folio.");
+    return;
+  }
+
   printWindow.document.open();
-  printWindow.document.write(`<!doctype html><html><head><meta charset="UTF-8"><title>${esc(m.school||"Marks Folio")} - Class ${esc(cls())}</title>
+  printWindow.document.write(`<!doctype html><html><head><meta charset="UTF-8">
+  <title>${esc(m.school||"Marks Folio")} - Class ${esc(cls())}</title>
   <style>
     @page{size:A4 portrait;margin:8mm}
     *{box-sizing:border-box}
@@ -279,12 +307,11 @@ function printFolio(){
     .folio-meta{display:grid;grid-template-columns:1fr 1fr;column-gap:16px;margin:8px 0 7px;font-size:9.5px}
     .folio-meta div{border-bottom:1px dotted #555;padding:2px 0;min-height:15px}
     .folio-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
-    .folio-table th,.folio-table td{border:1px solid #222;padding:3px 2px;text-align:center;vertical-align:middle}
-    .folio-table th{font-weight:700;background:#f7f7f7;height:65px;padding:0 1px}
-    .folio-table th span{display:inline-block;transform:rotate(-90deg);white-space:nowrap;line-height:1}
-    .folio-table th.sl{width:6%}.folio-table th.roll{width:7%}.folio-table th.name{width:25%}
-    .folio-table th.sub{width:auto}.folio-table th.total{width:8%}.folio-table th.grade{width:12%}
-    .folio-table td.name{text-align:left;padding-left:4px;white-space:nowrap}
+    .folio-table th,.folio-table td{border:1px solid #222;text-align:center;vertical-align:middle}
+    .folio-table th{font-weight:700;background:#f7f7f7;height:72px;padding:0;position:relative;overflow:hidden}
+    .folio-table th .rotate-head{position:absolute;left:50%;top:50%;white-space:nowrap;line-height:1;font-size:13px;font-weight:700;transform:translate(-50%,-50%) rotate(-90deg);transform-origin:center center}
+    .folio-table td{height:25px;padding:3px 2px}
+    .folio-table td.name{text-align:left;padding-left:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .folio-note{font-size:9px;margin-top:4px}
     .folio-sign{display:flex;justify-content:space-between;margin-top:16px;font-size:10px}
     .page-number{text-align:right;font-size:9px;margin-top:4px}
@@ -292,9 +319,8 @@ function printFolio(){
   </style></head><body>${pages.join("")}</body></html>`);
   printWindow.document.close();
   printWindow.focus();
-  setTimeout(()=>{printWindow.print();},300);
+  setTimeout(()=>printWindow.print(),500);
 }
-
 function exportCSV(){let s=subs(),data=students.filter(x=>x.cls===cls()&&(x.section||"")===sec()).sort((a,b)=>a.roll-b.roll),rows=[["School","District","Block","Class","Section","Roll","Student Name",...s,"Total","Percentage","Grade"]];data.forEach(x=>{let c=calc(x);rows.push([$("school").value,$("district").value,$("block").value,x.cls,x.section,x.roll,x.name,...s.map(z=>x.marks[z]??""),c.total,c.pct.toFixed(2),c.grade])});let csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`${$("school").value||"school"}-class-${cls()}-marks.csv`;a.click()}
 init();
 </script>
