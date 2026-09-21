@@ -666,19 +666,19 @@ tbody tr:hover {
   #printDocumentHost { display:block !important; }
   .print-document { display:block !important; font-family:Arial,Helvetica,sans-serif; color:#111; }
   @page { size:A4 portrait; margin:12mm; }
-  .result-page { page-break-after:always; }
+  .result-page { page-break-after:always; width:100%; }
   .result-page:last-child { page-break-after:auto; }
-  .result-header { text-align:center; line-height:1.35; margin-bottom:12px; }
-  .result-header h1 { font-size:18px; margin:0; }
-  .result-header h2 { font-size:14px; margin:3px 0; }
-  .result-header .small { font-size:10px; }
-  .result-info { display:grid; grid-template-columns:1fr 1fr; gap:4px 20px; font-size:10px; margin-bottom:10px; }
-  .result-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:10px; }
-  .result-table th,.result-table td { border:1px solid #222; padding:5px 4px; text-align:center; vertical-align:middle; }
-  .result-table th { background:#f3f4f6; }
+  .result-header { width:100%; box-sizing:border-box; text-align:center; line-height:1.35; margin:0 auto 14px; }
+  .result-header h1 { font-size:22px; margin:0; text-align:center; }
+  .result-header h2 { font-size:17px; margin:4px 0; text-align:center; }
+  .result-header .small { font-size:12px; text-align:center; }
+  .result-info { display:grid; grid-template-columns:1fr 1fr; gap:5px 22px; font-size:11px; margin-bottom:12px; }
+  .result-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:12px; }
+  .result-table th,.result-table td { border:1px solid #222; padding:7px 5px; text-align:center; vertical-align:middle; word-wrap:break-word; }
+  .result-table th { background:#f3f4f6; font-size:12px; }
   .result-table td.subject { text-align:left; }
-  .result-summary { margin-top:10px; font-size:11px; }
-  .page-number { text-align:right; font-size:9px; margin-top:6px; }
+  .result-summary { margin-top:12px; font-size:12px; }
+  .page-number { text-align:right; font-size:10px; margin-top:7px; }
 }
 
 /* =========================
@@ -3315,8 +3315,31 @@ function calcPrintRecord(record){
 function filterPrintStudents(){
     if(!printStudentSelect) return;
     const q=(printStudentSearch.value||"").trim().toLowerCase();
-    const list=printStudents.filter(r=>{const s=r.students||{}; return !q || String(s.student_id||"").toLowerCase().includes(q)||String(s.student_name||"").toLowerCase().includes(q)||String(r.roll_no??"").toLowerCase().includes(q);});
-    printStudentSelect.innerHTML=list.length?`<option value="">Select student (${list.length})</option>`+list.map(r=>`<option value="${r.id}">${escapeHtml(r.students?.student_name||"")} — Roll ${escapeHtml(r.roll_no??"")} ${r.students?.student_id?`— ID ${escapeHtml(r.students.student_id)}`:""}</option>`).join(""):`<option value="">No matching student</option>`;
+    const list=printStudents.filter(r=>{
+        const s=r.students||{};
+        return !q ||
+            String(s.student_id||"").toLowerCase().includes(q) ||
+            String(s.student_name||"").toLowerCase().includes(q) ||
+            String(r.roll_no??"").toLowerCase().includes(q);
+    });
+    printStudentSelect.innerHTML=list.length
+        ? `<option value="">${q ? "Select student" : "Select student"}${list.length>1 ? ` (${list.length})` : ""}</option>` +
+          list.map(r=>`<option value="${r.id}">${escapeHtml(r.students?.student_name||"")}</option>`).join("")
+        : `<option value="">No matching student</option>`;
+
+    // Automatically select an exact match, or the only matching student.
+    if(list.length){
+        const exact=list.find(r=>{
+            const s=r.students||{};
+            return q && (
+                String(s.student_id||"").toLowerCase()===q ||
+                String(s.student_name||"").toLowerCase()===q ||
+                String(r.roll_no??"").toLowerCase()===q
+            );
+        });
+        if(exact) printStudentSelect.value=String(exact.id);
+        else if(list.length===1 && q) printStudentSelect.value=String(list[0].id);
+    }
     renderSelectedPrintStudent();
 }
 function renderSelectedPrintStudent(){
@@ -3327,19 +3350,48 @@ function renderSelectedPrintStudent(){
 function renderPrintClassInfo(){ printClassInfo.textContent=`${printStudents.length} students • ${printSubjects.length} subjects • ${printExam.value}`; }
 function resultHtml(record,pageNo,totalPages){
     const s=record.students||{}, c=calcPrintRecord(record);
-    const rows=printSubjects.map(sub=>{let h="",a="",f=""; if(printExam.value==="Final"){const hv=getPrintMark(record.id,sub.id,"Half-Yearly"),av=getPrintMark(record.id,sub.id,"Annual");h=hv??"";a=av??"";f=(hv===null&&av===null)?"":(hv||0)+(av||0);} else {const v=getPrintMark(record.id,sub.id,printExam.value); f=v??"";} return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${printExam.value==="Final"?h:f}</td><td>${printExam.value==="Final"?a:"—"}</td><td>${printExam.value==="Final"?f:f}</td><td>${printExam.value==="Final"?100:50}</td></tr>`;}).join("");
-    return `<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Student Result</h2><div class="small">Muzaffarpur, Bihar • Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")}</div><div class="small">${escapeHtml(printExam.value)} Examination</div></div><div class="result-info"><div><b>Student ID:</b> ${escapeHtml(s.student_id||"")}</div><div><b>Class:</b> ${escapeHtml(printClassName(record.class_no))}</div><div><b>Name:</b> ${escapeHtml(s.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(record.roll_no??"")}</div><div><b>Father's Name:</b> ${escapeHtml(s.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(s.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(s.date_of_birth||"")}</div></div><table class="result-table"><thead><tr><th>Subject</th><th>${printExam.value==="Final"?"Half-Yearly / 50":printExam.value+" / 50"}</th>${printExam.value==="Final"?"<th>Annual / 50</th>":""}<th>Final / ${printExam.value==="Final"?"100":"50"}</th><th>Full Marks</th></tr></thead><tbody>${rows}</tbody></table><div class="result-summary"><b>Total:</b> ${c.total} / ${c.max} &nbsp;&nbsp; <b>Percentage:</b> ${c.pct.toFixed(2)}% &nbsp;&nbsp; <b>Rank:</b> ${calcRank(record)} </div><div class="page-number">Page ${pageNo} of ${totalPages}</div></div>`;
+    const isFinal=printExam.value==="Final";
+    const markHeader=isFinal
+        ? `<th>Half-Yearly / 50</th><th>Annual / 50</th><th>Final / 100</th><th>Full Marks</th>`
+        : `<th>${escapeHtml(printExam.value)} / 50</th><th>Full Marks</th>`;
+    const rows=printSubjects.map(sub=>{
+        if(isFinal){
+            const hv=getPrintMark(record.id,sub.id,"Half-Yearly"), av=getPrintMark(record.id,sub.id,"Annual");
+            const finalMark=(hv===null && av===null) ? "" : (hv||0)+(av||0);
+            return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${hv??""}</td><td>${av??""}</td><td>${finalMark}</td><td>100</td></tr>`;
+        }
+        const v=getPrintMark(record.id,sub.id,printExam.value);
+        return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${v??""}</td><td>50</td></tr>`;
+    }).join("");
+    return `<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Student Result</h2><div class="small">Muzaffarpur, Bihar • Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")}</div><div class="small">${escapeHtml(printExam.value)} Examination</div></div><div class="result-info"><div><b>Student ID:</b> ${escapeHtml(s.student_id||"")}</div><div><b>Class:</b> ${escapeHtml(printClassName(record.class_no))}</div><div><b>Name:</b> ${escapeHtml(s.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(record.roll_no??"")}</div><div><b>Father's Name:</b> ${escapeHtml(s.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(s.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(s.date_of_birth||"")}</div></div><table class="result-table"><thead><tr><th>Subject</th>${markHeader}</tr></thead><tbody>${rows}</tbody></table><div class="result-summary"><b>Total:</b> ${c.total} / ${c.max} &nbsp;&nbsp; <b>Percentage:</b> ${c.pct.toFixed(2)}% &nbsp;&nbsp; <b>Rank:</b> ${calcRank(record)} </div><div class="page-number">Page ${pageNo} of ${totalPages}</div></div>`;
 }
 function calcRank(record){ const ranked=printStudents.map(r=>({r,c:calcPrintRecord(r)})).sort((a,b)=>b.c.total-a.c.total||b.c.pct-a.c.pct||Number(a.r.roll_no??999999)-Number(b.r.roll_no??999999)); return ranked.findIndex(x=>x.r.id===record.id)+1; }
-function openPrint(html){ printDocumentHost.innerHTML=`<div class="print-document">${html}</div>`; window.print(); }
-function printOneStudent(){ const r=printStudents.find(x=>String(x.id)===String(printStudentSelect.value)); if(!r){showToast("Please select a student.","error");return;} openPrint(resultHtml(r,1,1)); }
-function printAllStudents(){ if(!printStudents.length){showToast("No students found.","error");return;} const total=printStudents.length; openPrint(printStudents.map((r,i)=>resultHtml(r,i+1,total)).join("")); }
+let printTitleBeforeJob="";
+function openPrint(html, suggestedFileName="Student Marks Result"){
+    printDocumentHost.innerHTML=`<div class="print-document">${html}</div>`;
+    printTitleBeforeJob=document.title;
+    document.title=suggestedFileName;
+    window.print();
+}
+window.addEventListener("afterprint",()=>{ if(printTitleBeforeJob!==""){ document.title=printTitleBeforeJob; printTitleBeforeJob=""; } });
+function printOneStudent(){
+    const r=printStudents.find(x=>String(x.id)===String(printStudentSelect.value));
+    if(!r){showToast("Please select a student.","error");return;}
+    const studentName=(r.students?.student_name||"Student").trim();
+    openPrint(resultHtml(r,1,1), `${studentName} Result`);
+}
+function printAllStudents(){
+    if(!printStudents.length){showToast("No students found.","error");return;}
+    const total=printStudents.length;
+    const classLabel=printClassName(Number(printClass.value));
+    openPrint(printStudents.map((r,i)=>resultHtml(r,i+1,total)).join(""), `${classLabel} ${printExam.value} Results`);
+}
 async function printClassFolio(){
     if(!printStudents.length){showToast("No students found.","error");return;}
     const ranked=[...printStudents].sort((a,b)=>Number(a.roll_no??999999)-Number(b.roll_no??999999));
     const heads=printSubjects.map(s=>`<th>${escapeHtml(s.subject_name)}<br><small>${printExam.value==="Final"?100:50}</small></th>`).join("");
     const rows=ranked.map((r,i)=>{const c=calcPrintRecord(r);return `<tr><td>${i+1}</td><td>${escapeHtml(r.roll_no??"")}</td><td class="name">${escapeHtml(r.students?.student_name||"")}</td>${printSubjects.map(s=>{let v;if(printExam.value==="Final"){v=(getPrintMark(r.id,s.id,"Half-Yearly")||0)+(getPrintMark(r.id,s.id,"Annual")||0);}else v=getPrintMark(r.id,s.id,printExam.value);return `<td>${v??""}</td>`}).join("")}<td>${c.total}</td><td>${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;}).join("");
-    openPrint(`<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th>%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table><div class="page-number">Students: ${printStudents.length}</div></div>`);
+    openPrint(`<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th>%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table><div class="page-number">Students: ${printStudents.length}</div></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
 }
 
 /* =========================================================
