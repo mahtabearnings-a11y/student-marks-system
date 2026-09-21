@@ -1,40 +1,44 @@
-# Marks Folio Manager v3
+# U.M.S SASAULI URDU — Marks Details v4
 
-A GitHub Pages-ready student marks management and printable marks-folio system.
+GitHub Pages-ready marks management system.
 
-## Default classes and subjects
+## Fixed school details
+- School: U.M.S SASAULI URDU
+- District: Muzaffarpur
+- Block: Aurai
 
-1–2: Urdu, English, Mathematics  
-3–5: Urdu, English, Hindi/Rashtrabhasa, Mathematics, Environmental Science  
-6–8: Urdu, English, Hindi/Rashtrabhasa, Mathematics, Science, Social Science
+These fields remain editable if needed.
 
-## Improvements in v3
+## Class-specific subjects
+- Classes 1–2: Urdu, English, Mathematics
+- Classes 3–5: Urdu, English, Hindi/Rashtrabhasa, Mathematics, Environmental Science
+- Classes 6–8: Urdu, English, Hindi/Rashtrabhasa, Mathematics, Science, Social Science
 
-- Official-style marks folio layout inspired by the supplied reference
-- A4 portrait print layout
-- Automatic multi-page folio: 28 students per page
-- Class and section
+## Printable pages
+The Print Marks Details button generates a folio specifically for the selected class. The table automatically uses only that class's subjects:
+- Classes 1–2: 3 subject columns
+- Classes 3–5: 5 subject columns
+- Classes 6–8: 6 subject columns
+
+If there are more students than fit on one page, the same class-specific table continues automatically onto additional pages.
+
+The public-facing interface does not display the old generic subject-setup explanatory comment.
+
+## Features
+- Add, edit and delete students
 - Roll-number ordering
-- Configurable subjects by class
-- Configurable full marks
-- School, district, block, centre and academic-session fields
-- Add/edit/delete students
-- Search
+- Class and section
 - Automatic total, percentage and grade
+- Search
 - CSV export
-- Browser local storage
-- No unnecessary subjects on a class's folio
+- A4 printable marks details
+- Browser-local storage
 
-## Grade rules
-
-A: 81–100%  
-B: 61–80%  
-C: 41–60%  
-D: 33–40%  
+## Grade
+A: 81–100%
+B: 61–80%
+C: 41–60%
+D: 33–40%
 F: below 33%
 
-## GitHub Pages update
-
-Replace the existing `index.html` in your repository with the `index.html` from this ZIP, commit the change, and GitHub Pages will automatically rebuild the website.
-
-Data remains browser-local in this version. A cloud database can be added in a future version.
+Replace the existing `index.html` in the GitHub repository with this version and commit the change. GitHub Pages will publish the update.
