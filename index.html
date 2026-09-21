@@ -33,7 +33,7 @@ th{background:#e9eff6}td.name{text-align:left;white-space:nowrap}
 .print-area{display:none}
 
 /* Printable class-specific folio */
-.folio-page{width:190mm;min-height:277mm;margin:0 auto;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif}
+.folio-page{width:277mm;min-height:190mm;margin:0 auto;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif}
 .folio-header{text-align:center;line-height:1.25}
 .folio-header .school{font-size:17px;font-weight:700;text-transform:uppercase}
 .folio-header .location{font-size:10px;margin-top:2px}
@@ -42,17 +42,17 @@ th{background:#e9eff6}td.name{text-align:left;white-space:nowrap}
 .folio-header .title{font-size:15px;font-weight:700;text-decoration:underline;margin-top:3px}
 .folio-meta{display:grid;grid-template-columns:1fr 1fr;column-gap:18px;margin:10px 0 8px;font-size:9.5px}
 .folio-meta div{border-bottom:1px dotted #555;padding:3px 0;min-height:16px}
-.folio-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:8.2px}
-.folio-table th,.folio-table td{border:1px solid #222;padding:3px 2px;text-align:center;vertical-align:middle;height:18px}
+.folio-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9.2px}
+.folio-table th,.folio-table td{border:1px solid #222;padding:4px 3px;text-align:center;vertical-align:middle;height:20px}
 .folio-table th{font-weight:700;background:#f7f7f7}
-.folio-table th.sl{width:6%}.folio-table th.roll{width:7%}.folio-table th.name{width:28%}
-.folio-table th.sub{width:auto}.folio-table th.total{width:8%}.folio-table th.grade{width:12%}
+.folio-table th.sl{width:5%}.folio-table th.roll{width:6%}.folio-table th.name{width:24%}
+.folio-table th.sub{width:auto}.folio-table th.total{width:7%}.folio-table th.grade{width:10%}
 .folio-table td.name{text-align:left;padding-left:4px}
 .folio-note{font-size:8px;margin-top:5px}
 .folio-sign{display:flex;justify-content:space-between;margin-top:28px;font-size:9px}
 .page-number{text-align:right;font-size:8px;margin-top:5px}
 @media print{
- @page{size:A4 portrait;margin:10mm}
+ @page{size:A4 landscape;margin:8mm}
  body{background:#fff}.no-print{display:none!important}.print-area{display:block!important}
  .folio-page{width:auto;min-height:0;margin:0;page-break-after:always}
  .folio-page:last-child{page-break-after:auto}
@@ -113,14 +113,46 @@ th{background:#e9eff6}td.name{text-align:left;white-space:nowrap}
 
 <section class="card">
 <h2>Student List</h2>
-<div class="grid"><div><label>Search</label><input id="search" placeholder="Search by name or roll" oninput="renderList()"></div></div>
+<div class="grid">
+<div><label>Search</label><input id="search" placeholder="Search by name or roll" oninput="renderList()"></div>
+<div><label>Sort By</label>
+<select id="sortBy" onchange="renderList()">
+<option value="rollAsc">Roll Number — Low to High</option>
+<option value="rollDesc">Roll Number — High to Low</option>
+<option value="nameAsc">Student Name — A to Z</option>
+<option value="nameDesc">Student Name — Z to A</option>
+<option value="pctDesc">Percentage — Highest to Lowest</option>
+<option value="pctAsc">Percentage — Lowest to Highest</option>
+<option value="totalDesc">Total Marks — Highest to Lowest</option>
+<option value="totalAsc">Total Marks — Lowest to Highest</option>
+<option value="gradeAsc">Grade — A to F</option>
+<option value="gradeDesc">Grade — F to A</option>
+</select>
+</div>
+</div>
 <div class="actions">
 <button onclick="printFolio()">Print Class Marks Details</button>
 <button class="green" onclick="exportCSV()">Export CSV</button>
 </div>
 <div class="table-wrap"><table><thead id="listHead"></thead><tbody id="listBody"></tbody></table></div>
 </section>
+
+<section class="card no-print" id="cloudCard">
+<h2>Online / Cloud Data</h2>
+<p class="small">Use Supabase to keep student data online so multiple authorised people can work on the same marks database.</p>
+<div class="grid">
+<div><label>Supabase Project URL</label><input id="sbUrl" placeholder="https://your-project.supabase.co"></div>
+<div><label>Supabase Anon Public Key</label><input id="sbKey" placeholder="Paste your anon/public key"></div>
+<div><label>Email</label><input id="sbEmail" type="email" placeholder="teacher@example.com"></div>
+<div><label>Password</label><input id="sbPassword" type="password" placeholder="Password"></div>
 </div>
+<div class="actions">
+<button onclick="connectCloud()">Connect / Sign In</button>
+<button class="secondary" onclick="signUpCloud()">Create Account</button>
+<button class="danger" onclick="signOutCloud()">Sign Out</button>
+</div>
+<p id="cloudStatus" class="small">Cloud: Not connected</p>
+</section>
 
 <div id="printArea" class="print-area"></div>
 <div id="toast"></div>
@@ -157,12 +189,33 @@ function resetCurrentSubjects(){settings[cls()]=[...DEFAULTS[cls()]];localStorag
 function renderMarkInputs(){let fm=Number($("fullMarks").value)||50;$("markInputs").innerHTML=subs().map((s,i)=>`<div><label>${esc(s)} (${fm})</label><input id="m${i}" type="number" min="0" max="${fm}" step="0.01"></div>`).join("")}
 function clearStudent(render=true){editingId=null;$("roll").value="";$("studentName").value="";renderMarkInputs();if(render)renderList()}
 function getMarks(){let fm=Number($("fullMarks").value)||50,m={};subs().forEach((s,i)=>{let v=Number($("m"+i).value||0);if(v<0||v>fm)throw Error(s+" must be between 0 and "+fm);m[s]=v});return m}
-function saveStudent(){try{saveMeta();let roll=Number($("roll").value),name=$("studentName").value.trim();if(!roll||!name){alert("Enter roll number and student name.");return}let obj={id:editingId||crypto.randomUUID(),cls:cls(),section:sec(),roll,name,marks:getMarks(),fullMarks:Number($("fullMarks").value)||50};let idx=students.findIndex(x=>x.id===editingId);if(idx>=0)students[idx]=obj;else{if(students.some(x=>x.cls===obj.cls&&(x.section||"")===obj.section&&x.roll===obj.roll)){alert("That roll number already exists in this class/section.");return}students.push(obj)}students.sort((a,b)=>Number(a.cls)-Number(b.cls)||(a.section||"").localeCompare(b.section||"")||a.roll-b.roll);localStorage.setItem("folio_students_v4",JSON.stringify(students));clearStudent();toast("Student saved")}catch(e){alert(e.message)}}
+function saveStudent(){try{saveMeta();let roll=Number($("roll").value),name=$("studentName").value.trim();if(!roll||!name){alert("Enter roll number and student name.");return}let obj={id:editingId||crypto.randomUUID(),cls:cls(),section:sec(),roll,name,marks:getMarks(),fullMarks:Number($("fullMarks").value)||50};let idx=students.findIndex(x=>x.id===editingId);if(idx>=0)students[idx]=obj;else{if(students.some(x=>x.cls===obj.cls&&(x.section||"")===obj.section&&x.roll===obj.roll)){alert("That roll number already exists in this class/section.");return}students.push(obj)}students.sort((a,b)=>Number(a.cls)-Number(b.cls)||(a.section||"").localeCompare(b.section||"")||a.roll-b.roll);localStorage.setItem("folio_students_v4",JSON.stringify(students)); if(sb&&cloudUser){ cloudUpsertStudent(obj).then(()=>toast("Student saved online")).catch(e=>toast("Saved locally; cloud error: "+e.message)); } else { toast("Student saved locally"); } clearStudent();}catch(e){alert(e.message)}}
 function calc(x){let vals=Object.values(x.marks||{}),fm=x.fullMarks||50,total=vals.reduce((a,b)=>a+Number(b),0),max=vals.length*fm,p=max?100*total/max:0;return{total,max,pct:p,grade:p>=81?"A":p>=61?"B":p>=41?"C":p>=33?"D":"F"}}
-function currentStudents(){let q=$("search").value.toLowerCase();return students.filter(x=>x.cls===cls()&&(x.section||"")===sec()&&(x.name.toLowerCase().includes(q)||String(x.roll).includes(q))).sort((a,b)=>a.roll-b.roll)}
+function currentStudents(){
+let q=$("search").value.toLowerCase();
+let data=students.filter(x=>x.cls===cls()&&(x.section||"")===sec()&&(x.name.toLowerCase().includes(q)||String(x.roll).includes(q)));
+let mode=$("sortBy").value;
+const gradeRank={A:1,B:2,C:3,D:4,F:5};
+data.sort((a,b)=>{
+  let ca=calc(a),cb=calc(b);
+  switch(mode){
+    case "rollDesc": return b.roll-a.roll;
+    case "nameAsc": return a.name.localeCompare(b.name,undefined,{sensitivity:"base"}) || a.roll-b.roll;
+    case "nameDesc": return b.name.localeCompare(a.name,undefined,{sensitivity:"base"}) || a.roll-b.roll;
+    case "pctDesc": return cb.pct-ca.pct || a.roll-b.roll;
+    case "pctAsc": return ca.pct-cb.pct || a.roll-b.roll;
+    case "totalDesc": return cb.total-ca.total || a.roll-b.roll;
+    case "totalAsc": return ca.total-cb.total || a.roll-b.roll;
+    case "gradeAsc": return (gradeRank[ca.grade]||99)-(gradeRank[cb.grade]||99) || a.roll-b.roll;
+    case "gradeDesc": return (gradeRank[cb.grade]||99)-(gradeRank[ca.grade]||99) || a.roll-b.roll;
+    default: return a.roll-b.roll;
+  }
+});
+return data;
+}
 function renderList(){let s=subs(),data=currentStudents();$("listHead").innerHTML="<tr><th>Roll</th><th>Student Name</th>"+s.map(x=>`<th>${esc(x)}</th>`).join("")+"<th>Total</th><th>%</th><th>Grade</th><th>Action</th></tr>";$("listBody").innerHTML=data.map(x=>{let c=calc(x);return `<tr><td>${x.roll}</td><td class="name">${esc(x.name)}</td>${s.map(z=>`<td>${x.marks[z]??""}</td>`).join("")}<td>${c.total}/${c.max}</td><td>${c.pct.toFixed(1)}%</td><td><span class="badge">${c.grade}</span></td><td><button onclick="editStudent('${x.id}')">Edit</button> <button class="danger" onclick="removeStudent('${x.id}')">Delete</button></td></tr>`}).join("")||`<tr><td colspan="${s.length+6}">No students found.</td></tr>`;let cs=data.map(calc),avg=cs.length?cs.reduce((a,b)=>a+b.pct,0)/cs.length:0;$("statCount").textContent=data.length;$("statAvg").textContent=avg.toFixed(1)+"%";$("statPass").textContent=cs.filter(x=>x.pct>=33).length;$("statFail").textContent=cs.filter(x=>x.pct<33).length}
 function editStudent(id){let x=students.find(z=>z.id===id);if(!x)return;$("classSel").value=x.cls;$("section").value=x.section||"";$("fullMarks").value=x.fullMarks||50;renderSubjectSettings();renderMarkInputs();$("roll").value=x.roll;$("studentName").value=x.name;subs().forEach((s,i)=>$("m"+i).value=x.marks[s]??"");editingId=id;window.scrollTo({top:0,behavior:"smooth"});toast("Editing "+x.name)}
-function removeStudent(id){let x=students.find(z=>z.id===id);if(x&&confirm("Delete "+x.name+" (Roll "+x.roll+")?")){students=students.filter(z=>z.id!==id);localStorage.setItem("folio_students_v4",JSON.stringify(students));renderList();toast("Student deleted")}}
+function removeStudent(id){let x=students.find(z=>z.id===id);if(x&&confirm("Delete "+x.name+" (Roll "+x.roll+")?")){students=students.filter(z=>z.id!==id);localStorage.setItem("folio_students_v4",JSON.stringify(students)); if(sb&&cloudUser){cloudDeleteStudent(id).then(()=>toast("Student deleted online")).catch(e=>toast("Deleted locally; cloud error: "+e.message));} else {toast("Student deleted locally")} renderList();}}
 function printFolio(){
 saveMeta();let m=meta(),data=students.filter(x=>x.cls===cls()&&(x.section||"")===sec()).sort((a,b)=>a.roll-b.roll),s=subs(),fm=m.fullMarks;
 let rowsPerPage=28,pages=[];
@@ -187,6 +240,86 @@ if(start+rowsPerPage>=data.length)break}
 $("printArea").innerHTML=pages.join("");window.print()}
 function exportCSV(){let s=subs(),data=students.filter(x=>x.cls===cls()&&(x.section||"")===sec()).sort((a,b)=>a.roll-b.roll),rows=[["School","District","Block","Class","Section","Roll","Student Name",...s,"Total","Percentage","Grade"]];data.forEach(x=>{let c=calc(x);rows.push([$("school").value,$("district").value,$("block").value,x.cls,x.section,x.roll,x.name,...s.map(z=>x.marks[z]??""),c.total,c.pct.toFixed(2),c.grade])});let csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`${$("school").value||"school"}-class-${cls()}-marks.csv`;a.click()}
 init();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+let sb=null, cloudUser=null;
+const SB_CFG_KEY='marks_supabase_cfg_v1';
+function cloudCfg(){
+  return {url:$('sbUrl').value.trim(),key:$('sbKey').value.trim()};
+}
+function loadCloudCfg(){
+  const c=JSON.parse(localStorage.getItem(SB_CFG_KEY)||'{}');
+  if(c.url)$('sbUrl').value=c.url;
+  if(c.key)$('sbKey').value=c.key;
+}
+function cloudStatus(t){$('cloudStatus').textContent=t}
+async function connectCloud(){
+  const c=cloudCfg();
+  if(!c.url||!c.key){cloudStatus('Cloud: Enter Supabase URL and anon key first.');return}
+  localStorage.setItem(SB_CFG_KEY,JSON.stringify(c));
+  try{
+    sb=window.supabase.createClient(c.url,c.key);
+    const {data,error}=await sb.auth.signInWithPassword({email:$('sbEmail').value.trim(),password:$('sbPassword').value});
+    if(error)throw error;
+    cloudUser=data.user;
+    cloudStatus('Cloud: Connected as '+cloudUser.email);
+    await pullCloud();
+    startRealtime();
+  }catch(e){cloudStatus('Cloud error: '+e.message)}
+}
+async function signUpCloud(){
+  const c=cloudCfg();
+  if(!c.url||!c.key){cloudStatus('Cloud: Enter Supabase URL and anon key first.');return}
+  localStorage.setItem(SB_CFG_KEY,JSON.stringify(c));
+  try{
+    sb=window.supabase.createClient(c.url,c.key);
+    const {data,error}=await sb.auth.signUp({email:$('sbEmail').value.trim(),password:$('sbPassword').value});
+    if(error)throw error;
+    cloudUser=data.user;
+    cloudStatus(data.session?'Cloud: Account created and connected.':'Cloud: Account created. Check email confirmation if enabled.');
+    if(data.session){ await pullCloud(); startRealtime(); }
+  }catch(e){cloudStatus('Cloud error: '+e.message)}
+}
+async function signOutCloud(){
+  if(sb)await sb.auth.signOut();
+  cloudUser=null;cloudStatus('Cloud: Signed out');
+}
+async function cloudUpsertStudent(obj){
+  if(!sb||!cloudUser)return;
+  const row={id:obj.id,class_no:Number(obj.cls),section:obj.section||'',roll:Number(obj.roll),student_name:obj.name,marks:obj.marks,full_marks:Number(obj.fullMarks||50),updated_at:new Date().toISOString(),updated_by:cloudUser.id};
+  const {error}=await sb.from('student_marks').upsert(row);
+  if(error)throw error;
+}
+async function cloudDeleteStudent(id){
+  if(!sb||!cloudUser)return;
+  const {error}=await sb.from('student_marks').delete().eq('id',id);
+  if(error)throw error;
+}
+async function pullCloud(){
+  if(!sb||!cloudUser)return;
+  const {data,error}=await sb.from('student_marks').select('*').order('class_no').order('roll');
+  if(error){cloudStatus('Cloud read error: '+error.message);return}
+  students=(data||[]).map(r=>({id:r.id,cls:String(r.class_no),section:r.section||'',roll:r.roll,name:r.student_name,marks:r.marks||{},fullMarks:r.full_marks||50}));
+  localStorage.setItem("folio_students_v4",JSON.stringify(students));
+  renderList();cloudStatus('Cloud: Synced '+students.length+' students');
+}
+</script>
+
+<script>loadCloudCfg();</script>
+
+<script>
+function startRealtime(){
+  if(!sb||!cloudUser)return;
+  try{
+    sb.channel('student-marks-live')
+      .on('postgres_changes',{event:'*',schema:'public',table:'student_marks'},payload=>{
+        pullCloud();
+      }).subscribe();
+    cloudStatus('Cloud: Connected + live sync enabled');
+  }catch(e){cloudStatus('Cloud connected; live sync unavailable: '+e.message)}
+}
 </script>
 </body>
 </html>
