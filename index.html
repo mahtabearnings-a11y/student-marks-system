@@ -712,6 +712,18 @@ tbody tr:hover {
 .marks-grade{font-weight:800}
 .marks-error{color:#b91c1c;font-size:12px;margin-top:8px}
 @media(max-width:800px){.marks-table th.sticky-name,.marks-table td.sticky-name{left:60px;min-width:160px}.marks-input{width:58px}}
+
+/* Print module */
+.section-title{color:#123b73;margin:0 0 12px}.actions-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.print-render{display:none}
+@media print{
+  body{background:#fff!important}.no-print{display:none!important}.print-render{display:block!important}
+  .print-page{width:100%;min-height:0;page-break-after:always;font-family:Arial,Helvetica,sans-serif;color:#111;padding:4mm}
+  .print-page:last-child{page-break-after:auto}
+  .print-title{text-align:center;margin-bottom:10px}.print-title h1{font-size:18px;margin:0 0 3px}.print-title h2{font-size:14px;margin:3px 0}.print-title p{font-size:10px;margin:2px 0}
+  .student-info{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;margin:10px 0;font-size:10px}.student-info div{padding:4px 0;border-bottom:1px dotted #777}
+  .print-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9px}.print-table th,.print-table td{border:1px solid #222;padding:5px 4px;text-align:center;vertical-align:middle;word-wrap:break-word}.print-table th{font-weight:700}.print-table .left{text-align:left}.print-summary{margin-top:10px;display:flex;gap:20px;font-size:10px;flex-wrap:wrap}.print-folio-table{font-size:8px}.print-folio-table th,.print-folio-table td{padding:3px}.print-page-number{text-align:right;font-size:8px;margin-top:5px}
+  @page{size:A4 portrait;margin:10mm}
+}
 </style>
 </head>
 
@@ -861,7 +873,7 @@ tbody tr:hover {
             class="nav-btn"
             data-section="reports">
 
-            Reports
+            Print
 
         </button>
 
@@ -1300,18 +1312,59 @@ tbody tr:hover {
             id="reportsSection"
             class="app-section hidden">
 
+            <div class="page-header">
+                <div>
+                    <h2>Print</h2>
+                    <div class="creator-credit">Print student results and class marks folio</div>
+                </div>
+            </div>
+
+            <div class="card filter-card">
+                <div class="filter-grid">
+                    <div class="filter-item">
+                        <label for="printSession">Academic Session</label>
+                        <select id="printSession"></select>
+                    </div>
+                    <div class="filter-item">
+                        <label for="printClass">Class</label>
+                        <select id="printClass">
+                            <option value="1">Class I</option><option value="2">Class II</option>
+                            <option value="3">Class III</option><option value="4">Class IV</option>
+                            <option value="5">Class V</option><option value="6">Class VI</option>
+                            <option value="7">Class VII</option><option value="8">Class VIII</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label for="printExam">Examination</label>
+                        <select id="printExam">
+                            <option value="Half-Yearly">Half-Yearly</option>
+                            <option value="Annual">Annual</option>
+                            <option value="Final">Final</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
+                <h3 class="section-title">Individual Student Result</h3>
+                <div class="filter-grid">
+                    <div class="filter-item" style="grid-column:span 2">
+                        <label for="printStudent">Student</label>
+                        <select id="printStudent"><option value="">Select a student</option></select>
+                    </div>
+                </div>
+                <div class="actions-row">
+                    <button id="printStudentButton" class="btn btn-primary">Print Student Result</button>
+                    <button id="printAllStudentsButton" class="btn btn-secondary">Print All Students Individually</button>
+                </div>
+            </div>
 
-                <h2 style="color:#123b73;margin-bottom:10px">
-                    Reports
-                </h2>
-
-                <p style="color:#6b7280">
-                    Class reports, marks folio and
-                    individual result printing will be added
-                    after the marks module.
-                </p>
-
+            <div class="card">
+                <h3 class="section-title">Class Marks Folio</h3>
+                <p class="small">Print the selected class in the current examination. The printed order follows roll number.</p>
+                <div class="actions-row">
+                    <button id="printClassFolioButton" class="btn btn-primary">Print Class Marks Folio</button>
+                </div>
             </div>
 
         </section>
@@ -3156,6 +3209,109 @@ if (marksSession) marksSession.addEventListener("change", loadMarksGrid);
 if (marksClass) marksClass.addEventListener("change", loadMarksGrid);
 if (marksExam) marksExam.addEventListener("change", loadMarksGrid);
 if (saveMarksButton) saveMarksButton.addEventListener("click", saveMarks);
+
+/* =========================================================
+   PRINT MODULE
+========================================================= */
+const printSession = document.getElementById("printSession");
+const printClass = document.getElementById("printClass");
+const printExam = document.getElementById("printExam");
+const printStudent = document.getElementById("printStudent");
+const printStudentButton = document.getElementById("printStudentButton");
+const printAllStudentsButton = document.getElementById("printAllStudentsButton");
+const printClassFolioButton = document.getElementById("printClassFolioButton");
+
+function populatePrintSessions() {
+    if (!printSession) return;
+    printSession.innerHTML = sessions.length
+        ? sessions.map(s => `<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("")
+        : `<option value="">No sessions</option>`;
+    const active = sessions.find(s => s.is_active);
+    if (active) printSession.value = String(active.id);
+}
+
+async function loadPrintStudents() {
+    if (!printSession || !printClass || !printStudent) return;
+    const sessionId = printSession.value;
+    const classNo = Number(printClass.value);
+    if (!sessionId) { printStudent.innerHTML = `<option value="">No session</option>`; return; }
+    const {data, error} = await supabaseClient
+        .from("academic_records")
+        .select(`id, roll_no, students (id, student_id, student_name)`)
+        .eq("session_id", sessionId)
+        .eq("class_no", classNo)
+        .order("roll_no", {ascending:true});
+    if (error) { printStudent.innerHTML = `<option value="">Unable to load students</option>`; return; }
+    printStudent.innerHTML = `<option value="">Select a student</option>` + (data || []).map(r =>
+        `<option value="${r.id}">${escapeHtml(String(r.roll_no ?? ""))} — ${escapeHtml(r.students?.student_name || "")}</option>`
+    ).join("");
+}
+
+async function fetchPrintData() {
+    const sessionId = printSession.value, classNo = Number(printClass.value), exam = printExam.value;
+    const {data: subjects, error: se} = await supabaseClient.from("subjects").select("id,subject_name,display_order").eq("class_no",classNo).order("display_order",{ascending:true});
+    if (se) throw se;
+    const {data: records, error: re} = await supabaseClient.from("academic_records")
+        .select(`id,roll_no,class_no,status,student_profile_id,students (id,student_id,student_name,father_name,mother_name,date_of_birth,gender)`)
+        .eq("session_id",sessionId).eq("class_no",classNo).order("roll_no",{ascending:true});
+    if (re) throw re;
+    const ids=(records||[]).map(r=>r.id);
+    let marks=[];
+    if(ids.length && subjects.length){
+        const {data,error}=await supabaseClient.from("exam_marks").select("academic_record_id,subject_id,examination,marks,full_marks").in("academic_record_id",ids).in("subject_id",subjects.map(s=>s.id));
+        if(error) throw error; marks=data||[];
+    }
+    const map=new Map(marks.map(m=>[`${m.academic_record_id}_${m.subject_id}_${m.examination}`,m.marks]));
+    const sessionName=(sessions.find(s=>String(s.id)===String(sessionId))||{}).session_name||"";
+    return {sessionName,classNo,exam,subjects,records:records||[],map};
+}
+
+function printMarkValue(d, record, subject) {
+    if(d.exam !== "Final") return d.map.get(`${record.id}_${subject.id}_${d.exam}`);
+    const h=d.map.get(`${record.id}_${subject.id}_Half-Yearly`), a=d.map.get(`${record.id}_${subject.id}_Annual`);
+    if(h==null && a==null) return null;
+    return Number(h||0)+Number(a||0);
+}
+function printCalc(d, record){
+    let total=0, entered=0;
+    d.subjects.forEach(s=>{const v=printMarkValue(d,record,s); if(v!=null && v!==""){total+=Number(v);entered++;}});
+    const max=d.subjects.length*(d.exam==="Final"?100:50), pct=max?(total/max)*100:0;
+    return {total,pct,grade:entered?gradeFromPercentage(pct):"",max};
+}
+function printHeader(d,title){
+    return `<div class="print-title"><h1>U.M.S SASAULI URDU</h1><p>District: Muzaffarpur &nbsp; | &nbsp; Block: Aurai</p><h2>${escapeHtml(title)}</h2><p>Academic Session: ${escapeHtml(d.sessionName)} &nbsp; | &nbsp; Examination: ${escapeHtml(d.exam)}</p></div>`;
+}
+function studentPage(d,r){
+    const st=r.students||{}, c=printCalc(d,r), fm=d.exam==="Final"?100:50;
+    const rows=d.subjects.map(s=>{const v=printMarkValue(d,r,s);return `<tr><td class="left">${escapeHtml(s.subject_name)}</td><td>${v==null?"":v}</td><td>${fm}</td><td>${v==null?"":v==null?"":v}</td></tr>`}).join("");
+    return `<div class="print-page">${printHeader(d,"STUDENT RESULT")}
+    <div class="student-info"><div><b>Student ID:</b> ${escapeHtml(st.student_id||"")}</div><div><b>Class:</b> ${className(d.classNo)}</div><div><b>Student Name:</b> ${escapeHtml(st.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(String(r.roll_no??""))}</div><div><b>Father's Name:</b> ${escapeHtml(st.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(st.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(st.date_of_birth||"")}</div></div>
+    <table class="print-table"><thead><tr><th class="left">Subject</th><th>${d.exam==="Final"?"Final":"Exam"}</th><th>Full Marks</th><th>Marks</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="print-summary"><span><b>Total:</b> ${c.total} / ${c.max}</span><span><b>Percentage:</b> ${c.pct.toFixed(2)}%</span><span><b>Rank:</b> —</span></div></div>`;
+}
+async function doPrintStudent(all=false){
+    try{
+        const d=await fetchPrintData();
+        const records=all?d.records:d.records.filter(r=>String(r.id)===String(printStudent.value));
+        if(!records.length){showToast(all?"No students found.":"Please select a student.","error");return;}
+        document.getElementById("printRender").innerHTML=records.map(r=>studentPage(d,r)).join("");
+        window.print();
+    }catch(e){console.error(e);showToast("Unable to prepare print: "+e.message,"error");}
+}
+async function doPrintFolio(){
+    try{
+        const d=await fetchPrintData();
+        const rows=d.records.map((r,i)=>{const c=printCalc(d,r);const marks=d.subjects.map(s=>{const v=printMarkValue(d,r,s);return `<td>${v==null?"":v}</td>`}).join("");return `<tr><td>${i+1}</td><td>${escapeHtml(String(r.roll_no??""))}</td><td class="left">${escapeHtml(r.students?.student_name||"")}</td>${marks}<td>${c.total}</td><td>${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`}).join("");
+        const heads=d.subjects.map(s=>`<th>${escapeHtml(s.subject_name)}</th>`).join("");
+        document.getElementById("printRender").innerHTML=`<div class="print-page">${printHeader(d,"CLASS MARKS FOLIO")}<table class="print-table print-folio-table"><thead><tr><th>Sl.</th><th>Roll</th><th class="left">Student Name</th>${heads}<th>Total</th><th>Percentage</th><th>Grade</th></tr></thead><tbody>${rows||`<tr><td colspan="${d.subjects.length+6}">No students found.</td></tr>`}</tbody></table></div>`;
+        window.print();
+    }catch(e){console.error(e);showToast("Unable to prepare print: "+e.message,"error");}
+}
+if(printSession) printSession.addEventListener("change",loadPrintStudents);
+if(printClass) printClass.addEventListener("change",loadPrintStudents);
+if(printStudentButton) printStudentButton.addEventListener("click",()=>doPrintStudent(false));
+if(printAllStudentsButton) printAllStudentsButton.addEventListener("click",()=>doPrintStudent(true));
+if(printClassFolioButton) printClassFolioButton.addEventListener("click",doPrintFolio);
 
 /* =========================================================
    NAVIGATION
