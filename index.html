@@ -662,11 +662,45 @@ tbody tr:hover {
 /* Printable result */
 .print-document { display:none; }
 @media print {
+  html, body {
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:visible !important;
+  }
   body > *:not(#printDocumentHost) { display:none !important; }
-  #printDocumentHost { display:block !important; }
-  .print-document { display:block !important; font-family:Arial,Helvetica,sans-serif; color:#111; }
+  #printDocumentHost {
+    display:block !important;
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:visible !important;
+  }
+  .print-document {
+    display:block !important;
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    font-family:Arial,Helvetica,sans-serif;
+    color:#111;
+  }
   @page { size:A4 portrait; margin:12mm; }
-  .result-page { page-break-after:auto; break-after:auto; width:100%; }
+  .result-page {
+    page-break-after:auto !important;
+    break-after:auto !important;
+    page-break-inside:avoid;
+    break-inside:avoid-page;
+    width:100%;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+  }
   .result-page + .result-page { page-break-before:always; break-before:page; }
   .result-header { width:100%; box-sizing:border-box; display:block; text-align:center !important; line-height:1.4; margin:0 auto 18px; }
   .result-header h1 { font-size:26px; font-weight:700; margin:0 0 5px; text-align:center !important; }
