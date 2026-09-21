@@ -1363,12 +1363,13 @@ tbody tr:hover {
                     <div class="form-group">
 
                         <label for="formFatherName">
-                            Father's Name
+                            Father's Name *
                         </label>
 
                         <input
                             type="text"
                             id="formFatherName"
+                            required
                         >
 
                     </div>
@@ -1377,12 +1378,13 @@ tbody tr:hover {
                     <div class="form-group">
 
                         <label for="formMotherName">
-                            Mother's Name
+                            Mother's Name *
                         </label>
 
                         <input
                             type="text"
                             id="formMotherName"
+                            required
                         >
 
                     </div>
@@ -1391,12 +1393,13 @@ tbody tr:hover {
                     <div class="form-group">
 
                         <label for="formDob">
-                            Date of Birth
+                            Date of Birth *
                         </label>
 
                         <input
                             type="date"
                             id="formDob"
+                            required
                         >
 
                     </div>
@@ -1405,10 +1408,10 @@ tbody tr:hover {
                     <div class="form-group">
 
                         <label for="formGender">
-                            Gender
+                            Gender *
                         </label>
 
-                        <select id="formGender">
+                        <select id="formGender" required>
 
                             <option value="">
                                 Select
@@ -1479,13 +1482,14 @@ tbody tr:hover {
                     <div class="form-group">
 
                         <label for="formRoll">
-                            Roll Number
+                            Roll Number *
                         </label>
 
                         <input
                             type="number"
                             id="formRoll"
                             min="0"
+                            required
                         >
 
                     </div>
@@ -3200,7 +3204,109 @@ saveStudentButton.addEventListener(
         if (!studentName) {
 
             showToast(
-                "Student Name is required.",
+                "Please enter the student name.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const fatherName =
+            document
+                .getElementById(
+                    "formFatherName"
+                )
+                .value
+                .trim();
+
+
+        if (!fatherName) {
+
+            showToast(
+                "Please enter the father's name.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const motherName =
+            document
+                .getElementById(
+                    "formMotherName"
+                )
+                .value
+                .trim();
+
+
+        if (!motherName) {
+
+            showToast(
+                "Please enter the mother's name.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const dob =
+            document
+                .getElementById(
+                    "formDob"
+                )
+                .value;
+
+
+        if (!dob) {
+
+            showToast(
+                "Please enter the date of birth.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const gender =
+            document
+                .getElementById(
+                    "formGender"
+                )
+                .value;
+
+
+        if (!gender) {
+
+            showToast(
+                "Please select the gender.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const rollRaw =
+            document
+                .getElementById(
+                    "formRoll"
+                )
+                .value;
+
+
+        if (rollRaw === "") {
+
+            showToast(
+                "Please enter the roll number.",
                 "error"
             );
 
@@ -3222,38 +3328,6 @@ saveStudentButton.addEventListener(
             studentIdRaw || null;
 
 
-        const fatherName =
-            document
-                .getElementById(
-                    "formFatherName"
-                )
-                .value
-                .trim() || null;
-
-
-        const motherName =
-            document
-                .getElementById(
-                    "formMotherName"
-                )
-                .value
-                .trim() || null;
-
-
-        const dob =
-            document
-                .getElementById(
-                    "formDob"
-                )
-                .value || null;
-
-
-        const gender =
-            document
-                .getElementById(
-                    "formGender"
-                )
-                .value || null;
 
 
         const classNo =
@@ -3266,18 +3340,8 @@ saveStudentButton.addEventListener(
             );
 
 
-        const rollRaw =
-            document
-                .getElementById(
-                    "formRoll"
-                )
-                .value;
-
-
         const rollNo =
-            rollRaw === ""
-                ? null
-                : Number(rollRaw);
+            Number(rollRaw);
 
 
         const status =
