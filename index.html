@@ -34,16 +34,16 @@ th{background:#e9eff6}td.name{text-align:left;white-space:nowrap}
 .print-area{display:none}
 
 /* Printable class-specific folio */
-.folio-page{width:277mm;min-height:190mm;margin:0 auto;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif}
+.folio-page{width:100%;min-height:auto;margin:0 auto;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif}
 .folio-header{text-align:center;line-height:1.25}
-.folio-header .school{font-size:17px;font-weight:700;text-transform:uppercase}
-.folio-header .location{font-size:10px;margin-top:2px}
-.folio-header .exam{font-size:12px;font-weight:700;margin-top:4px}
-.folio-header .session{font-size:11px;font-weight:700}
+.folio-header .school{font-size:15px;font-weight:700;text-transform:uppercase}
+.folio-header .location{font-size:15px;font-weight:700;margin-top:2px}
+.folio-header .exam{font-size:15px;font-weight:700;margin-top:4px}
+.folio-header .session{font-size:15px;font-weight:700}
 .folio-header .title{font-size:15px;font-weight:700;text-decoration:underline;margin-top:3px}
-.folio-meta{display:grid;grid-template-columns:1fr 1fr;column-gap:18px;margin:10px 0 8px;font-size:9.5px}
+.folio-meta{display:grid;grid-template-columns:1fr 1fr;column-gap:18px;margin:10px 0 8px;font-size:13px}
 .folio-meta div{border-bottom:1px dotted #555;padding:3px 0;min-height:16px}
-.folio-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9.2px}
+.folio-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
 .folio-table th,.folio-table td{border:1px solid #222;padding:4px 3px;text-align:center;vertical-align:middle;height:20px}
 .folio-table th{font-weight:700;background:#f7f7f7;height:78px;padding:0 2px}.folio-table th .rotate-head{display:inline-block;transform:rotate(-90deg);white-space:nowrap;line-height:1}
 .folio-table th.sl{width:7%}.folio-table th.roll{width:7%}.folio-table th.name{width:22%}
@@ -55,8 +55,8 @@ th{background:#e9eff6}td.name{text-align:left;white-space:nowrap}
 @media print{
  @page{size:A4 portrait;margin:8mm}
  body{background:#fff}.no-print{display:none!important}.print-area{display:block!important}
- .folio-page{width:auto;min-height:0;margin:0;page-break-after:always}
- .folio-page:last-child{page-break-after:auto}
+ .folio-page{width:100%;min-height:0;margin:0;break-after:page;page-break-after:always;overflow:visible}
+ .folio-page:last-child{break-after:auto;page-break-after:auto}
 }
 @media(max-width:650px){.stats{grid-template-columns:repeat(2,1fr)}}
 </style>
@@ -220,7 +220,8 @@ function removeStudent(id){let x=students.find(z=>z.id===id);if(x&&confirm("Dele
 function printFolio(){
 saveMeta();let m=meta(),data=currentStudents().filter(x=>x.cls===cls()&&(x.section||"")===sec()),s=subs(),fm=m.fullMarks;
 let rowsPerPage=28,pages=[];
-for(let start=0;start<data.length||start===0;start+=rowsPerPage){
+if(!data.length){$("printArea").innerHTML="";alert("No students found to print.");return;}
+for(let start=0;start<data.length;start+=rowsPerPage){
 let chunk=data.slice(start,start+rowsPerPage);
 let rows=chunk.map((x,i)=>{let c=calc(x);return `<tr><td>${start+i+1}</td><td>${x.roll}</td><td class="name">${esc(x.name)}</td>${s.map(z=>`<td>${x.marks[z]??""}</td>`).join("")}<td>${c.total}</td><td>${c.pct.toFixed(1)}% / ${c.grade}</td></tr>`}).join("");
 let th=s.map(z=>`<th class="sub"><span class="rotate-head">${esc(z)} (${fm})</span></th>`).join("");
