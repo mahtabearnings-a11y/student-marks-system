@@ -22,12 +22,22 @@ body {
     min-height: 100vh;
 }
 
+button,
+input,
+select {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
 .hidden {
     display: none !important;
 }
 
 /* =========================
-   LOGIN PAGE
+   LOGIN
 ========================= */
 
 #loginPage {
@@ -42,10 +52,10 @@ body {
 .login-card {
     width: 100%;
     max-width: 430px;
-    background: #ffffff;
+    background: #fff;
     border-radius: 16px;
     padding: 35px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 12px 40px rgba(0,0,0,.10);
 }
 
 .school-logo {
@@ -53,16 +63,13 @@ body {
     height: 76px;
     border-radius: 50%;
     margin: 0 auto 18px;
-
     background: #e8f0ff;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
+    color: #155eef;
     font-size: 30px;
     font-weight: bold;
-    color: #155eef;
 }
 
 .login-card h1 {
@@ -93,41 +100,36 @@ label {
     color: #374151;
 }
 
-input {
+input,
+select {
     width: 100%;
-    padding: 12px 13px;
-
+    padding: 11px 12px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-
-    font-size: 15px;
+    font-size: 14px;
     outline: none;
-
-    margin-bottom: 16px;
+    background: white;
 }
 
-input:focus {
+input:focus,
+select:focus {
     border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+}
 
-    box-shadow:
-        0 0 0 3px rgba(37, 99, 235, 0.10);
+.login-card input {
+    margin-bottom: 16px;
 }
 
 .login-btn {
     width: 100%;
-
     border: none;
     background: #155eef;
-    color: #ffffff;
-
+    color: white;
     padding: 13px;
-
     border-radius: 8px;
-
     font-size: 16px;
     font-weight: 600;
-
-    cursor: pointer;
 }
 
 .login-btn:hover {
@@ -136,38 +138,28 @@ input:focus {
 
 .login-btn:disabled {
     background: #9ca3af;
-    cursor: not-allowed;
 }
 
 .error-message {
     background: #fef2f2;
     border: 1px solid #fecaca;
-
     color: #b91c1c;
-
     padding: 11px 12px;
-
     border-radius: 8px;
-
     margin-bottom: 16px;
-
     font-size: 14px;
 }
 
 .login-note {
     margin-top: 20px;
-
     text-align: center;
-
     color: #6b7280;
-
     font-size: 12px;
-
     line-height: 1.5;
 }
 
 /* =========================
-   APPLICATION
+   APP
 ========================= */
 
 #appPage {
@@ -176,17 +168,12 @@ input:focus {
 
 .topbar {
     background: #123b73;
-
-    color: #ffffff;
-
-    padding: 15px 25px;
-
+    color: white;
+    min-height: 70px;
+    padding: 12px 22px;
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
-
     gap: 20px;
 }
 
@@ -197,193 +184,480 @@ input:focus {
 
 .school-subtitle {
     font-size: 12px;
-    opacity: 0.85;
+    opacity: .85;
     margin-top: 3px;
 }
 
 .user-area {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .user-email {
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .role-badge {
-    background: rgba(255, 255, 255, 0.15);
-
+    background: rgba(255,255,255,.15);
     padding: 6px 10px;
-
     border-radius: 20px;
-
     font-size: 12px;
 }
 
 .logout-btn {
-    border: 1px solid rgba(255, 255, 255, 0.5);
-
+    border: 1px solid rgba(255,255,255,.5);
     background: transparent;
-
-    color: #ffffff;
-
+    color: white;
     padding: 8px 13px;
-
     border-radius: 7px;
-
-    cursor: pointer;
 }
 
 .logout-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255,255,255,.1);
 }
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.navbar {
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0 22px;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+}
+
+.nav-btn {
+    border: none;
+    background: transparent;
+    color: #4b5563;
+    padding: 15px 17px;
+    font-size: 14px;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+}
+
+.nav-btn:hover {
+    background: #f8fafc;
+}
+
+.nav-btn.active {
+    color: #155eef;
+    border-bottom-color: #155eef;
+    font-weight: 600;
+}
+
+/* =========================
+   MAIN
+========================= */
 
 .main-content {
-    padding: 25px;
-
-    max-width: 1400px;
-
+    max-width: 1500px;
     margin: auto;
+    padding: 22px;
 }
 
-.welcome-card {
-    background: #ffffff;
-
-    border-radius: 12px;
-
-    padding: 25px;
-
-    box-shadow:
-        0 3px 15px rgba(0, 0, 0, 0.06);
-}
-
-.welcome-card h2 {
-    color: #123b73;
-
-    margin-bottom: 10px;
-}
-
-.context-box {
-    margin-top: 20px;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     gap: 15px;
+    margin-bottom: 18px;
+}
+
+.page-header h2 {
+    color: #123b73;
+    font-size: 22px;
+}
+
+.creator-credit {
+    color: #9ca3af;
+    font-size: 11px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+
+/* =========================
+   DASHBOARD
+========================= */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.dashboard-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.dashboard-card .number {
+    font-size: 30px;
+    font-weight: 700;
+    color: #155eef;
+    margin-bottom: 5px;
+}
+
+.dashboard-card .label {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.context-card {
+    margin-top: 18px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.context-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 15px;
+    margin-top: 15px;
 }
 
 .context-item {
     background: #f8fafc;
-
-    border: 1px solid #e5e7eb;
-
-    border-radius: 9px;
-
-    padding: 15px;
+    padding: 14px;
+    border-radius: 8px;
 }
 
-.context-label {
-    font-size: 12px;
-
+.context-item small {
+    display: block;
     color: #6b7280;
+    margin-bottom: 4px;
+}
 
+/* =========================
+   FILTERS
+========================= */
+
+.filter-card {
+    margin-bottom: 15px;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1.8fr 1fr;
+    gap: 12px;
+    align-items: end;
+}
+
+.filter-item label {
     margin-bottom: 5px;
 }
 
-.context-value {
+.filter-actions {
+    display: flex;
+    gap: 8px;
+    align-items: end;
+}
+
+.btn {
+    border: none;
+    border-radius: 7px;
+    padding: 10px 14px;
+    font-size: 13px;
     font-weight: 600;
-
-    color: #1f2937;
 }
 
-.section-title {
-    margin-top: 30px;
-
-    margin-bottom: 15px;
-
-    color: #123b73;
+.btn-primary {
+    background: #155eef;
+    color: white;
 }
 
-.module-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap: 15px;
+.btn-primary:hover {
+    background: #124dcc;
 }
 
-.module-card {
-    background: #ffffff;
-
-    border: 1px solid #e5e7eb;
-
-    border-radius: 10px;
-
-    padding: 20px;
-
-    min-height: 120px;
+.btn-secondary {
+    background: #eef2f7;
+    color: #374151;
 }
 
-.module-card h3 {
-    font-size: 16px;
-
-    margin-bottom: 7px;
-
-    color: #123b73;
+.btn-secondary:hover {
+    background: #e5e7eb;
 }
 
-.module-card p {
+.btn-danger {
+    background: #dc2626;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+.btn-warning {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-small {
+    padding: 7px 9px;
+    font-size: 12px;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.table-top {
+    padding: 15px 18px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.record-count {
     font-size: 13px;
-
     color: #6b7280;
-
-    line-height: 1.5;
 }
 
-.readonly-notice {
-    margin-top: 20px;
-
-    padding: 12px 15px;
-
-    border-radius: 8px;
-
-    background: #fff7ed;
-
-    border: 1px solid #fed7aa;
-
-    color: #9a3412;
-
-    font-size: 14px;
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
 }
 
-.session-status {
-    margin-top: 20px;
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1050px;
+}
 
-    padding: 12px 15px;
+th {
+    background: #f8fafc;
+    color: #374151;
+    font-size: 12px;
+    text-align: left;
+    padding: 12px 10px;
+    border-bottom: 1px solid #d1d5db;
+    white-space: nowrap;
+}
 
-    border-radius: 8px;
-
-    background: #eff6ff;
-
-    border: 1px solid #bfdbfe;
-
-    color: #1e40af;
-
+td {
+    padding: 11px 10px;
+    border-bottom: 1px solid #edf0f3;
     font-size: 13px;
+    vertical-align: middle;
+}
+
+tbody tr:hover {
+    background: #f8fafc;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.status-promoted {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.status-repeated {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.status-left {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.status-new {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.actions {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.empty-state {
+    padding: 45px 20px;
+    text-align: center;
+    color: #6b7280;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.modal {
+    width: 100%;
+    max-width: 720px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: white;
+    border-radius: 13px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+}
+
+.modal-header {
+    padding: 17px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    color: #123b73;
+}
+
+.modal-close {
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    color: #6b7280;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 14px;
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+}
+
+.form-help {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+/* =========================
+   HISTORY
+========================= */
+
+.history-list {
+    display: grid;
+    gap: 10px;
+}
+
+.history-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+    padding: 14px;
+    background: #f8fafc;
+}
+
+.history-title {
+    font-weight: 700;
+    color: #123b73;
+    margin-bottom: 5px;
+}
+
+.history-details {
+    font-size: 13px;
+    color: #4b5563;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 2000;
+    padding: 13px 17px;
+    border-radius: 8px;
+    color: white;
+    background: #123b73;
+    box-shadow: 0 8px 25px rgba(0,0,0,.2);
+    font-size: 13px;
+}
+
+.toast.success {
+    background: #047857;
+}
+
+.toast.error {
+    background: #b91c1c;
+}
+
+/* =========================
+   LOADING
+========================= */
+
+.loading {
+    padding: 35px;
+    text-align: center;
+    color: #6b7280;
 }
 
 /* =========================
    RESPONSIVE
 ========================= */
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
 
-    .module-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .filter-grid {
+        grid-template-columns: repeat(2,1fr);
     }
 }
 
@@ -391,30 +665,37 @@ input:focus {
 
     .topbar {
         flex-direction: column;
+        align-items: flex-start;
+    }
 
+    .main-content {
+        padding: 12px;
+    }
+
+    .dashboard-grid,
+    .context-grid,
+    .filter-grid,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full {
+        grid-column: auto;
+    }
+
+    .page-header {
+        flex-direction: column;
         align-items: flex-start;
     }
 
     .user-area {
         width: 100%;
-
-        flex-wrap: wrap;
     }
 
-    .context-box {
-        grid-template-columns: 1fr;
-    }
-
-    .module-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .main-content {
-        padding: 15px;
-    }
-
-    .login-card {
-        padding: 25px 20px;
+    .user-email {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 </style>
@@ -424,20 +705,16 @@ input:focus {
 
 
 <!-- =========================================================
-     LOGIN PAGE
+     LOGIN
 ========================================================= -->
 
 <div id="loginPage">
 
     <div class="login-card">
 
-        <div class="school-logo">
-            U
-        </div>
+        <div class="school-logo">U</div>
 
-        <h1>
-            U.M.S SASAULI URDU
-        </h1>
+        <h1>U.M.S SASAULI URDU</h1>
 
         <div class="location">
             Muzaffarpur, Bihar
@@ -447,32 +724,26 @@ input:focus {
             Sign in to Student Marks System
         </div>
 
-        <div
-            id="loginError"
-            class="error-message hidden">
-        </div>
+        <div id="loginError"
+             class="error-message hidden"></div>
 
         <form id="loginForm">
 
-            <label for="email">
-                Email
-            </label>
+            <label for="loginEmail">Email</label>
 
             <input
                 type="email"
-                id="email"
+                id="loginEmail"
                 placeholder="Enter your email"
                 autocomplete="username"
                 required
             >
 
-            <label for="password">
-                Password
-            </label>
+            <label for="loginPassword">Password</label>
 
             <input
                 type="password"
-                id="password"
+                id="loginPassword"
                 placeholder="Enter your password"
                 autocomplete="current-password"
                 required
@@ -490,11 +761,8 @@ input:focus {
         </form>
 
         <div class="login-note">
-
             Authorized school users only.<br>
-
             Your access level is determined by your account.
-
         </div>
 
     </div>
@@ -503,17 +771,14 @@ input:focus {
 
 
 <!-- =========================================================
-     APPLICATION PAGE
+     APPLICATION
 ========================================================= -->
 
-<div
-    id="appPage"
-    class="hidden">
+<div id="appPage" class="hidden">
 
     <header class="topbar">
 
         <div>
-
             <div class="school-title">
                 U.M.S SASAULI URDU
             </div>
@@ -521,21 +786,15 @@ input:focus {
             <div class="school-subtitle">
                 Student Marks Management System
             </div>
-
         </div>
-
 
         <div class="user-area">
 
-            <span
-                id="userEmail"
-                class="user-email">
-            </span>
+            <span id="userEmail"
+                  class="user-email"></span>
 
-            <span
-                id="roleBadge"
-                class="role-badge">
-            </span>
+            <span id="roleBadge"
+                  class="role-badge"></span>
 
             <button
                 id="logoutButton"
@@ -550,56 +809,149 @@ input:focus {
     </header>
 
 
+    <nav class="navbar">
+
+        <button
+            class="nav-btn active"
+            data-section="dashboard">
+
+            Dashboard
+
+        </button>
+
+        <button
+            class="nav-btn"
+            data-section="students">
+
+            Students
+
+        </button>
+
+        <button
+            class="nav-btn"
+            data-section="marks">
+
+            Marks
+
+        </button>
+
+        <button
+            class="nav-btn"
+            data-section="promotion">
+
+            Promotion
+
+        </button>
+
+        <button
+            class="nav-btn"
+            data-section="reports">
+
+            Reports
+
+        </button>
+
+        <button
+            class="nav-btn"
+            data-section="backup">
+
+            Backup
+
+        </button>
+
+    </nav>
+
+
     <main class="main-content">
 
-        <div class="welcome-card">
 
-            <h2>
-                Welcome to Student Marks System
-            </h2>
+        <!-- =================================================
+             DASHBOARD
+        ================================================== -->
 
-            <p>
-                The new multi-year school management system
-                is connected to the secure Supabase database.
-            </p>
+        <section
+            id="dashboardSection"
+            class="app-section">
+
+            <div class="page-header">
+
+                <div>
+                    <h2>Dashboard</h2>
+
+                    <div class="creator-credit">
+                        Created by ABU MAHTAB RAUSHAN
+                    </div>
+                </div>
+
+            </div>
 
 
-            <div class="context-box">
+            <div class="dashboard-grid">
 
-                <div class="context-item">
+                <div class="dashboard-card">
 
-                    <div class="context-label">
-                        Academic Session
+                    <div
+                        id="dashboardStudentCount"
+                        class="number">
+
+                        —
+
                     </div>
 
-                    <div class="context-value">
+                    <div class="label">
+                        Students in Selected Class
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div
+                        id="dashboardTotalStudents"
+                        class="number">
+
+                        —
+
+                    </div>
+
+                    <div class="label">
+                        Total Student Profiles
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div
+                        id="dashboardClasses"
+                        class="number">
+
+                        8
+
+                    </div>
+
+                    <div class="label">
+                        Classes
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div
+                        id="dashboardSession"
+                        class="number"
+                        style="font-size:22px">
+
                         2026–27
+
                     </div>
 
-                </div>
-
-
-                <div class="context-item">
-
-                    <div class="context-label">
-                        School
-                    </div>
-
-                    <div class="context-value">
-                        U.M.S SASAULI URDU
-                    </div>
-
-                </div>
-
-
-                <div class="context-item">
-
-                    <div class="context-label">
-                        Location
-                    </div>
-
-                    <div class="context-value">
-                        Muzaffarpur, Bihar
+                    <div class="label">
+                        Active Academic Session
                     </div>
 
                 </div>
@@ -607,161 +959,669 @@ input:focus {
             </div>
 
 
-            <h3 class="section-title">
-                System Modules
-            </h3>
+            <div class="context-card">
 
+                <h3 style="color:#123b73">
+                    Current Academic Context
+                </h3>
 
-            <div class="module-grid">
+                <div class="context-grid">
 
-                <div class="module-card">
+                    <div class="context-item">
 
-                    <h3>
-                        Students
-                    </h3>
+                        <small>School</small>
 
-                    <p>
-                        Student profiles, academic records
-                        and student history.
-                    </p>
+                        <strong>
+                            U.M.S SASAULI URDU
+                        </strong>
 
-                </div>
+                    </div>
 
+                    <div class="context-item">
 
-                <div class="module-card">
+                        <small>District</small>
 
-                    <h3>
-                        Marks
-                    </h3>
+                        <strong>
+                            Muzaffarpur
+                        </strong>
 
-                    <p>
-                        Half-Yearly, Annual and Final
-                        result management.
-                    </p>
+                    </div>
 
-                </div>
+                    <div class="context-item">
 
+                        <small>Block</small>
 
-                <div class="module-card">
+                        <strong>
+                            Aurai
+                        </strong>
 
-                    <h3>
-                        Promotion
-                    </h3>
-
-                    <p>
-                        Review and confirm student
-                        promotion for the next session.
-                    </p>
+                    </div>
 
                 </div>
 
+            </div>
 
-                <div class="module-card">
-
-                    <h3>
-                        Reports
-                    </h3>
-
-                    <p>
-                        Class results, marks folio
-                        and individual student results.
-                    </p>
-
-                </div>
+        </section>
 
 
-                <div class="module-card">
+        <!-- =================================================
+             STUDENTS
+        ================================================== -->
 
-                    <h3>
-                        Backup
-                    </h3>
+        <section
+            id="studentsSection"
+            class="app-section hidden">
 
-                    <p>
-                        Complete school data backup
-                        and restoration.
-                    </p>
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Students</h2>
+
+                    <div class="creator-credit">
+                        Created by ABU MAHTAB RAUSHAN
+                    </div>
 
                 </div>
 
+                <button
+                    id="addStudentButton"
+                    class="btn btn-primary">
 
-                <div class="module-card">
+                    + Add Student
 
-                    <h3>
-                        Academic Sessions
-                    </h3>
+                </button>
 
-                    <p>
-                        Maintain multiple academic
-                        years without overwriting history.
-                    </p>
-
-                </div>
+            </div>
 
 
-                <div class="module-card">
+            <!-- FILTERS -->
 
-                    <h3>
-                        Subjects
-                    </h3>
+            <div class="card filter-card">
 
-                    <p>
-                        Class-wise subject structure
-                        for Classes I to VIII.
-                    </p>
+                <div class="filter-grid">
 
-                </div>
+                    <div class="filter-item">
+
+                        <label>
+                            Academic Session
+                        </label>
+
+                        <select id="sessionFilter">
+                        </select>
+
+                    </div>
 
 
-                <div class="module-card">
+                    <div class="filter-item">
 
-                    <h3>
-                        Search & Sort
-                    </h3>
+                        <label>
+                            Class
+                        </label>
 
-                    <p>
-                        Search and arrange student records
-                        for viewing and printing.
-                    </p>
+                        <select id="classFilter">
+
+                            <option value="all">
+                                All Classes
+                            </option>
+
+                            <option value="1">
+                                Class I
+                            </option>
+
+                            <option value="2">
+                                Class II
+                            </option>
+
+                            <option value="3">
+                                Class III
+                            </option>
+
+                            <option value="4">
+                                Class IV
+                            </option>
+
+                            <option value="5">
+                                Class V
+                            </option>
+
+                            <option value="6">
+                                Class VI
+                            </option>
+
+                            <option value="7">
+                                Class VII
+                            </option>
+
+                            <option value="8">
+                                Class VIII
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="filter-item">
+
+                        <label>
+                            Search Student ID / Name / Roll
+                        </label>
+
+                        <input
+                            type="text"
+                            id="studentSearch"
+                            placeholder="Search..."
+                        >
+
+                    </div>
+
+
+                    <div class="filter-item">
+
+                        <label>
+                            Sort By
+                        </label>
+
+                        <select id="studentSort">
+
+                            <option value="roll_asc">
+                                Roll Number ↑
+                            </option>
+
+                            <option value="roll_desc">
+                                Roll Number ↓
+                            </option>
+
+                            <option value="name_asc">
+                                Name A–Z
+                            </option>
+
+                            <option value="name_desc">
+                                Name Z–A
+                            </option>
+
+                            <option value="id_asc">
+                                Student ID A–Z
+                            </option>
+
+                            <option value="id_desc">
+                                Student ID Z–A
+                            </option>
+
+                            <option value="status_asc">
+                                Status A–Z
+                            </option>
+
+                        </select>
+
+                    </div>
 
                 </div>
 
             </div>
 
 
-            <div
-                id="readonlyNotice"
-                class="readonly-notice hidden">
+            <!-- TABLE -->
 
-                View Only access: you can view, search,
-                sort, filter and print records.
-                Editing and administrative operations
-                are disabled.
+            <div class="card table-card">
+
+                <div class="table-top">
+
+                    <div
+                        id="studentRecordCount"
+                        class="record-count">
+
+                        Loading students...
+
+                    </div>
+
+                    <button
+                        id="refreshStudentsButton"
+                        class="btn btn-secondary btn-small">
+
+                        Refresh
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="studentTableContainer"
+                    class="table-wrapper">
+
+                    <div class="loading">
+                        Loading students...
+                    </div>
+
+                </div>
 
             </div>
 
+        </section>
 
-            <div class="session-status">
 
-                Automatic logout after
-                <strong>15 minutes of inactivity</strong>.
+        <!-- =================================================
+             PLACEHOLDER MODULES
+        ================================================== -->
 
-                Refreshing the page keeps your session active.
+        <section
+            id="marksSection"
+            class="app-section hidden">
 
-                Closing the browser tab requires login again.
+            <div class="card">
+
+                <h2 style="color:#123b73;margin-bottom:10px">
+                    Marks
+                </h2>
+
+                <p style="color:#6b7280">
+                    The Marks module will be connected after
+                    the Students module has been tested.
+                </p>
 
             </div>
 
-        </div>
+        </section>
+
+
+        <section
+            id="promotionSection"
+            class="app-section hidden">
+
+            <div class="card">
+
+                <h2 style="color:#123b73;margin-bottom:10px">
+                    Promotion
+                </h2>
+
+                <p style="color:#6b7280">
+                    Promotion and Review & Confirmation
+                    will be added in the next stage.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="reportsSection"
+            class="app-section hidden">
+
+            <div class="card">
+
+                <h2 style="color:#123b73;margin-bottom:10px">
+                    Reports
+                </h2>
+
+                <p style="color:#6b7280">
+                    Class reports, marks folio and
+                    individual result printing will be added
+                    after the marks module.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="backupSection"
+            class="app-section hidden">
+
+            <div class="card">
+
+                <h2 style="color:#123b73;margin-bottom:10px">
+                    Backup
+                </h2>
+
+                <p style="color:#6b7280">
+                    Complete backup and restore will be added
+                    after the core modules are complete.
+                </p>
+
+            </div>
+
+        </section>
+
 
     </main>
 
 </div>
 
 
+<!-- =========================================================
+     STUDENT FORM MODAL
+========================================================= -->
+
+<div
+    id="studentModal"
+    class="modal-overlay hidden">
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <h3 id="studentModalTitle">
+                Add Student
+            </h3>
+
+            <button
+                id="closeStudentModal"
+                class="modal-close">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <form id="studentForm">
+
+                <div class="form-grid">
+
+
+                    <div class="form-group">
+
+                        <label for="formStudentId">
+                            Student ID
+                        </label>
+
+                        <input
+                            type="text"
+                            id="formStudentId"
+                            placeholder="Leave blank if unavailable"
+                        >
+
+                        <div class="form-help">
+                            Student ID is permanent across academic years.
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="formStudentName">
+                            Student Name *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="formStudentName"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="formFatherName">
+                            Father's Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="formFatherName"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="formMotherName">
+                            Mother's Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="formMotherName"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="formDob">
+                            Date of Birth
+                        </label>
+
+                        <input
+                            type="date"
+                            id="formDob"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="formGender">
+                            Gender
+                        </label>
+
+                        <select id="formGender">
+
+                            <option value="">
+                                Select
+                            </option>
+
+                            <option value="Male">
+                                Male
+                            </option>
+
+                            <option value="Female">
+                                Female
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="formClass">
+                            Class *
+                        </label>
+
+                        <select id="formClass">
+
+                            <option value="1">
+                                Class I
+                            </option>
+
+                            <option value="2">
+                                Class II
+                            </option>
+
+                            <option value="3">
+                                Class III
+                            </option>
+
+                            <option value="4">
+                                Class IV
+                            </option>
+
+                            <option value="5">
+                                Class V
+                            </option>
+
+                            <option value="6">
+                                Class VI
+                            </option>
+
+                            <option value="7">
+                                Class VII
+                            </option>
+
+                            <option value="8">
+                                Class VIII
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="formRoll">
+                            Roll Number
+                        </label>
+
+                        <input
+                            type="number"
+                            id="formRoll"
+                            min="0"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="formStatus">
+                            Status
+                        </label>
+
+                        <select id="formStatus">
+
+                            <option value="">
+                                Blank / Current Student
+                            </option>
+
+                            <option value="Promoted">
+                                Promoted
+                            </option>
+
+                            <option value="Repeated">
+                                Repeated
+                            </option>
+
+                            <option value="Left School">
+                                Left School
+                            </option>
+
+                            <option value="New Student">
+                                New Student
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                id="cancelStudentButton"
+                class="btn btn-secondary">
+
+                Cancel
+
+            </button>
+
+            <button
+                id="saveStudentButton"
+                class="btn btn-primary">
+
+                Save Student
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     HISTORY MODAL
+========================================================= -->
+
+<div
+    id="historyModal"
+    class="modal-overlay hidden">
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <h3>
+                Student History
+            </h3>
+
+            <button
+                id="closeHistoryModal"
+                class="modal-close">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="historyContent"
+            class="modal-body">
+
+            Loading...
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                id="closeHistoryButton"
+                class="btn btn-secondary">
+
+                Close
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     TOAST
+========================================================= -->
+
+<div
+    id="toast"
+    class="toast hidden">
+</div>
+
+
 <script>
 
 /* =========================================================
-   SUPABASE CONFIGURATION
+   SUPABASE
 ========================================================= */
 
 const SUPABASE_URL =
@@ -771,59 +1631,31 @@ const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_NIfpJE60FAdsZQkLhxJYGA_m-y9xJli";
 
 
-/* =========================================================
-   SESSION STORAGE
-
-   We use sessionStorage instead of localStorage.
-
-   Therefore:
-
-   Refresh:
-   session remains.
-
-   Close tab:
-   session is removed.
-========================================================= */
-
 const authStorage = {
 
     getItem(key) {
-
         return Promise.resolve(
             sessionStorage.getItem(key)
         );
-
     },
 
     setItem(key, value) {
-
         sessionStorage.setItem(
             key,
             value
         );
 
         return Promise.resolve();
-
     },
 
     removeItem(key) {
-
         sessionStorage.removeItem(key);
 
         return Promise.resolve();
-
     }
 
 };
 
-
-/* =========================================================
-   SUPABASE CLIENT
-
-   IMPORTANT:
-   We use "supabaseClient" rather than "supabase"
-   to avoid naming conflicts.
-========================================================= */
 
 const supabaseClient =
     window.supabase.createClient(
@@ -853,9 +1685,15 @@ let inactivityTimer = null;
 const INACTIVITY_LIMIT =
     15 * 60 * 1000;
 
+let sessions = [];
+
+let studentsData = [];
+
+let editingStudent = null;
+
 
 /* =========================================================
-   DOM ELEMENTS
+   ELEMENTS
 ========================================================= */
 
 const loginPage =
@@ -882,12 +1720,66 @@ const roleBadge =
 const logoutButton =
     document.getElementById("logoutButton");
 
-const readonlyNotice =
-    document.getElementById("readonlyNotice");
+const sessionFilter =
+    document.getElementById("sessionFilter");
+
+const classFilter =
+    document.getElementById("classFilter");
+
+const studentSearch =
+    document.getElementById("studentSearch");
+
+const studentSort =
+    document.getElementById("studentSort");
+
+const studentTableContainer =
+    document.getElementById("studentTableContainer");
+
+const studentRecordCount =
+    document.getElementById("studentRecordCount");
+
+const addStudentButton =
+    document.getElementById("addStudentButton");
+
+const refreshStudentsButton =
+    document.getElementById("refreshStudentsButton");
+
+const studentModal =
+    document.getElementById("studentModal");
+
+const studentModalTitle =
+    document.getElementById("studentModalTitle");
+
+const closeStudentModal =
+    document.getElementById("closeStudentModal");
+
+const cancelStudentButton =
+    document.getElementById("cancelStudentButton");
+
+const saveStudentButton =
+    document.getElementById("saveStudentButton");
+
+const studentForm =
+    document.getElementById("studentForm");
+
+const historyModal =
+    document.getElementById("historyModal");
+
+const historyContent =
+    document.getElementById("historyContent");
+
+const closeHistoryModal =
+    document.getElementById("closeHistoryModal");
+
+const closeHistoryButton =
+    document.getElementById("closeHistoryButton");
+
+const toast =
+    document.getElementById("toast");
 
 
 /* =========================================================
-   LOGIN ERROR
+   LOGIN
 ========================================================= */
 
 function showLoginError(message) {
@@ -914,42 +1806,30 @@ function clearLoginError() {
 }
 
 
-/* =========================================================
-   GET USER ROLE
-========================================================= */
-
 async function getUserRole(userId) {
 
     const {
         data,
         error
-    } = await supabaseClient
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .maybeSingle();
+    } =
+        await supabaseClient
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", userId)
+            .maybeSingle();
 
 
     if (error) {
-
-        console.error(
-            "Role lookup error:",
-            error
-        );
-
         throw new Error(
             "Unable to determine account permissions."
         );
-
     }
 
 
     if (!data) {
-
         throw new Error(
             "This account has no assigned system role."
         );
-
     }
 
 
@@ -957,10 +1837,6 @@ async function getUserRole(userId) {
 
 }
 
-
-/* =========================================================
-   SHOW APPLICATION
-========================================================= */
 
 async function showApplication(user) {
 
@@ -974,11 +1850,9 @@ async function showApplication(user) {
             role !== "admin" &&
             role !== "view_only"
         ) {
-
             throw new Error(
                 "Invalid account role."
             );
-
         }
 
 
@@ -993,28 +1867,10 @@ async function showApplication(user) {
             user.email;
 
 
-        if (role === "admin") {
-
-            roleBadge.textContent =
-                "Admin";
-
-            readonlyNotice.classList.add(
-                "hidden"
-            );
-
-        }
-
-
-        if (role === "view_only") {
-
-            roleBadge.textContent =
-                "View Only";
-
-            readonlyNotice.classList.remove(
-                "hidden"
-            );
-
-        }
+        roleBadge.textContent =
+            role === "admin"
+                ? "Admin"
+                : "View Only";
 
 
         loginPage.classList.add(
@@ -1026,22 +1882,27 @@ async function showApplication(user) {
         );
 
 
+        addStudentButton.classList.toggle(
+            "hidden",
+            role !== "admin"
+        );
+
+
         startInactivityTimer();
+
+
+        await loadSessions();
+
+        await loadStudents();
 
 
     } catch (error) {
 
-        console.error(
-            "Application initialization error:",
-            error
-        );
-
+        console.error(error);
 
         await supabaseClient.auth.signOut();
 
-
         showLogin();
-
 
         showLoginError(
             error.message
@@ -1052,21 +1913,13 @@ async function showApplication(user) {
 }
 
 
-/* =========================================================
-   SHOW LOGIN
-========================================================= */
-
 function showLogin() {
 
-    currentUser =
-        null;
+    currentUser = null;
 
-    currentRole =
-        null;
-
+    currentRole = null;
 
     stopInactivityTimer();
-
 
     appPage.classList.add(
         "hidden"
@@ -1079,30 +1932,23 @@ function showLogin() {
 }
 
 
-/* =========================================================
-   LOGIN FORM
-========================================================= */
-
 loginForm.addEventListener(
     "submit",
     async function(event) {
 
         event.preventDefault();
 
-
         clearLoginError();
-
 
         const email =
             document
-                .getElementById("email")
+                .getElementById("loginEmail")
                 .value
                 .trim();
 
-
         const password =
             document
-                .getElementById("password")
+                .getElementById("loginPassword")
                 .value;
 
 
@@ -1121,27 +1967,13 @@ loginForm.addEventListener(
             } =
                 await supabaseClient.auth
                     .signInWithPassword({
-                        email: email,
-                        password: password
+                        email,
+                        password
                     });
 
 
             if (error) {
-
                 throw error;
-
-            }
-
-
-            if (
-                !data ||
-                !data.user
-            ) {
-
-                throw new Error(
-                    "Login succeeded but no user session was returned."
-                );
-
             }
 
 
@@ -1157,12 +1989,10 @@ loginForm.addEventListener(
                 error
             );
 
-
             showLoginError(
                 error.message ||
                 "Unable to sign in."
             );
-
 
         } finally {
 
@@ -1188,29 +2018,22 @@ logoutButton.addEventListener(
 
         stopInactivityTimer();
 
-
         await supabaseClient.auth.signOut();
 
-
         showLogin();
-
-
-        clearLoginError();
 
     }
 );
 
 
 /* =========================================================
-   INACTIVITY TIMER
+   SESSION TIMEOUT
 ========================================================= */
 
 function resetInactivityTimer() {
 
     if (!currentUser) {
-
         return;
-
     }
 
 
@@ -1223,13 +2046,9 @@ function resetInactivityTimer() {
         setTimeout(
             async function() {
 
-                await supabaseClient
-                    .auth
-                    .signOut();
-
+                await supabaseClient.auth.signOut();
 
                 showLogin();
-
 
                 showLoginError(
                     "You have been logged out because of 15 minutes of inactivity."
@@ -1251,14 +2070,9 @@ function startInactivityTimer() {
 
 function stopInactivityTimer() {
 
-    if (inactivityTimer) {
-
-        clearTimeout(
-            inactivityTimer
-        );
-
-    }
-
+    clearTimeout(
+        inactivityTimer
+    );
 
     inactivityTimer =
         null;
@@ -1266,43 +2080,21 @@ function stopInactivityTimer() {
 }
 
 
-/* =========================================================
-   USER ACTIVITY
-
-   Any normal activity resets the 15-minute timer.
-========================================================= */
-
-const activityEvents = [
-
+[
     "mousedown",
-
     "mousemove",
-
     "keydown",
-
     "touchstart",
-
     "click",
-
     "scroll",
-
     "input",
-
     "wheel"
-
-];
-
-
-activityEvents.forEach(
-    function(eventName) {
+].forEach(
+    eventName => {
 
         document.addEventListener(
             eventName,
-            function() {
-
-                resetInactivityTimer();
-
-            },
+            resetInactivityTimer,
             {
                 passive: true
             }
@@ -1313,28 +2105,16 @@ activityEvents.forEach(
 
 
 /* =========================================================
-   AUTH STATE CHANGES
+   AUTH STATE
 ========================================================= */
 
 supabaseClient.auth.onAuthStateChange(
     async function(event, session) {
 
-        console.log(
-            "Auth event:",
-            event
-        );
-
-
         if (
             session &&
             session.user
         ) {
-
-            /*
-              We intentionally do not process
-              repeated SIGNED_IN events as a
-              separate login operation.
-            */
 
             if (
                 !currentUser ||
@@ -1350,9 +2130,7 @@ supabaseClient.auth.onAuthStateChange(
         } else {
 
             if (currentUser) {
-
                 showLogin();
-
             }
 
         }
@@ -1362,7 +2140,1935 @@ supabaseClient.auth.onAuthStateChange(
 
 
 /* =========================================================
-   INITIAL SESSION CHECK
+   LOAD SESSIONS
+========================================================= */
+
+async function loadSessions() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("academic_sessions")
+            .select(
+                "id, session_name, is_active"
+            )
+            .order(
+                "session_name",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+        throw error;
+    }
+
+
+    sessions =
+        data || [];
+
+
+    sessionFilter.innerHTML =
+        "";
+
+
+    sessions.forEach(
+        session => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                session.id;
+
+            option.textContent =
+                session.session_name;
+
+            if (session.is_active) {
+                option.selected =
+                    true;
+            }
+
+            sessionFilter.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    if (!sessions.length) {
+
+        sessionFilter.innerHTML =
+            `<option value="">No sessions</option>`;
+
+    }
+
+}
+
+
+/* =========================================================
+   CLASS NAME
+========================================================= */
+
+function className(classNo) {
+
+    const names = {
+        1: "Class I",
+        2: "Class II",
+        3: "Class III",
+        4: "Class IV",
+        5: "Class V",
+        6: "Class VI",
+        7: "Class VII",
+        8: "Class VIII"
+    };
+
+    return names[classNo] || "-";
+
+}
+
+
+/* =========================================================
+   LOAD STUDENTS
+========================================================= */
+
+async function loadStudents() {
+
+    studentTableContainer.innerHTML =
+        `<div class="loading">
+            Loading students...
+        </div>`;
+
+
+    const sessionId =
+        sessionFilter.value;
+
+
+    if (!sessionId) {
+
+        studentsData = [];
+
+        renderStudents();
+
+        return;
+
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("academic_records")
+            .select(`
+                id,
+                session_id,
+                student_profile_id,
+                class_no,
+                roll_no,
+                status,
+                students (
+                    id,
+                    student_id,
+                    student_name,
+                    father_name,
+                    mother_name,
+                    date_of_birth,
+                    gender
+                )
+            `)
+            .eq(
+                "session_id",
+                sessionId
+            );
+
+
+    if (error) {
+
+        console.error(error);
+
+        studentTableContainer.innerHTML =
+            `<div class="empty-state">
+                Unable to load students.
+                <br><br>
+                ${escapeHtml(error.message)}
+            </div>`;
+
+        return;
+
+    }
+
+
+    studentsData =
+        (data || []).map(
+            record => ({
+
+                academicRecordId:
+                    record.id,
+
+                sessionId:
+                    record.session_id,
+
+                studentProfileId:
+                    record.student_profile_id,
+
+                classNo:
+                    record.class_no,
+
+                rollNo:
+                    record.roll_no,
+
+                status:
+                    record.status || "",
+
+                studentId:
+                    record.students?.student_id || "",
+
+                studentName:
+                    record.students?.student_name || "",
+
+                fatherName:
+                    record.students?.father_name || "",
+
+                motherName:
+                    record.students?.mother_name || "",
+
+                dob:
+                    record.students?.date_of_birth || "",
+
+                gender:
+                    record.students?.gender || ""
+
+            })
+        );
+
+
+    renderStudents();
+
+    updateDashboardCounts();
+
+}
+
+
+/* =========================================================
+   RENDER STUDENTS
+========================================================= */
+
+function getFilteredStudents() {
+
+    let list =
+        [...studentsData];
+
+
+    const classValue =
+        classFilter.value;
+
+
+    if (classValue !== "all") {
+
+        list =
+            list.filter(
+                student =>
+                    String(
+                        student.classNo
+                    ) === classValue
+            );
+
+    }
+
+
+    const search =
+        studentSearch.value
+            .trim()
+            .toLowerCase();
+
+
+    if (search) {
+
+        list =
+            list.filter(
+                student => {
+
+                    return (
+
+                        String(
+                            student.studentId
+                        )
+                        .toLowerCase()
+                        .includes(search)
+
+                        ||
+
+                        student.studentName
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(
+                            student.rollNo ?? ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+
+                    );
+
+                }
+            );
+
+    }
+
+
+    const sort =
+        studentSort.value;
+
+
+    list.sort(
+        (a,b) => {
+
+            if (sort === "roll_asc") {
+                return (
+                    (a.rollNo ?? 999999)
+                    -
+                    (b.rollNo ?? 999999)
+                );
+            }
+
+
+            if (sort === "roll_desc") {
+                return (
+                    (b.rollNo ?? -1)
+                    -
+                    (a.rollNo ?? -1)
+                );
+            }
+
+
+            if (sort === "name_asc") {
+                return a.studentName
+                    .localeCompare(
+                        b.studentName
+                    );
+            }
+
+
+            if (sort === "name_desc") {
+                return b.studentName
+                    .localeCompare(
+                        a.studentName
+                    );
+            }
+
+
+            if (sort === "id_asc") {
+                return String(
+                    a.studentId
+                ).localeCompare(
+                    String(b.studentId)
+                );
+            }
+
+
+            if (sort === "id_desc") {
+                return String(
+                    b.studentId
+                ).localeCompare(
+                    String(a.studentId)
+                );
+            }
+
+
+            if (sort === "status_asc") {
+                return String(
+                    a.status
+                ).localeCompare(
+                    String(b.status)
+                );
+            }
+
+
+            return 0;
+
+        }
+    );
+
+
+    return list;
+
+}
+
+
+function renderStudents() {
+
+    const list =
+        getFilteredStudents();
+
+
+    studentRecordCount.textContent =
+        `${list.length} student${list.length === 1 ? "" : "s"}`;
+
+
+    if (!list.length) {
+
+        studentTableContainer.innerHTML =
+            `<div class="empty-state">
+                No students found for the selected filters.
+            </div>`;
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Roll No.</th>
+
+                    <th>Student ID</th>
+
+                    <th>Student Name</th>
+
+                    <th>Father's Name</th>
+
+                    <th>Mother's Name</th>
+
+                    <th>Date of Birth</th>
+
+                    <th>Gender</th>
+
+                    <th>Class</th>
+
+                    <th>Status</th>
+
+                    <th>Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+    `;
+
+
+    list.forEach(
+        student => {
+
+            html += `
+
+                <tr>
+
+                    <td>
+                        ${escapeHtml(
+                            student.rollNo ?? ""
+                        )}
+                    </td>
+
+                    <td>
+                        ${student.studentId
+                            ? escapeHtml(
+                                student.studentId
+                              )
+                            : "<span style='color:#9ca3af'>Blank</span>"
+                        }
+                    </td>
+
+                    <td>
+                        <strong>
+                            ${escapeHtml(
+                                student.studentName
+                            )}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            student.fatherName
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            student.motherName
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatDate(
+                            student.dob
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            student.gender
+                        )}
+                    </td>
+
+                    <td>
+                        ${className(
+                            student.classNo
+                        )}
+                    </td>
+
+                    <td>
+                        ${statusBadge(
+                            student.status
+                        )}
+                    </td>
+
+                    <td>
+
+                        <div class="actions">
+
+                            <button
+                                class="btn btn-secondary btn-small"
+                                onclick="viewHistory(${student.studentProfileId})">
+
+                                History
+
+                            </button>
+
+                            ${
+                                currentRole === "admin"
+                                ?
+
+                                `
+
+                                <button
+                                    class="btn btn-secondary btn-small"
+                                    onclick="editStudent(${student.academicRecordId})">
+
+                                    Edit
+
+                                </button>
+
+                                <button
+                                    class="btn btn-warning btn-small"
+                                    onclick="markLeft(${student.academicRecordId})">
+
+                                    Left
+
+                                </button>
+
+                                <button
+                                    class="btn btn-danger btn-small"
+                                    onclick="deleteStudent(${student.academicRecordId})">
+
+                                    Delete
+
+                                </button>
+
+                                `
+
+                                : ""
+
+                            }
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+            </tbody>
+
+        </table>
+
+    `;
+
+
+    studentTableContainer.innerHTML =
+        html;
+
+}
+
+
+/* =========================================================
+   STATUS BADGE
+========================================================= */
+
+function statusBadge(status) {
+
+    if (!status) {
+
+        return `
+            <span class="status-badge">
+                Current
+            </span>
+        `;
+
+    }
+
+
+    let css =
+        "status-badge";
+
+
+    if (status === "Promoted") {
+        css += " status-promoted";
+    }
+
+    if (status === "Repeated") {
+        css += " status-repeated";
+    }
+
+    if (status === "Left School") {
+        css += " status-left";
+    }
+
+    if (status === "New Student") {
+        css += " status-new";
+    }
+
+
+    return `
+        <span class="${css}">
+            ${escapeHtml(status)}
+        </span>
+    `;
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+function formatDate(value) {
+
+    if (!value) {
+        return "";
+    }
+
+
+    const parts =
+        value.split("-");
+
+
+    if (parts.length !== 3) {
+        return escapeHtml(value);
+    }
+
+
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+
+}
+
+
+/* =========================================================
+   DASHBOARD COUNTS
+========================================================= */
+
+async function updateDashboardCounts() {
+
+    document
+        .getElementById(
+            "dashboardStudentCount"
+        )
+        .textContent =
+        studentsData.length;
+
+
+    const {
+        count,
+        error
+    } =
+        await supabaseClient
+            .from("students")
+            .select(
+                "id",
+                {
+                    count: "exact",
+                    head: true
+                }
+            );
+
+
+    if (!error) {
+
+        document
+            .getElementById(
+                "dashboardTotalStudents"
+            )
+            .textContent =
+            count ?? 0;
+
+    }
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+document
+    .querySelectorAll(".nav-btn")
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    document
+                        .querySelectorAll(
+                            ".nav-btn"
+                        )
+                        .forEach(
+                            b =>
+                                b.classList.remove(
+                                    "active"
+                                )
+                        );
+
+
+                    this.classList.add(
+                        "active"
+                    );
+
+
+                    const section =
+                        this.dataset.section;
+
+
+                    document
+                        .querySelectorAll(
+                            ".app-section"
+                        )
+                        .forEach(
+                            item =>
+                                item.classList.add(
+                                    "hidden"
+                                )
+                        );
+
+
+                    document
+                        .getElementById(
+                            section + "Section"
+                        )
+                        .classList.remove(
+                            "hidden"
+                        );
+
+
+                    if (
+                        section === "students"
+                    ) {
+
+                        loadStudents();
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   FILTER EVENTS
+========================================================= */
+
+sessionFilter.addEventListener(
+    "change",
+    async function() {
+
+        await loadStudents();
+
+    }
+);
+
+
+classFilter.addEventListener(
+    "change",
+    function() {
+
+        renderStudents();
+
+        updateDashboardCounts();
+
+    }
+);
+
+
+studentSearch.addEventListener(
+    "input",
+    function() {
+
+        renderStudents();
+
+    }
+);
+
+
+studentSort.addEventListener(
+    "change",
+    function() {
+
+        renderStudents();
+
+    }
+);
+
+
+refreshStudentsButton.addEventListener(
+    "click",
+    async function() {
+
+        await loadStudents();
+
+        showToast(
+            "Student list refreshed.",
+            "success"
+        );
+
+    }
+);
+
+
+/* =========================================================
+   MODAL HELPERS
+========================================================= */
+
+function openStudentModal() {
+
+    studentModal.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+function closeStudentForm() {
+
+    studentModal.classList.add(
+        "hidden"
+    );
+
+    editingStudent =
+        null;
+
+    studentForm.reset();
+
+}
+
+
+/* =========================================================
+   ADD STUDENT
+========================================================= */
+
+addStudentButton.addEventListener(
+    "click",
+    function() {
+
+        if (currentRole !== "admin") {
+            return;
+        }
+
+
+        editingStudent =
+            null;
+
+
+        studentModalTitle.textContent =
+            "Add Student";
+
+
+        studentForm.reset();
+
+
+        const selectedClass =
+            classFilter.value;
+
+
+        if (
+            selectedClass !== "all"
+        ) {
+
+            document
+                .getElementById(
+                    "formClass"
+                )
+                .value =
+                selectedClass;
+
+        }
+
+
+        document
+            .getElementById(
+                "formStatus"
+            )
+            .value =
+            "New Student";
+
+
+        openStudentModal();
+
+    }
+);
+
+
+/* =========================================================
+   EDIT STUDENT
+========================================================= */
+
+window.editStudent =
+    function(academicRecordId) {
+
+        if (currentRole !== "admin") {
+            return;
+        }
+
+
+        const student =
+            studentsData.find(
+                item =>
+                    item.academicRecordId ===
+                    academicRecordId
+            );
+
+
+        if (!student) {
+
+            showToast(
+                "Student record not found.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        editingStudent =
+            student;
+
+
+        studentModalTitle.textContent =
+            "Edit Student";
+
+
+        document
+            .getElementById(
+                "formStudentId"
+            )
+            .value =
+            student.studentId;
+
+
+        document
+            .getElementById(
+                "formStudentName"
+            )
+            .value =
+            student.studentName;
+
+
+        document
+            .getElementById(
+                "formFatherName"
+            )
+            .value =
+            student.fatherName;
+
+
+        document
+            .getElementById(
+                "formMotherName"
+            )
+            .value =
+            student.motherName;
+
+
+        document
+            .getElementById(
+                "formDob"
+            )
+            .value =
+            student.dob || "";
+
+
+        document
+            .getElementById(
+                "formGender"
+            )
+            .value =
+            student.gender;
+
+
+        document
+            .getElementById(
+                "formClass"
+            )
+            .value =
+            student.classNo;
+
+
+        document
+            .getElementById(
+                "formRoll"
+            )
+            .value =
+            student.rollNo ?? "";
+
+
+        document
+            .getElementById(
+                "formStatus"
+            )
+            .value =
+            student.status;
+
+
+        openStudentModal();
+
+    };
+
+
+/* =========================================================
+   SAVE STUDENT
+========================================================= */
+
+saveStudentButton.addEventListener(
+    "click",
+    async function() {
+
+        if (currentRole !== "admin") {
+
+            showToast(
+                "Only Admin can modify students.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const studentName =
+            document
+                .getElementById(
+                    "formStudentName"
+                )
+                .value
+                .trim();
+
+
+        if (!studentName) {
+
+            showToast(
+                "Student Name is required.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const studentIdRaw =
+            document
+                .getElementById(
+                    "formStudentId"
+                )
+                .value
+                .trim();
+
+
+        const studentId =
+            studentIdRaw || null;
+
+
+        const fatherName =
+            document
+                .getElementById(
+                    "formFatherName"
+                )
+                .value
+                .trim() || null;
+
+
+        const motherName =
+            document
+                .getElementById(
+                    "formMotherName"
+                )
+                .value
+                .trim() || null;
+
+
+        const dob =
+            document
+                .getElementById(
+                    "formDob"
+                )
+                .value || null;
+
+
+        const gender =
+            document
+                .getElementById(
+                    "formGender"
+                )
+                .value || null;
+
+
+        const classNo =
+            Number(
+                document
+                    .getElementById(
+                        "formClass"
+                    )
+                    .value
+            );
+
+
+        const rollRaw =
+            document
+                .getElementById(
+                    "formRoll"
+                )
+                .value;
+
+
+        const rollNo =
+            rollRaw === ""
+                ? null
+                : Number(rollRaw);
+
+
+        const status =
+            document
+                .getElementById(
+                    "formStatus"
+                )
+                .value;
+
+
+        saveStudentButton.disabled =
+            true;
+
+        saveStudentButton.textContent =
+            "Saving...";
+
+
+        try {
+
+            if (editingStudent) {
+
+                await updateExistingStudent({
+
+                    studentId,
+                    studentName,
+                    fatherName,
+                    motherName,
+                    dob,
+                    gender,
+                    classNo,
+                    rollNo,
+                    status
+
+                });
+
+            } else {
+
+                await createNewStudent({
+
+                    studentId,
+                    studentName,
+                    fatherName,
+                    motherName,
+                    dob,
+                    gender,
+                    classNo,
+                    rollNo,
+                    status
+
+                });
+
+            }
+
+
+            closeStudentForm();
+
+            await loadStudents();
+
+            showToast(
+                "Student saved successfully.",
+                "success"
+            );
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showToast(
+                error.message ||
+                "Unable to save student.",
+                "error"
+            );
+
+        } finally {
+
+            saveStudentButton.disabled =
+                false;
+
+            saveStudentButton.textContent =
+                "Save Student";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CREATE NEW STUDENT
+========================================================= */
+
+async function createNewStudent(values) {
+
+    const {
+        data: student,
+        error: studentError
+    } =
+        await supabaseClient
+            .from("students")
+            .insert({
+
+                student_id:
+                    values.studentId,
+
+                student_name:
+                    values.studentName,
+
+                father_name:
+                    values.fatherName,
+
+                mother_name:
+                    values.motherName,
+
+                date_of_birth:
+                    values.dob,
+
+                gender:
+                    values.gender
+
+            })
+            .select()
+            .single();
+
+
+    if (studentError) {
+        throw studentError;
+    }
+
+
+    const sessionId =
+        Number(
+            sessionFilter.value
+        );
+
+
+    const {
+        error: recordError
+    } =
+        await supabaseClient
+            .from("academic_records")
+            .insert({
+
+                student_profile_id:
+                    student.id,
+
+                session_id:
+                    sessionId,
+
+                class_no:
+                    values.classNo,
+
+                roll_no:
+                    values.rollNo,
+
+                status:
+                    values.status
+
+            });
+
+
+    if (recordError) {
+
+        /*
+          If the academic record fails,
+          remove the newly-created profile.
+        */
+
+        await supabaseClient
+            .from("students")
+            .delete()
+            .eq(
+                "id",
+                student.id
+            );
+
+
+        throw recordError;
+
+    }
+
+}
+
+
+/* =========================================================
+   UPDATE EXISTING STUDENT
+========================================================= */
+
+async function updateExistingStudent(values) {
+
+    const studentProfileId =
+        editingStudent.studentProfileId;
+
+
+    const {
+        error: profileError
+    } =
+        await supabaseClient
+            .from("students")
+            .update({
+
+                student_id:
+                    values.studentId,
+
+                student_name:
+                    values.studentName,
+
+                father_name:
+                    values.fatherName,
+
+                mother_name:
+                    values.motherName,
+
+                date_of_birth:
+                    values.dob,
+
+                gender:
+                    values.gender,
+
+                updated_at:
+                    new Date().toISOString()
+
+            })
+            .eq(
+                "id",
+                studentProfileId
+            );
+
+
+    if (profileError) {
+        throw profileError;
+    }
+
+
+    const {
+        error: recordError
+    } =
+        await supabaseClient
+            .from("academic_records")
+            .update({
+
+                class_no:
+                    values.classNo,
+
+                roll_no:
+                    values.rollNo,
+
+                status:
+                    values.status,
+
+                updated_at:
+                    new Date().toISOString()
+
+            })
+            .eq(
+                "id",
+                editingStudent.academicRecordId
+            );
+
+
+    if (recordError) {
+        throw recordError;
+    }
+
+}
+
+
+/* =========================================================
+   MARK LEFT SCHOOL
+========================================================= */
+
+window.markLeft =
+    async function(academicRecordId) {
+
+        if (currentRole !== "admin") {
+            return;
+        }
+
+
+        const student =
+            studentsData.find(
+                item =>
+                    item.academicRecordId ===
+                    academicRecordId
+            );
+
+
+        if (!student) {
+            return;
+        }
+
+
+        const confirmed =
+            confirm(
+                `Mark "${student.studentName}" as Left School for this academic session?\n\nThe student's records will NOT be deleted.`
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("academic_records")
+                .update({
+
+                    status:
+                        "Left School",
+
+                    updated_at:
+                        new Date().toISOString()
+
+                })
+                .eq(
+                    "id",
+                    academicRecordId
+                );
+
+
+        if (error) {
+
+            showToast(
+                error.message,
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        await loadStudents();
+
+
+        showToast(
+            "Student marked as Left School.",
+            "success"
+        );
+
+    };
+
+
+/* =========================================================
+   DELETE STUDENT
+========================================================= */
+
+window.deleteStudent =
+    async function(academicRecordId) {
+
+        if (currentRole !== "admin") {
+            return;
+        }
+
+
+        const student =
+            studentsData.find(
+                item =>
+                    item.academicRecordId ===
+                    academicRecordId
+            );
+
+
+        if (!student) {
+            return;
+        }
+
+
+        const firstConfirm =
+            confirm(
+                `DELETE STUDENT\n\n${student.studentName}\n\nThis is a permanent deletion action. The academic record for this session and the permanent student profile may be deleted.\n\nAre you sure you want to continue?`
+            );
+
+
+        if (!firstConfirm) {
+            return;
+        }
+
+
+        const secondConfirm =
+            prompt(
+                `To permanently delete "${student.studentName}", type DELETE`
+            );
+
+
+        if (secondConfirm !== "DELETE") {
+
+            showToast(
+                "Deletion cancelled.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            /*
+              First delete marks belonging
+              to this academic record.
+            */
+
+            const {
+                error: marksError
+            } =
+                await supabaseClient
+                    .from("exam_marks")
+                    .delete()
+                    .eq(
+                        "academic_record_id",
+                        academicRecordId
+                    );
+
+
+            if (marksError) {
+                throw marksError;
+            }
+
+
+            /*
+              Delete the academic record.
+            */
+
+            const {
+                error: recordError
+            } =
+                await supabaseClient
+                    .from("academic_records")
+                    .delete()
+                    .eq(
+                        "id",
+                        academicRecordId
+                    );
+
+
+            if (recordError) {
+                throw recordError;
+            }
+
+
+            /*
+              Check whether the student has
+              any other academic records.
+
+              If no records remain, the permanent
+              student profile can be removed.
+            */
+
+            const {
+                data: remainingRecords,
+                error: remainingError
+            } =
+                await supabaseClient
+                    .from("academic_records")
+                    .select("id")
+                    .eq(
+                        "student_profile_id",
+                        student.studentProfileId
+                    );
+
+
+            if (remainingError) {
+                throw remainingError;
+            }
+
+
+            if (
+                !remainingRecords ||
+                remainingRecords.length === 0
+            ) {
+
+                const {
+                    error: profileError
+                } =
+                    await supabaseClient
+                        .from("students")
+                        .delete()
+                        .eq(
+                            "id",
+                            student.studentProfileId
+                        );
+
+
+                if (profileError) {
+                    throw profileError;
+                }
+
+            }
+
+
+            await loadStudents();
+
+
+            showToast(
+                "Student deleted successfully.",
+                "success"
+            );
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showToast(
+                "Deletion failed: " +
+                error.message,
+                "error"
+            );
+
+        }
+
+    };
+
+
+/* =========================================================
+   STUDENT HISTORY
+========================================================= */
+
+window.viewHistory =
+    async function(studentProfileId) {
+
+        historyModal.classList.remove(
+            "hidden"
+        );
+
+
+        historyContent.innerHTML =
+            `<div class="loading">
+                Loading student history...
+            </div>`;
+
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient
+                    .from("academic_records")
+                    .select(`
+                        id,
+                        session_id,
+                        class_no,
+                        roll_no,
+                        status,
+                        academic_sessions (
+                            session_name
+                        )
+                    `)
+                    .eq(
+                        "student_profile_id",
+                        studentProfileId
+                    )
+                    .order(
+                        "session_id",
+                        {
+                            ascending: true
+                        }
+                    );
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            if (!data || !data.length) {
+
+                historyContent.innerHTML =
+                    `<div class="empty-state">
+                        No academic history found.
+                    </div>`;
+
+                return;
+
+            }
+
+
+            const student =
+                studentsData.find(
+                    item =>
+                        item.studentProfileId ===
+                        studentProfileId
+                );
+
+
+            let html = "";
+
+
+            if (student) {
+
+                html += `
+
+                    <div style="margin-bottom:18px">
+
+                        <h3 style="color:#123b73">
+                            ${escapeHtml(
+                                student.studentName
+                            )}
+                        </h3>
+
+                        <p style="font-size:13px;color:#6b7280">
+                            Student ID:
+                            ${
+                                student.studentId
+                                    ? escapeHtml(
+                                        student.studentId
+                                      )
+                                    : "Blank"
+                            }
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+
+
+            html += `
+                <div class="history-list">
+            `;
+
+
+            data.forEach(
+                record => {
+
+                    const sessionName =
+                        record
+                            .academic_sessions
+                            ?.session_name ||
+                        "-";
+
+
+                    html += `
+
+                        <div class="history-item">
+
+                            <div class="history-title">
+                                ${escapeHtml(
+                                    sessionName
+                                )}
+                            </div>
+
+                            <div class="history-details">
+
+                                Class:
+                                <strong>
+                                    ${className(
+                                        record.class_no
+                                    )}
+                                </strong>
+
+                                &nbsp; | &nbsp;
+
+                                Roll:
+                                <strong>
+                                    ${escapeHtml(
+                                        record.roll_no ?? ""
+                                    )}
+                                </strong>
+
+                                &nbsp; | &nbsp;
+
+                                Status:
+                                <strong>
+                                    ${escapeHtml(
+                                        record.status ||
+                                        "Current"
+                                    )}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+                }
+            );
+
+
+            html += `
+                </div>
+            `;
+
+
+            historyContent.innerHTML =
+                html;
+
+
+        } catch (error) {
+
+            historyContent.innerHTML =
+                `<div class="empty-state">
+                    Unable to load history.
+                    <br><br>
+                    ${escapeHtml(
+                        error.message
+                    )}
+                </div>`;
+
+        }
+
+    };
+
+
+/* =========================================================
+   MODAL EVENTS
+========================================================= */
+
+closeStudentModal.addEventListener(
+    "click",
+    closeStudentForm
+);
+
+
+cancelStudentButton.addEventListener(
+    "click",
+    closeStudentForm
+);
+
+
+closeHistoryModal.addEventListener(
+    "click",
+    function() {
+
+        historyModal.classList.add(
+            "hidden"
+        );
+
+    }
+);
+
+
+closeHistoryButton.addEventListener(
+    "click",
+    function() {
+
+        historyModal.classList.add(
+            "hidden"
+        );
+
+    }
+);
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(
+    message,
+    type = ""
+) {
+
+    toast.textContent =
+        message;
+
+    toast.className =
+        "toast";
+
+    if (type) {
+        toast.classList.add(
+            type
+        );
+    }
+
+
+    setTimeout(
+        function() {
+
+            toast.classList.add(
+                "hidden"
+            );
+
+        },
+        3500
+    );
+
+}
+
+
+/* =========================================================
+   INITIALIZE
 ========================================================= */
 
 async function initializeApplication() {
@@ -1373,28 +4079,23 @@ async function initializeApplication() {
             data,
             error
         } =
-            await supabaseClient.auth
+            await supabaseClient
+                .auth
                 .getSession();
 
 
         if (error) {
-
             throw error;
-
         }
 
 
-        const session =
-            data.session;
-
-
         if (
-            session &&
-            session.user
+            data.session &&
+            data.session.user
         ) {
 
             await showApplication(
-                session.user
+                data.session.user
             );
 
         } else {
@@ -1406,27 +4107,14 @@ async function initializeApplication() {
 
     } catch (error) {
 
-        console.error(
-            "Session initialization error:",
-            error
-        );
-
+        console.error(error);
 
         showLogin();
-
-
-        showLoginError(
-            "Unable to initialize your session."
-        );
 
     }
 
 }
 
-
-/* =========================================================
-   START APPLICATION
-========================================================= */
 
 initializeApplication();
 
