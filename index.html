@@ -3,329 +3,461 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Student Marks System | U.M.S SASAULI URDU</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f7fb;
+    color: #1f2937;
+    min-height: 100vh;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* =========================
+   LOGIN PAGE
+========================= */
+
+#loginPage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #eef4ff, #f8fafc);
+}
+
+.login-card {
+    width: 100%;
+    max-width: 430px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 35px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.10);
+}
+
+.school-logo {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    margin: 0 auto 18px;
+
+    background: #e8f0ff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 30px;
+    font-weight: bold;
+    color: #155eef;
+}
+
+.login-card h1 {
+    text-align: center;
+    font-size: 22px;
+    color: #123b73;
+    margin-bottom: 6px;
+}
+
+.location {
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 28px;
+}
+
+.login-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 7px;
+    color: #374151;
+}
+
+input {
+    width: 100%;
+    padding: 12px 13px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    font-size: 15px;
+    outline: none;
+
+    margin-bottom: 16px;
+}
+
+input:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+.login-btn {
+    width: 100%;
+
+    border: none;
+    background: #155eef;
+    color: #ffffff;
+
+    padding: 13px;
+
+    border-radius: 8px;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    background: #124dcc;
+}
+
+.login-btn:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+.error-message {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+
+    color: #b91c1c;
+
+    padding: 11px 12px;
+
+    border-radius: 8px;
+
+    margin-bottom: 16px;
+
+    font-size: 14px;
+}
+
+.login-note {
+    margin-top: 20px;
+
+    text-align: center;
+
+    color: #6b7280;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+/* =========================
+   APPLICATION
+========================= */
+
+#appPage {
+    min-height: 100vh;
+}
+
+.topbar {
+    background: #123b73;
+
+    color: #ffffff;
+
+    padding: 15px 25px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+}
+
+.school-title {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.school-subtitle {
+    font-size: 12px;
+    opacity: 0.85;
+    margin-top: 3px;
+}
+
+.user-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-email {
+    font-size: 13px;
+}
+
+.role-badge {
+    background: rgba(255, 255, 255, 0.15);
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+}
+
+.logout-btn {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+
+    background: transparent;
+
+    color: #ffffff;
+
+    padding: 8px 13px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.main-content {
+    padding: 25px;
+
+    max-width: 1400px;
+
+    margin: auto;
+}
+
+.welcome-card {
+    background: #ffffff;
+
+    border-radius: 12px;
+
+    padding: 25px;
+
+    box-shadow:
+        0 3px 15px rgba(0, 0, 0, 0.06);
+}
+
+.welcome-card h2 {
+    color: #123b73;
+
+    margin-bottom: 10px;
+}
+
+.context-box {
+    margin-top: 20px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 15px;
+}
+
+.context-item {
+    background: #f8fafc;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 9px;
+
+    padding: 15px;
+}
+
+.context-label {
+    font-size: 12px;
+
+    color: #6b7280;
+
+    margin-bottom: 5px;
+}
+
+.context-value {
+    font-weight: 600;
+
+    color: #1f2937;
+}
+
+.section-title {
+    margin-top: 30px;
+
+    margin-bottom: 15px;
+
+    color: #123b73;
+}
+
+.module-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+}
+
+.module-card {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    padding: 20px;
+
+    min-height: 120px;
+}
+
+.module-card h3 {
+    font-size: 16px;
+
+    margin-bottom: 7px;
+
+    color: #123b73;
+}
+
+.module-card p {
+    font-size: 13px;
+
+    color: #6b7280;
+
+    line-height: 1.5;
+}
+
+.readonly-notice {
+    margin-top: 20px;
+
+    padding: 12px 15px;
+
+    border-radius: 8px;
+
+    background: #fff7ed;
+
+    border: 1px solid #fed7aa;
+
+    color: #9a3412;
+
+    font-size: 14px;
+}
+
+.session-status {
+    margin-top: 20px;
+
+    padding: 12px 15px;
+
+    border-radius: 8px;
+
+    background: #eff6ff;
+
+    border: 1px solid #bfdbfe;
+
+    color: #1e40af;
+
+    font-size: 13px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+    .module-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
+}
 
-    body {
-        font-family: Arial, Helvetica, sans-serif;
-        background: #f4f7fb;
-        color: #1f2937;
-        min-height: 100vh;
-    }
-
-    .hidden {
-        display: none !important;
-    }
-
-    /* LOGIN */
-
-    #loginPage {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        background: linear-gradient(135deg, #eef4ff, #f8fafc);
-    }
-
-    .login-card {
-        width: 100%;
-        max-width: 430px;
-        background: white;
-        border-radius: 16px;
-        padding: 35px;
-        box-shadow: 0 12px 40px rgba(0,0,0,0.10);
-    }
-
-    .school-logo {
-        width: 75px;
-        height: 75px;
-        border-radius: 50%;
-        margin: 0 auto 18px;
-        background: #e8f0ff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 30px;
-        color: #155eef;
-        font-weight: bold;
-    }
-
-    .login-card h1 {
-        text-align: center;
-        font-size: 22px;
-        color: #123b73;
-        margin-bottom: 6px;
-    }
-
-    .login-card .location {
-        text-align: center;
-        color: #6b7280;
-        font-size: 14px;
-        margin-bottom: 28px;
-    }
-
-    .login-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 18px;
-    }
-
-    label {
-        display: block;
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 7px;
-        color: #374151;
-    }
-
-    input {
-        width: 100%;
-        padding: 12px 13px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 15px;
-        outline: none;
-        margin-bottom: 16px;
-    }
-
-    input:focus {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
-    }
-
-    .login-btn {
-        width: 100%;
-        border: none;
-        background: #155eef;
-        color: white;
-        padding: 13px;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    .login-btn:hover {
-        background: #124dcc;
-    }
-
-    .login-btn:disabled {
-        background: #9ca3af;
-        cursor: not-allowed;
-    }
-
-    .error-message {
-        background: #fef2f2;
-        border: 1px solid #fecaca;
-        color: #b91c1c;
-        padding: 11px 12px;
-        border-radius: 8px;
-        margin-bottom: 16px;
-        font-size: 14px;
-    }
-
-    .login-note {
-        margin-top: 20px;
-        text-align: center;
-        color: #6b7280;
-        font-size: 12px;
-        line-height: 1.5;
-    }
-
-    /* APP */
-
-    #appPage {
-        min-height: 100vh;
-    }
+@media (max-width: 700px) {
 
     .topbar {
-        background: #123b73;
-        color: white;
-        padding: 15px 25px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-    }
+        flex-direction: column;
 
-    .school-title {
-        font-size: 20px;
-        font-weight: 700;
-    }
-
-    .school-subtitle {
-        font-size: 12px;
-        opacity: 0.85;
-        margin-top: 3px;
+        align-items: flex-start;
     }
 
     .user-area {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
+        width: 100%;
 
-    .role-badge {
-        background: rgba(255,255,255,0.15);
-        padding: 6px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-    }
-
-    .logout-btn {
-        border: 1px solid rgba(255,255,255,0.5);
-        background: transparent;
-        color: white;
-        padding: 8px 13px;
-        border-radius: 7px;
-        cursor: pointer;
-    }
-
-    .logout-btn:hover {
-        background: rgba(255,255,255,0.1);
-    }
-
-    .main-content {
-        padding: 25px;
-        max-width: 1400px;
-        margin: auto;
-    }
-
-    .welcome-card {
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
-        box-shadow: 0 3px 15px rgba(0,0,0,0.06);
-    }
-
-    .welcome-card h2 {
-        color: #123b73;
-        margin-bottom: 10px;
+        flex-wrap: wrap;
     }
 
     .context-box {
-        margin-top: 20px;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-    }
-
-    .context-item {
-        background: #f8fafc;
-        border: 1px solid #e5e7eb;
-        border-radius: 9px;
-        padding: 15px;
-    }
-
-    .context-label {
-        font-size: 12px;
-        color: #6b7280;
-        margin-bottom: 5px;
-    }
-
-    .context-value {
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    .section-title {
-        margin-top: 30px;
-        margin-bottom: 15px;
-        color: #123b73;
+        grid-template-columns: 1fr;
     }
 
     .module-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 15px;
+        grid-template-columns: 1fr;
     }
 
-    .module-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 20px;
-        min-height: 120px;
+    .main-content {
+        padding: 15px;
     }
 
-    .module-card h3 {
-        font-size: 16px;
-        margin-bottom: 7px;
-        color: #123b73;
+    .login-card {
+        padding: 25px 20px;
     }
-
-    .module-card p {
-        font-size: 13px;
-        color: #6b7280;
-        line-height: 1.5;
-    }
-
-    .readonly-notice {
-        margin-top: 20px;
-        padding: 12px 15px;
-        border-radius: 8px;
-        background: #fff7ed;
-        border: 1px solid #fed7aa;
-        color: #9a3412;
-        font-size: 14px;
-    }
-
-    @media (max-width: 800px) {
-        .topbar {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .user-area {
-            width: 100%;
-            justify-content: space-between;
-        }
-
-        .context-box,
-        .module-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .main-content {
-            padding: 15px;
-        }
-
-        .login-card {
-            padding: 25px 20px;
-        }
-    }
+}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN PAGE -->
+
+<!-- =========================================================
+     LOGIN PAGE
+========================================================= -->
 
 <div id="loginPage">
 
     <div class="login-card">
 
-        <div class="school-logo">U</div>
+        <div class="school-logo">
+            U
+        </div>
 
-        <h1>U.M.S SASAULI URDU</h1>
-        <div class="location">Muzaffarpur, Bihar</div>
+        <h1>
+            U.M.S SASAULI URDU
+        </h1>
 
-        <div class="login-title">Sign in to Student Marks System</div>
+        <div class="location">
+            Muzaffarpur, Bihar
+        </div>
 
-        <div id="loginError" class="error-message hidden"></div>
+        <div class="login-title">
+            Sign in to Student Marks System
+        </div>
+
+        <div
+            id="loginError"
+            class="error-message hidden">
+        </div>
 
         <form id="loginForm">
 
-            <label for="email">Email</label>
+            <label for="email">
+                Email
+            </label>
+
             <input
                 type="email"
                 id="email"
@@ -334,7 +466,10 @@
                 required
             >
 
-            <label for="password">Password</label>
+            <label for="password">
+                Password
+            </label>
+
             <input
                 type="password"
                 id="password"
@@ -343,15 +478,23 @@
                 required
             >
 
-            <button type="submit" id="loginButton" class="login-btn">
+            <button
+                type="submit"
+                id="loginButton"
+                class="login-btn">
+
                 Sign In
+
             </button>
 
         </form>
 
         <div class="login-note">
+
             Authorized school users only.<br>
+
             Your access level is determined by your account.
+
         </div>
 
     </div>
@@ -359,27 +502,47 @@
 </div>
 
 
-<!-- APPLICATION PAGE -->
+<!-- =========================================================
+     APPLICATION PAGE
+========================================================= -->
 
-<div id="appPage" class="hidden">
+<div
+    id="appPage"
+    class="hidden">
 
     <header class="topbar">
 
         <div>
-            <div class="school-title">U.M.S SASAULI URDU</div>
+
+            <div class="school-title">
+                U.M.S SASAULI URDU
+            </div>
+
             <div class="school-subtitle">
                 Student Marks Management System
             </div>
+
         </div>
+
 
         <div class="user-area">
 
-            <span id="userEmail"></span>
+            <span
+                id="userEmail"
+                class="user-email">
+            </span>
 
-            <span id="roleBadge" class="role-badge"></span>
+            <span
+                id="roleBadge"
+                class="role-badge">
+            </span>
 
-            <button id="logoutButton" class="logout-btn">
+            <button
+                id="logoutButton"
+                class="logout-btn">
+
                 Logout
+
             </button>
 
         </div>
@@ -391,97 +554,201 @@
 
         <div class="welcome-card">
 
-            <h2>Welcome to Student Marks System</h2>
+            <h2>
+                Welcome to Student Marks System
+            </h2>
 
             <p>
-                The new multi-year school management system is connected
-                to the secure Supabase database.
+                The new multi-year school management system
+                is connected to the secure Supabase database.
             </p>
+
 
             <div class="context-box">
 
                 <div class="context-item">
-                    <div class="context-label">Academic Session</div>
-                    <div class="context-value">2026–27</div>
+
+                    <div class="context-label">
+                        Academic Session
+                    </div>
+
+                    <div class="context-value">
+                        2026–27
+                    </div>
+
                 </div>
 
-                <div class="context-item">
-                    <div class="context-label">School</div>
-                    <div class="context-value">U.M.S SASAULI URDU</div>
-                </div>
 
                 <div class="context-item">
-                    <div class="context-label">Location</div>
-                    <div class="context-value">Muzaffarpur, Bihar</div>
+
+                    <div class="context-label">
+                        School
+                    </div>
+
+                    <div class="context-value">
+                        U.M.S SASAULI URDU
+                    </div>
+
+                </div>
+
+
+                <div class="context-item">
+
+                    <div class="context-label">
+                        Location
+                    </div>
+
+                    <div class="context-value">
+                        Muzaffarpur, Bihar
+                    </div>
+
                 </div>
 
             </div>
 
-            <h3 class="section-title">System Modules</h3>
+
+            <h3 class="section-title">
+                System Modules
+            </h3>
+
 
             <div class="module-grid">
 
                 <div class="module-card">
-                    <h3>Students</h3>
+
+                    <h3>
+                        Students
+                    </h3>
+
                     <p>
-                        Student profiles, academic records and student history.
+                        Student profiles, academic records
+                        and student history.
                     </p>
+
                 </div>
 
-                <div class="module-card">
-                    <h3>Marks</h3>
-                    <p>
-                        Half-Yearly, Annual and Final result management.
-                    </p>
-                </div>
 
                 <div class="module-card">
-                    <h3>Promotion</h3>
+
+                    <h3>
+                        Marks
+                    </h3>
+
                     <p>
-                        Review and confirm student promotion for the next session.
+                        Half-Yearly, Annual and Final
+                        result management.
                     </p>
+
                 </div>
 
-                <div class="module-card">
-                    <h3>Reports</h3>
-                    <p>
-                        Class results, marks folio and individual student results.
-                    </p>
-                </div>
 
                 <div class="module-card">
-                    <h3>Backup</h3>
+
+                    <h3>
+                        Promotion
+                    </h3>
+
                     <p>
-                        Complete school data backup and restoration.
+                        Review and confirm student
+                        promotion for the next session.
                     </p>
+
                 </div>
 
-                <div class="module-card">
-                    <h3>Academic Sessions</h3>
-                    <p>
-                        Maintain multiple academic years without overwriting history.
-                    </p>
-                </div>
 
                 <div class="module-card">
-                    <h3>Subjects</h3>
+
+                    <h3>
+                        Reports
+                    </h3>
+
                     <p>
-                        Class-wise subject structure for Classes I to VIII.
+                        Class results, marks folio
+                        and individual student results.
                     </p>
+
                 </div>
 
+
                 <div class="module-card">
-                    <h3>Search & Sort</h3>
+
+                    <h3>
+                        Backup
+                    </h3>
+
                     <p>
-                        Search and arrange student records for viewing and printing.
+                        Complete school data backup
+                        and restoration.
                     </p>
+
+                </div>
+
+
+                <div class="module-card">
+
+                    <h3>
+                        Academic Sessions
+                    </h3>
+
+                    <p>
+                        Maintain multiple academic
+                        years without overwriting history.
+                    </p>
+
+                </div>
+
+
+                <div class="module-card">
+
+                    <h3>
+                        Subjects
+                    </h3>
+
+                    <p>
+                        Class-wise subject structure
+                        for Classes I to VIII.
+                    </p>
+
+                </div>
+
+
+                <div class="module-card">
+
+                    <h3>
+                        Search & Sort
+                    </h3>
+
+                    <p>
+                        Search and arrange student records
+                        for viewing and printing.
+                    </p>
+
                 </div>
 
             </div>
 
-            <div id="readonlyNotice" class="readonly-notice hidden">
-                View Only access: you can view, search, sort, filter and print
-                records. Editing and administrative operations are disabled.
+
+            <div
+                id="readonlyNotice"
+                class="readonly-notice hidden">
+
+                View Only access: you can view, search,
+                sort, filter and print records.
+                Editing and administrative operations
+                are disabled.
+
+            </div>
+
+
+            <div class="session-status">
+
+                Automatic logout after
+                <strong>15 minutes of inactivity</strong>.
+
+                Refreshing the page keeps your session active.
+
+                Closing the browser tab requires login again.
+
             </div>
 
         </div>
@@ -493,9 +760,9 @@
 
 <script>
 
-/* ============================================================
+/* =========================================================
    SUPABASE CONFIGURATION
-   ============================================================ */
+========================================================= */
 
 const SUPABASE_URL =
     "https://fegrjxawwhnaxvqbjesf.supabase.co";
@@ -504,282 +771,473 @@ const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_NIfpJE60FAdsZQkLhxJYGA_m-y9xJli";
 
 
-/*
-   IMPORTANT:
-   sessionStorage is deliberately used here.
+/* =========================================================
+   SESSION STORAGE
 
-   Result:
-   - Refreshing the page keeps the login.
-   - Closing the browser tab removes the stored session.
-*/
+   We use sessionStorage instead of localStorage.
 
-const sessionStorageAdapter = {
+   Therefore:
+
+   Refresh:
+   session remains.
+
+   Close tab:
+   session is removed.
+========================================================= */
+
+const authStorage = {
 
     getItem(key) {
-        return Promise.resolve(sessionStorage.getItem(key));
+
+        return Promise.resolve(
+            sessionStorage.getItem(key)
+        );
+
     },
 
     setItem(key, value) {
-        sessionStorage.setItem(key, value);
+
+        sessionStorage.setItem(
+            key,
+            value
+        );
+
         return Promise.resolve();
+
     },
 
     removeItem(key) {
+
         sessionStorage.removeItem(key);
+
         return Promise.resolve();
+
     }
+
 };
 
 
-const { createClient } = window.supabase;
+/* =========================================================
+   SUPABASE CLIENT
 
-const supabase = createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY,
-    {
-        auth: {
-            storage: sessionStorageAdapter,
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: false
+   IMPORTANT:
+   We use "supabaseClient" rather than "supabase"
+   to avoid naming conflicts.
+========================================================= */
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY,
+        {
+            auth: {
+                storage: authStorage,
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: false
+            }
         }
-    }
-);
+    );
 
 
-/* ============================================================
-   GLOBAL VARIABLES
-   ============================================================ */
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
 
 let currentUser = null;
+
 let currentRole = null;
 
 let inactivityTimer = null;
 
-const INACTIVITY_LIMIT = 15 * 60 * 1000;
+const INACTIVITY_LIMIT =
+    15 * 60 * 1000;
 
 
-/* ============================================================
+/* =========================================================
    DOM ELEMENTS
-   ============================================================ */
+========================================================= */
 
-const loginPage = document.getElementById("loginPage");
-const appPage = document.getElementById("appPage");
+const loginPage =
+    document.getElementById("loginPage");
 
-const loginForm = document.getElementById("loginForm");
-const loginButton = document.getElementById("loginButton");
-const loginError = document.getElementById("loginError");
+const appPage =
+    document.getElementById("appPage");
 
-const userEmail = document.getElementById("userEmail");
-const roleBadge = document.getElementById("roleBadge");
+const loginForm =
+    document.getElementById("loginForm");
 
-const logoutButton = document.getElementById("logoutButton");
-const readonlyNotice = document.getElementById("readonlyNotice");
+const loginButton =
+    document.getElementById("loginButton");
+
+const loginError =
+    document.getElementById("loginError");
+
+const userEmail =
+    document.getElementById("userEmail");
+
+const roleBadge =
+    document.getElementById("roleBadge");
+
+const logoutButton =
+    document.getElementById("logoutButton");
+
+const readonlyNotice =
+    document.getElementById("readonlyNotice");
 
 
-/* ============================================================
+/* =========================================================
    LOGIN ERROR
-   ============================================================ */
+========================================================= */
 
 function showLoginError(message) {
 
-    loginError.textContent = message;
-    loginError.classList.remove("hidden");
+    loginError.textContent =
+        message;
+
+    loginError.classList.remove(
+        "hidden"
+    );
 
 }
 
 
 function clearLoginError() {
 
-    loginError.textContent = "";
-    loginError.classList.add("hidden");
+    loginError.textContent =
+        "";
+
+    loginError.classList.add(
+        "hidden"
+    );
 
 }
 
 
-/* ============================================================
+/* =========================================================
    GET USER ROLE
-   ============================================================ */
+========================================================= */
 
 async function getUserRole(userId) {
 
-    const { data, error } = await supabase
+    const {
+        data,
+        error
+    } = await supabaseClient
         .from("user_roles")
         .select("role")
         .eq("user_id", userId)
         .maybeSingle();
 
+
     if (error) {
-        console.error(error);
-        throw new Error("Unable to determine account permissions.");
+
+        console.error(
+            "Role lookup error:",
+            error
+        );
+
+        throw new Error(
+            "Unable to determine account permissions."
+        );
+
     }
+
 
     if (!data) {
-        throw new Error("This account has no assigned system role.");
+
+        throw new Error(
+            "This account has no assigned system role."
+        );
+
     }
 
+
     return data.role;
+
 }
 
 
-/* ============================================================
+/* =========================================================
    SHOW APPLICATION
-   ============================================================ */
+========================================================= */
 
 async function showApplication(user) {
 
     try {
 
-        const role = await getUserRole(user.id);
+        const role =
+            await getUserRole(user.id);
 
-        currentUser = user;
-        currentRole = role;
 
-        userEmail.textContent = user.email;
+        if (
+            role !== "admin" &&
+            role !== "view_only"
+        ) {
+
+            throw new Error(
+                "Invalid account role."
+            );
+
+        }
+
+
+        currentUser =
+            user;
+
+        currentRole =
+            role;
+
+
+        userEmail.textContent =
+            user.email;
+
 
         if (role === "admin") {
 
-            roleBadge.textContent = "Admin";
-            readonlyNotice.classList.add("hidden");
+            roleBadge.textContent =
+                "Admin";
 
-        } else if (role === "view_only") {
-
-            roleBadge.textContent = "View Only";
-            readonlyNotice.classList.remove("hidden");
-
-        } else {
-
-            throw new Error("Invalid account role.");
+            readonlyNotice.classList.add(
+                "hidden"
+            );
 
         }
 
-        loginPage.classList.add("hidden");
-        appPage.classList.remove("hidden");
+
+        if (role === "view_only") {
+
+            roleBadge.textContent =
+                "View Only";
+
+            readonlyNotice.classList.remove(
+                "hidden"
+            );
+
+        }
+
+
+        loginPage.classList.add(
+            "hidden"
+        );
+
+        appPage.classList.remove(
+            "hidden"
+        );
+
 
         startInactivityTimer();
 
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Application initialization error:",
+            error
+        );
 
-        await supabase.auth.signOut();
 
-        showLoginError(error.message);
+        await supabaseClient.auth.signOut();
 
-        loginPage.classList.remove("hidden");
-        appPage.classList.add("hidden");
+
+        showLogin();
+
+
+        showLoginError(
+            error.message
+        );
 
     }
 
 }
 
 
-/* ============================================================
+/* =========================================================
    SHOW LOGIN
-   ============================================================ */
+========================================================= */
 
 function showLogin() {
 
-    currentUser = null;
-    currentRole = null;
+    currentUser =
+        null;
+
+    currentRole =
+        null;
+
 
     stopInactivityTimer();
 
-    appPage.classList.add("hidden");
-    loginPage.classList.remove("hidden");
+
+    appPage.classList.add(
+        "hidden"
+    );
+
+    loginPage.classList.remove(
+        "hidden"
+    );
 
 }
 
 
-/* ============================================================
-   LOGIN
-   ============================================================ */
+/* =========================================================
+   LOGIN FORM
+========================================================= */
 
-loginForm.addEventListener("submit", async function(event) {
+loginForm.addEventListener(
+    "submit",
+    async function(event) {
 
-    event.preventDefault();
+        event.preventDefault();
 
-    clearLoginError();
 
-    const email =
-        document.getElementById("email").value.trim();
+        clearLoginError();
 
-    const password =
-        document.getElementById("password").value;
 
-    loginButton.disabled = true;
-    loginButton.textContent = "Signing in...";
+        const email =
+            document
+                .getElementById("email")
+                .value
+                .trim();
 
-    try {
 
-        const { data, error } =
-            await supabase.auth.signInWithPassword({
-                email,
-                password
-            });
+        const password =
+            document
+                .getElementById("password")
+                .value;
 
-        if (error) {
-            throw error;
+
+        loginButton.disabled =
+            true;
+
+        loginButton.textContent =
+            "Signing in...";
+
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth
+                    .signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+
+            if (error) {
+
+                throw error;
+
+            }
+
+
+            if (
+                !data ||
+                !data.user
+            ) {
+
+                throw new Error(
+                    "Login succeeded but no user session was returned."
+                );
+
+            }
+
+
+            await showApplication(
+                data.user
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Login error:",
+                error
+            );
+
+
+            showLoginError(
+                error.message ||
+                "Unable to sign in."
+            );
+
+
+        } finally {
+
+            loginButton.disabled =
+                false;
+
+            loginButton.textContent =
+                "Sign In";
+
         }
 
-        await showApplication(data.user);
+    }
+);
 
-    } catch (error) {
 
-        console.error(error);
+/* =========================================================
+   LOGOUT
+========================================================= */
 
-        showLoginError(
-            error.message || "Unable to sign in."
-        );
+logoutButton.addEventListener(
+    "click",
+    async function() {
 
-    } finally {
+        stopInactivityTimer();
 
-        loginButton.disabled = false;
-        loginButton.textContent = "Sign In";
+
+        await supabaseClient.auth.signOut();
+
+
+        showLogin();
+
+
+        clearLoginError();
 
     }
-
-});
-
-
-/* ============================================================
-   LOGOUT
-   ============================================================ */
-
-logoutButton.addEventListener("click", async function() {
-
-    stopInactivityTimer();
-
-    await supabase.auth.signOut();
-
-    showLogin();
-
-});
+);
 
 
-/* ============================================================
-   INACTIVITY TIMEOUT
-   ============================================================ */
+/* =========================================================
+   INACTIVITY TIMER
+========================================================= */
 
 function resetInactivityTimer() {
 
     if (!currentUser) {
+
         return;
+
     }
 
-    clearTimeout(inactivityTimer);
 
-    inactivityTimer = setTimeout(async function() {
+    clearTimeout(
+        inactivityTimer
+    );
 
-        await supabase.auth.signOut();
 
-        showLogin();
+    inactivityTimer =
+        setTimeout(
+            async function() {
 
-        showLoginError(
-            "You have been logged out because of 15 minutes of inactivity."
+                await supabaseClient
+                    .auth
+                    .signOut();
+
+
+                showLogin();
+
+
+                showLoginError(
+                    "You have been logged out because of 15 minutes of inactivity."
+                );
+
+            },
+            INACTIVITY_LIMIT
         );
-
-    }, INACTIVITY_LIMIT);
 
 }
 
@@ -793,53 +1251,109 @@ function startInactivityTimer() {
 
 function stopInactivityTimer() {
 
-    clearTimeout(inactivityTimer);
-    inactivityTimer = null;
+    if (inactivityTimer) {
+
+        clearTimeout(
+            inactivityTimer
+        );
+
+    }
+
+
+    inactivityTimer =
+        null;
 
 }
 
 
-/* ============================================================
-   USER ACTIVITY DETECTION
-   ============================================================ */
+/* =========================================================
+   USER ACTIVITY
 
-[
+   Any normal activity resets the 15-minute timer.
+========================================================= */
+
+const activityEvents = [
+
     "mousedown",
+
     "mousemove",
+
     "keydown",
+
     "touchstart",
+
     "click",
-    "scroll"
-].forEach(function(eventName) {
 
-    document.addEventListener(
-        eventName,
-        resetInactivityTimer,
-        { passive: true }
-    );
+    "scroll",
 
-});
+    "input",
+
+    "wheel"
+
+];
 
 
-/* ============================================================
-   AUTH STATE
-   ============================================================ */
+activityEvents.forEach(
+    function(eventName) {
 
-supabase.auth.onAuthStateChange(
+        document.addEventListener(
+            eventName,
+            function() {
+
+                resetInactivityTimer();
+
+            },
+            {
+                passive: true
+            }
+        );
+
+    }
+);
+
+
+/* =========================================================
+   AUTH STATE CHANGES
+========================================================= */
+
+supabaseClient.auth.onAuthStateChange(
     async function(event, session) {
 
-        /*
-          INITIAL_SESSION:
-          Check whether a valid session survived a refresh.
-        */
+        console.log(
+            "Auth event:",
+            event
+        );
 
-        if (session && session.user) {
 
-            await showApplication(session.user);
+        if (
+            session &&
+            session.user
+        ) {
+
+            /*
+              We intentionally do not process
+              repeated SIGNED_IN events as a
+              separate login operation.
+            */
+
+            if (
+                !currentUser ||
+                currentUser.id !== session.user.id
+            ) {
+
+                await showApplication(
+                    session.user
+                );
+
+            }
 
         } else {
 
-            showLogin();
+            if (currentUser) {
+
+                showLogin();
+
+            }
 
         }
 
@@ -847,21 +1361,41 @@ supabase.auth.onAuthStateChange(
 );
 
 
-/* ============================================================
+/* =========================================================
    INITIAL SESSION CHECK
-   ============================================================ */
+========================================================= */
 
-(async function initialize() {
+async function initializeApplication() {
 
     try {
 
         const {
-            data: { session }
-        } = await supabase.auth.getSession();
+            data,
+            error
+        } =
+            await supabaseClient.auth
+                .getSession();
 
-        if (session && session.user) {
 
-            await showApplication(session.user);
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        const session =
+            data.session;
+
+
+        if (
+            session &&
+            session.user
+        ) {
+
+            await showApplication(
+                session.user
+            );
 
         } else {
 
@@ -869,15 +1403,32 @@ supabase.auth.onAuthStateChange(
 
         }
 
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Session initialization error:",
+            error
+        );
+
 
         showLogin();
 
+
+        showLoginError(
+            "Unable to initialize your session."
+        );
+
     }
 
-})();
+}
+
+
+/* =========================================================
+   START APPLICATION
+========================================================= */
+
+initializeApplication();
 
 </script>
 
