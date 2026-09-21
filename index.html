@@ -668,17 +668,19 @@ tbody tr:hover {
   @page { size:A4 portrait; margin:12mm; }
   .result-page { page-break-after:always; width:100%; }
   .result-page:last-child { page-break-after:auto; }
-  .result-header { width:100%; box-sizing:border-box; text-align:center; line-height:1.35; margin:0 auto 14px; }
-  .result-header h1 { font-size:22px; margin:0; text-align:center; }
-  .result-header h2 { font-size:17px; margin:4px 0; text-align:center; }
-  .result-header .small { font-size:12px; text-align:center; }
-  .result-info { display:grid; grid-template-columns:1fr 1fr; gap:5px 22px; font-size:11px; margin-bottom:12px; }
-  .result-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:12px; }
-  .result-table th,.result-table td { border:1px solid #222; padding:7px 5px; text-align:center; vertical-align:middle; word-wrap:break-word; }
-  .result-table th { background:#f3f4f6; font-size:12px; }
+  .result-header { width:100%; box-sizing:border-box; display:block; text-align:center !important; line-height:1.4; margin:0 auto 18px; }
+  .result-header h1 { font-size:26px; font-weight:700; margin:0 0 5px; text-align:center !important; }
+  .result-header h2 { font-size:20px; font-weight:700; margin:4px 0; text-align:center !important; }
+  .result-header .small { font-size:13px; margin:2px 0; text-align:center !important; }
+  .result-info { display:grid; grid-template-columns:1fr 1fr; gap:7px 24px; font-size:13px; margin-bottom:14px; }
+  .result-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:13px; }
+  .result-table th,.result-table td { border:1px solid #222; padding:8px 6px; text-align:center; vertical-align:middle; word-wrap:break-word; }
+  .result-table th { background:#f3f4f6; font-size:13px; }
   .result-table td.subject { text-align:left; }
-  .result-summary { margin-top:12px; font-size:12px; }
-  .page-number { text-align:right; font-size:10px; margin-top:7px; }
+  .result-summary { margin-top:14px; font-size:14px; }
+  .page-number { text-align:right; font-size:10px; margin-top:8px; }
+  .folio-print .result-table { font-size:11px; }
+  .folio-print .result-table th,.folio-print .result-table td { padding:6px 4px; }
 }
 
 /* =========================
@@ -3250,7 +3252,34 @@ if (saveMarksButton) saveMarksButton.addEventListener("click", saveMarks);
 /* =========================================================
    SECTION NAVIGATION
 ========================================================= */
+function resetStudentsState(){
+    if(sessionFilter){ const active=sessions.find(s=>s.is_active); sessionFilter.value=active?String(active.id):""; }
+    if(classFilter) classFilter.value="";
+    if(studentSearch) studentSearch.value="";
+    if(studentSort) studentSort.value="rollAsc";
+}
+function resetMarksState(){
+    if(marksSession){ const active=sessions.find(s=>s.is_active); marksSession.value=active?String(active.id):""; }
+    if(marksClass) marksClass.value="1";
+    if(marksExam) marksExam.value="Half-Yearly";
+}
+function resetPrintState(){
+    if(printStudentSearch) printStudentSearch.value="";
+    if(printStudentInfo) printStudentInfo.textContent="No student selected.";
+    if(printStudentSelect) printStudentSelect.innerHTML=`<option value="">Select student</option>`;
+    if(printClass) printClass.value="1";
+    if(printExam) printExam.value="Half-Yearly";
+    if(printSession){ const active=sessions.find(s=>s.is_active); if(active) printSession.value=String(active.id); }
+    printStudents=[]; printSubjects=[]; printMarks={};
+    if(printClassInfo) printClassInfo.textContent="Select session, class and examination.";
+}
+function resetModuleState(section){
+    if(section==="students") resetStudentsState();
+    if(section==="marks") resetMarksState();
+    if(section==="reports") resetPrintState();
+}
 function showSection(section) {
+    resetModuleState(section);
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.section === section));
     document.querySelectorAll(".app-section").forEach(item => item.classList.add("hidden"));
     const target = document.getElementById(section + "Section");
@@ -3378,7 +3407,7 @@ function printOneStudent(){
     const r=printStudents.find(x=>String(x.id)===String(printStudentSelect.value));
     if(!r){showToast("Please select a student.","error");return;}
     const studentName=(r.students?.student_name||"Student").trim();
-    openPrint(resultHtml(r,1,1), `${studentName} Result`);
+    openPrint(resultHtml(r,1,1), `${studentName} Marks Result`);
 }
 function printAllStudents(){
     if(!printStudents.length){showToast("No students found.","error");return;}
@@ -3391,7 +3420,7 @@ async function printClassFolio(){
     const ranked=[...printStudents].sort((a,b)=>Number(a.roll_no??999999)-Number(b.roll_no??999999));
     const heads=printSubjects.map(s=>`<th>${escapeHtml(s.subject_name)}<br><small>${printExam.value==="Final"?100:50}</small></th>`).join("");
     const rows=ranked.map((r,i)=>{const c=calcPrintRecord(r);return `<tr><td>${i+1}</td><td>${escapeHtml(r.roll_no??"")}</td><td class="name">${escapeHtml(r.students?.student_name||"")}</td>${printSubjects.map(s=>{let v;if(printExam.value==="Final"){v=(getPrintMark(r.id,s.id,"Half-Yearly")||0)+(getPrintMark(r.id,s.id,"Annual")||0);}else v=getPrintMark(r.id,s.id,printExam.value);return `<td>${v??""}</td>`}).join("")}<td>${c.total}</td><td>${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;}).join("");
-    openPrint(`<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th>%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table><div class="page-number">Students: ${printStudents.length}</div></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
+    openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th>%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table><div class="page-number">Students: ${printStudents.length}</div></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
 }
 
 /* =========================================================
