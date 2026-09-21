@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Marks System</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#1f2937}
+header{background:#173b63;color:#fff;padding:20px}.wrap{max-width:1200px;margin:auto}
+header h1{margin:0 0 5px;font-size:25px}header p{margin:0;opacity:.85}
+.card{background:#fff;border-radius:12px;padding:18px;margin:18px 0;box-shadow:0 3px 14px #00000010}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+label{font-weight:bold;font-size:13px;display:block;margin-bottom:5px}input,select,button{width:100%;padding:10px;border:1px solid #ccd5df;border-radius:8px;font-size:14px}
+button{background:#173b63;color:#fff;border:0;cursor:pointer;font-weight:bold}button.secondary{background:#64748b}button.danger{background:#b91c1c}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions button{width:auto}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}th,td{border:1px solid #dbe2ea;padding:8px;text-align:center}th{background:#eaf0f7}
+.table-wrap{overflow:auto}.stat{font-size:24px;font-weight:bold;color:#173b63}.muted{color:#64748b;font-size:13px}
+@media print{header,.no-print,.card.form-card{display:none!important}body{background:white}.card{box-shadow:none;margin:0}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>Student Marks Management System</h1><p>Classes 3–8 • Automatic Total, Percentage & Grade</p></div></header>
+<main class="wrap">
+<section class="card form-card no-print">
+<h2>Add / Update Student</h2>
+<div class="grid">
+<div><label>Class</label><select id="cls"><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+<div><label>Roll Number</label><input id="roll" type="number" min="1"></div>
+<div><label>Student Name</label><input id="name"></div>
+<div><label>Urdu</label><input id="urdu" type="number" min="0" max="50"></div>
+<div><label>English</label><input id="english" type="number" min="0" max="50"></div>
+<div><label>Hindi</label><input id="hindi" type="number" min="0" max="50"></div>
+<div><label>Mathematics</label><input id="math" type="number" min="0" max="50"></div>
+<div><label id="extra1Label">EVS</label><input id="extra1" type="number" min="0" max="50"></div>
+<div id="extra2Box"><label id="extra2Label">—</label><input id="extra2" type="number" min="0" max="50"></div>
+</div>
+<div class="actions">
+<button onclick="saveStudent()">Save Student</button><button class="secondary" onclick="clearForm()">Clear</button>
+</div>
+<p class="muted">Classes 3–5: EVS is used. Classes 6–8: Science and Social Science are used. Maximum 50 marks per subject.</p>
+</section>
+
+<section class="card no-print">
+<h2>Result Summary</h2>
+<div class="grid">
+<div><div class="muted">Students</div><div class="stat" id="count">0</div></div>
+<div><div class="muted">Average %</div><div class="stat" id="avg">0%</div></div>
+<div><div class="muted">Pass</div><div class="stat" id="pass">0</div></div>
+<div><div class="muted">Fail</div><div class="stat" id="fail">0</div></div>
+</div>
+</section>
+
+<section class="card">
+<div class="no-print">
+<div class="grid">
+<div><label>View Class</label><select id="filterClass" onchange="render()"><option value="all">All Classes</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+<div><label>Search</label><input id="search" oninput="render()" placeholder="Name or roll number"></div>
+</div>
+<div class="actions"><button onclick="window.print()">Print Result</button><button class="secondary" onclick="exportCSV()">Export CSV</button><button class="danger" onclick="deleteAll()">Delete All Data</button></div>
+</div>
+<div class="table-wrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+</section>
+</main>
+<script>
+const KEY='school_marks_system_v1';
+let students=JSON.parse(localStorage.getItem(KEY)||'[]');
+const $=id=>document.getElementById(id);
+function subjects(cls){return Number(cls)<=5?['Urdu','English','Hindi','Mathematics','EVS']:['Urdu','English','Hindi','Mathematics','Science','Social Science'];}
+function updateFields(){
+ const c=$('cls').value, s=subjects(c);
+ $('extra1Label').textContent=s[4]; $('extra2Label').textContent=s[5]||'—';
+ $('extra2Box').style.display=s.length===6?'block':'none';
+}
+$('cls').onchange=updateFields; updateFields();
+
+function num(id){return Number($(id).value||0)}
+function saveStudent(){
+ const cls=$('cls').value, s=subjects(cls), name=$('name').value.trim(), roll=Number($('roll').value);
+ if(!name||!roll){alert('Please enter roll number and student name.');return}
+ const marks={}; [s[0],s[1],s[2],s[3]].forEach((x,i)=>marks[x]=num(['urdu','english','hindi','math'][i]));
+ marks[s[4]]=num('extra1'); if(s[5]) marks[s[5]]=num('extra2');
+ Object.values(marks).forEach(v=>{if(v<0||v>50) throw new Error('Marks must be between 0 and 50.')});
+ const existing=students.findIndex(x=>x.cls===cls&&x.roll===roll);
+ const obj={cls,roll,name,marks};
+ if(existing>=0) students[existing]=obj; else students.push(obj);
+ students.sort((a,b)=>Number(a.cls)-Number(b.cls)||a.roll-b.roll);
+ localStorage.setItem(KEY,JSON.stringify(students)); clearForm(); render();
+}
+function clearForm(){['roll','name','urdu','english','hindi','math','extra1','extra2'].forEach(x=>$(x).value='')}
+function calc(x){
+ const vals=Object.values(x.marks), total=vals.reduce((a,b)=>a+b,0), pct=total/(vals.length*50)*100;
+ let grade=pct>=81?'A':pct>=61?'B':pct>=41?'C':pct>=33?'D':'F';
+ return {total,pct,grade};
+}
+function editStudent(i){
+ const x=students[i]; $('cls').value=x.cls; updateFields(); $('roll').value=x.roll; $('name').value=x.name;
+ const s=subjects(x.cls); ['urdu','english','hindi','math'].forEach((id,j)=>$(id).value=x.marks[s[j]]??'');
+ $('extra1').value=x.marks[s[4]]??''; $('extra2').value=x.marks[s[5]]??'';
+ scrollTo(0,0);
+}
+function removeStudent(i){if(confirm('Delete this student?')){students.splice(i,1);localStorage.setItem(KEY,JSON.stringify(students));render()}}
+function render(){
+ const fc=$('filterClass').value, q=$('search').value.toLowerCase();
+ const data=students.map((x,i)=>({...x,_i:i})).filter(x=>(fc==='all'||x.cls===fc)&&(x.name.toLowerCase().includes(q)||String(x.roll).includes(q)));
+ $('thead').innerHTML='<tr><th>Class</th><th>Roll</th><th>Name</th><th>Marks</th><th>Total</th><th>%</th><th>Grade</th><th class="no-print">Action</th></tr>';
+ $('tbody').innerHTML=data.map(x=>{const c=calc(x);return `<tr><td>${x.cls}</td><td>${x.roll}</td><td>${x.name}</td><td>${Object.entries(x.marks).map(([k,v])=>`${k}: ${v}`).join('<br>')}</td><td>${c.total}/${Object.keys(x.marks).length*50}</td><td>${c.pct.toFixed(2)}%</td><td>${c.grade}</td><td class="no-print"><button onclick="editStudent(${x._i})">Edit</button> <button class="danger" onclick="removeStudent(${x._i})">Delete</button></td></tr>`}).join('')||'<tr><td colspan="8">No students found.</td></tr>';
+ $('count').textContent=data.length;
+ const cs=data.map(calc), av=cs.length?cs.reduce((a,b)=>a+b.pct,0)/cs.length:0;
+ $('avg').textContent=av.toFixed(2)+'%'; $('pass').textContent=cs.filter(x=>x.pct>=33).length; $('fail').textContent=cs.filter(x=>x.pct<33).length;
+}
+function exportCSV(){
+ const rows=[['Class','Roll','Name','Subjects','Total','Percentage','Grade']];
+ students.forEach(x=>{const c=calc(x);rows.push([x.cls,x.roll,x.name,Object.entries(x.marks).map(([k,v])=>`${k}: ${v}`).join(' | '),c.total,c.pct.toFixed(2),c.grade])});
+ const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='student-results.csv';a.click();
+}
+function deleteAll(){if(confirm('Delete ALL student data? This cannot be undone.')){students=[];localStorage.removeItem(KEY);render()}}
+render();
+</script>
+</body>
+</html>
