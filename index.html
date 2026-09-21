@@ -3649,32 +3649,14 @@ window.deleteStudent =
         }
 
 
-        const firstConfirm =
+        const confirmed =
             confirm(
-                `DELETE STUDENT\n\n${student.studentName}\n\nThis is a permanent deletion action. The academic record for this session and the permanent student profile may be deleted.\n\nAre you sure you want to continue?`
+                `Are you sure you want to permanently delete "${student.studentName}"?\n\nThis action cannot be undone. The academic record for this session and, if no other academic records remain, the permanent student profile may be deleted.`
             );
 
 
-        if (!firstConfirm) {
+        if (!confirmed) {
             return;
-        }
-
-
-        const secondConfirm =
-            prompt(
-                `To permanently delete "${student.studentName}", type DELETE`
-            );
-
-
-        if (secondConfirm !== "DELETE") {
-
-            showToast(
-                "Deletion cancelled.",
-                "error"
-            );
-
-            return;
-
         }
 
 
