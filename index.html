@@ -1335,8 +1335,6 @@ button {
   .creator-credit, .topbar-credit, .login-page-credit, .login-note { font-size:14pt; }
 
   /* Supabase-loaded data in the UI only. */
-  .dashboard-card .number,
-  .dashboard-card .dashboard-session-number,
   .dashboard-overview-table td,
   #studentTableContainer table td,
   .marks-table td,
@@ -1352,6 +1350,14 @@ button {
   .dashboard-overview-table th,
   #studentTableContainer table th { font-size:14pt !important; }
 }
+
+
+/* Dashboard KPI values must remain large and distinctive; they are not treated as ordinary Supabase table data. */
+@media screen {
+  .dashboard-card .number { font-size: 30px !important; font-weight: 700 !important; color: #155eef !important; }
+  .dashboard-card .dashboard-session-number { font-size: 24px !important; font-weight: 700 !important; color: #155eef !important; }
+}
+
 </style>
 </head>
 
