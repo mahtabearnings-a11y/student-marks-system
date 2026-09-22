@@ -785,84 +785,6 @@ tbody tr:hover {
 .print-results-table td.name { text-align:left; }
 @media(max-width:700px){ .print-controls{grid-template-columns:1fr;} }
 
-/* =========================
-   GLOBAL UI FONT SIZE
-   ========================= */
-body {
-    font-size: 14pt;
-}
-
-input,
-select {
-    font-size: 14pt;
-}
-
-button {
-    font-size: 14pt;
-}
-
-.nav-btn {
-    font-size: 14pt;
-}
-
-.school-title {
-    font-size: 17.5pt;
-}
-
-.school-subtitle,
-.user-email,
-.role-badge {
-    font-size: 14pt;
-}
-
-.page-header h2 {
-    font-size: 19pt;
-}
-
-.card,
-.dashboard-card,
-.context-card {
-    font-size: 14pt;
-}
-
-.dashboard-card .label {
-    font-size: 14pt;
-}
-
-.creator-credit,
-.topbar-credit,
-.login-page-credit,
-.login-note {
-    font-size: 14pt;
-}
-
-.marks-table {
-    font-size: 13pt;
-}
-
-.marks-input {
-    font-size: 14pt;
-}
-
-/* Supabase data in the website UI: keep dynamically loaded records readable at 13pt.
-   This applies only to the screen UI; printable documents remain unchanged. */
-@media screen {
-  .marks-table,
-  .marks-table td,
-  .students-table,
-  .students-table td,
-  .attendance-table,
-  .attendance-table td,
-  .promotion-table,
-  .promotion-table td,
-  .print-results-table,
-  .print-results-table td,
-  .dashboard-overview-table,
-  .dashboard-overview-table td { font-size:13pt; }
-}
-
-/* Keep the printed result/folio sizes unchanged. */
-
 /* Printable result */
 .print-document { display:none; }
 @media print {
@@ -893,10 +815,8 @@ button {
     padding:0 !important;
     font-family:Arial,Helvetica,sans-serif;
     color:#111;
-    font-size:14pt !important;
   }
-  @page { size:A4 portrait; margin:10mm; }
-  @page folio { size:A4 landscape; margin:10mm; }
+  @page { size:A4 portrait; margin:12mm; }
   .result-page {
     page-break-after:auto !important;
     break-after:auto !important;
@@ -906,133 +826,90 @@ button {
     height:auto !important;
     min-height:0 !important;
     margin:0 !important;
-    box-sizing:border-box;
   }
   .result-page + .result-page { page-break-before:always; break-before:page; }
-  .result-header { width:100%; box-sizing:border-box; display:block; text-align:center !important; line-height:1.25; margin:0 auto 10px; }
-  .result-header h1 { font-size:16pt !important; font-weight:700; margin:0 0 3px; text-align:center !important;}
-  .result-header h2 { font-size:16pt !important; font-weight:700; margin:2px 0; text-align:center !important;}
-  .result-header .small { font-size:14pt !important; margin:1px 0; text-align:center !important;}
-  .result-info { display:grid; grid-template-columns:1fr 1fr; gap:2px 18px; font-size:14pt !important; line-height:1.2; margin-bottom:7px;}
-  .result-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:14pt !important;}
-  .result-table th,.result-table td { border:1px solid #222; padding:4px 4px; text-align:center; vertical-align:middle; word-wrap:break-word; line-height:1.15; font-size:14pt !important;}
-  .result-table th { background:#f3f4f6; font-size:14pt !important;}
+  .result-header { width:100%; box-sizing:border-box; display:block; text-align:center !important; line-height:1.4; margin:0 auto 18px; }
+  .result-header h1 { font-size:16pt; font-weight:700; margin:0 0 4px; text-align:center !important;}
+  .result-header h2 { font-size:16pt; font-weight:700; margin:2px 0; text-align:center !important;}
+  .result-header .small { font-size:14pt; margin:1px 0; text-align:center !important;}
+  .result-info { display:grid; grid-template-columns:1fr 1fr; gap:4px 18px; font-size:14pt; margin-bottom:8px;}
+  .result-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:14pt;}
+  .result-table th,.result-table td { border:1px solid #222; padding:5px 4px; text-align:center; vertical-align:middle; word-wrap:break-word;}
+  .result-table th { background:#f3f4f6; font-size:14pt;}
   .result-table td.subject { text-align:left; }
-  .result-summary-row th { text-align:left; font-weight:700; }
-  .result-summary-row td { font-weight:700; }
-  .result-summary { margin-top:7px; font-size:14pt !important; line-height:1.2;}
-  .page-number { text-align:right; font-size:14pt !important; margin-top:5px;}
-  .rank-highlight {
-    width:fit-content;
-    min-width:150px;
-    margin:10px auto 0;
-    padding:5px 22px 6px;
-    border:2px solid #b91c1c;
-    border-radius:8px;
-    background:#fff5f5;
-    text-align:center;
-    line-height:1;
-    box-sizing:border-box;
-  }
-  .rank-highlight span {
-    display:block;
-    font-size:12pt !important;
-    font-weight:700;
-    letter-spacing:1px;
-    margin-bottom:2px;
-  }
-  .rank-highlight strong {
-    display:block;
-    font-size:18pt !important;
-    font-weight:800;
-  }
-  /* Class Marks Folio: A4 landscape, with a clear 14pt table. */
-  .folio-print-mode,
-  .folio-print-mode .folio-print {
-    page:folio !important;
-  }
-  .folio-print {
-    page:folio !important;
+  .result-summary { margin-top:8px; font-size:14pt;}
+  .page-number { text-align:right; font-size:8pt; margin-top:4px;}
+  .folio-print .result-table {
     width:100% !important;
-    break-inside:auto !important;
-    page-break-inside:auto !important;
+    min-width:0 !important;
+    table-layout:fixed;
+    font-size:9pt;
   }
-  .folio-print .result-header {
-    margin-bottom:8px;
+  .folio-print .result-table th,
+  .folio-print .result-table td {
+    padding:4px 3px;
+    line-height:1.1;
   }
-  .folio-print .result-header h1,
-  .folio-print .result-header h2 {
-    font-size:16pt !important;
-  }
-  .folio-print .result-header .small {
-    font-size:14pt !important;
-  }
+  /* Folio: let the table fit the printable A4 width without pushing data off-page. */
   .folio-print .result-table {
     width:100% !important;
     min-width:0 !important;
     max-width:100% !important;
     table-layout:fixed !important;
-    border-collapse:collapse;
-    font-size:14pt !important;
-  }
-  .folio-print .result-table thead {
-    display:table-header-group;
-  }
-  .folio-print .result-table tr {
-    break-inside:avoid;
-    page-break-inside:avoid;
+    font-size:9pt;
   }
   .folio-print .result-table th,
   .folio-print .result-table td {
     box-sizing:border-box;
     overflow:hidden;
-    padding:5px 4px !important;
-    line-height:1.05 !important;
-    font-size:14pt !important;
-    white-space:normal;
-    vertical-align:middle;
   }
   .folio-print .result-table th.folio-subject-head {
-    height:auto;
-    padding:5px 3px !important;
+    height:76px;
+    padding:2px 1px;
+    vertical-align:middle;
+    overflow:hidden;
     text-align:center;
-    white-space:normal;
-    line-height:1.05 !important;
-    font-size:14pt !important;
   }
+  /* Vertical writing avoids the clipping/overlap caused by CSS transform on Android Chrome. */
   .folio-print .result-table th.folio-subject-head > span {
-    display:block;
-    white-space:normal;
-    overflow-wrap:break-word;
-    word-break:normal;
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    white-space:nowrap;
+    writing-mode:vertical-rl;
+    transform:rotate(180deg);
+    line-height:1;
+    height:68px;
+    max-width:100%;
   }
   .folio-print .result-table th.folio-subject-head small {
     display:block;
-    font-size:14pt !important;
+    font-size:7pt;
     margin-top:2px;
-    font-weight:400;
   }
-  .folio-print .result-table th:nth-child(1) { width:5%; }
-  .folio-print .result-table th:nth-child(2) { width:6%; }
-  .folio-print .result-table th:nth-child(3) { width:18%; }
-  .folio-print .result-table th:nth-last-child(3) { width:8%; }
-  .folio-print .result-table th:nth-last-child(2) { width:9%; }
-  .folio-print .result-table th:last-child { width:8%; }
+  .folio-print .result-table th:nth-child(1) { width:30px; }
+  .folio-print .result-table th:nth-child(2) { width:36px; }
+  .folio-print .result-table th:nth-child(3) { width:86px; }
+  .folio-print .result-table th:nth-last-child(3) { width:46px; }
+  .folio-print .result-table th:nth-last-child(2) { width:46px; }
+  .folio-print .result-table th:last-child { width:46px; }
   .folio-print .result-table td.name {
     text-align:left;
     white-space:normal;
-    overflow-wrap:break-word;
+    overflow-wrap:anywhere;
     word-break:normal;
   }
+  /* Keep the non-subject headings readable and contained. */
   .folio-print .result-table thead th:not(.folio-subject-head) {
     white-space:normal;
-    line-height:1.05 !important;
-    padding:5px 3px !important;
-    font-size:14pt !important;
+    line-height:1.05;
+    padding:4px 2px;
   }
-  .folio-print .page-number {
-    font-size:14pt !important;
-    margin-top:5px;
+  .folio-print .result-table td.name {
+    text-align:left;
+    white-space:normal;
+    overflow-wrap:anywhere;
   }
   .attendance-print-table {
     width:100% !important;
@@ -1056,33 +933,6 @@ button {
 }
 
 
-
-/* =========================
-   ACADEMIC SESSION MANAGER
-========================= */
-.session-manager-card{margin-bottom:18px}
-.session-manager-header{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap}
-.session-manager-title{color:#123b73;margin-bottom:4px}
-.session-manager-subtitle{color:#6b7280;font-size:13px;line-height:1.5}
-.session-next-box{margin-top:16px;padding:14px 16px;border:1px solid #dbe7f5;background:#f8fbff;border-radius:10px}
-.session-next-label{font-size:12px;color:#6b7280;margin-bottom:4px}
-.session-next-name{font-size:20px;font-weight:700;color:#123b73}
-.session-next-help{margin-top:5px;color:#6b7280;font-size:12px}
-.session-list{margin-top:16px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
-.session-list-row{display:grid;grid-template-columns:1.5fr 1fr;gap:10px;padding:12px 14px;border-bottom:1px solid #edf0f3;align-items:center}
-.session-list-row:last-child{border-bottom:0}
-.session-list-row.header{background:#f8fafc;font-size:12px;font-weight:700;color:#4b5563}
-.session-status{display:inline-block;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:700}
-.session-status.active{background:#ecfdf5;color:#047857}
-.session-status.upcoming{background:#eff6ff;color:#1d4ed8}
-.session-status.past{background:#f3f4f6;color:#6b7280}
-.session-manager-message{margin-top:12px;font-size:13px;line-height:1.5}
-.session-manager-message.error{color:#b91c1c}
-.session-manager-message.success{color:#047857}
-@media(max-width:600px){
-    .session-list-row{grid-template-columns:1fr}
-    .session-list-row.header{display:none}
-}
 
 /* =========================
    ATTENDANCE MODULE
@@ -1302,62 +1152,6 @@ button {
 .promotion-status.promoted{color:#166534}.promotion-status.repeated{color:#92400e}.promotion-status.left{color:#b91c1c}.promotion-status.completed{color:#1d4ed8}
 .promotion-note{margin-top:14px;padding:12px 14px;background:#f8fafc;border-left:4px solid #2563eb;color:#4b5563;font-size:13px;line-height:1.5}
 @media(max-width:700px){.promotion-controls{grid-template-columns:1fr}.promotion-table{min-width:1080px}}
-
-/* Dashboard KPI styling: keep key totals distinctive and prominent. */
-@media screen {
-  .dashboard-card .number {
-    font-size: 30px !important;
-    font-weight: 700 !important;
-    color: #155eef !important;
-  }
-
-  .dashboard-card .dashboard-session-number {
-    font-size: 24px !important;
-    font-weight: 700 !important;
-    color: #155eef !important;
-  }
-
-  .dashboard-card .label {
-    font-size: 14pt !important;
-    color: #6b7280 !important;
-  }
-}
-
-/* Final screen UI sizing: readable controls, while Supabase-loaded data stays at 13pt. */
-@media screen {
-  body { font-size:14pt; }
-  input, select, button, .nav-btn { font-size:14pt; }
-  .school-title { font-size:17.5pt; }
-  .school-subtitle, .user-email, .role-badge { font-size:14pt; }
-  .page-header h2 { font-size:19pt; }
-  .card, .dashboard-card, .context-card { font-size:14pt; }
-  .dashboard-card .label { font-size:14pt; }
-  .creator-credit, .topbar-credit, .login-page-credit, .login-note { font-size:14pt; }
-
-  /* Supabase-loaded data in the UI only. */
-  .dashboard-overview-table td,
-  #studentTableContainer table td,
-  .marks-table td,
-  .attendance-table td,
-  .promotion-table td,
-  .session-list-row:not(.header),
-  .session-list-row:not(.header) * { font-size:13pt !important; }
-
-  .marks-table { font-size:13pt !important; }
-  .marks-table th,
-  .attendance-table th,
-  .promotion-table th,
-  .dashboard-overview-table th,
-  #studentTableContainer table th { font-size:14pt !important; }
-}
-
-
-/* Dashboard KPI values must remain large and distinctive; they are not treated as ordinary Supabase table data. */
-@media screen {
-  .dashboard-card .number { font-size: 30px !important; font-weight: 700 !important; color: #155eef !important; }
-  .dashboard-card .dashboard-session-number { font-size: 24px !important; font-weight: 700 !important; color: #155eef !important; }
-}
-
 </style>
 </head>
 
@@ -1402,7 +1196,8 @@ button {
                 </form>
 
                 <div class="login-note"><strong>Authorized Access Only</strong><br>Your access level is determined by your school account.</div>
-</div>
+                <div class="login-page-credit">Created by<strong>ABU MAHTAB RAUSHAN</strong></div>
+            </div>
         </div>
     </div>
 </div>
@@ -1424,7 +1219,8 @@ button {
             <div class="school-subtitle">
                 Student Marks Management System
             </div>
-</div>
+            <div class="topbar-credit">Created by ABU MAHTAB RAUSHAN</div>
+        </div>
 
         <div class="user-area">
 
@@ -1523,7 +1319,11 @@ button {
 
                 <div>
                     <h2>Dashboard</h2>
-</div>
+
+                    <div class="creator-credit">
+                        Created by ABU MAHTAB RAUSHAN
+                    </div>
+                </div>
 
             </div>
 
@@ -1603,7 +1403,12 @@ button {
                 <div>
 
                     <h2>Students</h2>
-</div>
+
+                    <div class="creator-credit">
+                        Created by ABU MAHTAB RAUSHAN
+                    </div>
+
+                </div>
 
                 <button
                     id="addStudentButton"
@@ -2031,20 +1836,6 @@ button {
                             <option value="Final">Final</option>
                         </select>
                     </div>
-                    <div class="filter-item">
-                        <label for="printSort">Sort Students</label>
-                        <select id="printSort">
-                            <option value="roll_asc">Roll Number — Low to High</option>
-                            <option value="roll_desc">Roll Number — High to Low</option>
-                            <option value="name_asc">Student Name — A to Z</option>
-                            <option value="name_desc">Student Name — Z to A</option>
-                            <option value="total_desc">Total — Highest to Lowest</option>
-                            <option value="total_asc">Total — Lowest to Highest</option>
-                            <option value="percentage_desc">Percentage — Highest to Lowest</option>
-                            <option value="percentage_asc">Percentage — Lowest to Highest</option>
-                            <option value="rank_asc">Rank — Low to High</option>
-                        </select>
-                    </div>
                 </div>
             </div>
 
@@ -2083,44 +1874,6 @@ button {
         <section
             id="backupSection"
             class="app-section hidden">
-
-            <div class="card session-manager-card">
-
-                <div class="session-manager-header">
-                    <div>
-                        <h2 class="session-manager-title">Academic Sessions</h2>
-                        <div class="session-manager-subtitle">
-                            Create the next academic session without changing the current session.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="session-next-box">
-                    <div class="session-next-label">Next Academic Session</div>
-                    <div id="sessionNextName" class="session-next-name">Loading...</div>
-                    <div id="sessionNextHelp" class="session-next-help">
-                        The new session will be available for promotion.
-                    </div>
-                    <div style="margin-top:12px">
-                        <button type="button" id="createNextSessionButton" class="btn btn-primary" onclick="createNextAcademicSession()">
-                            + Create Next Session
-                        </button>
-                    </div>
-                </div>
-
-                <div id="sessionManagerMessage" class="session-manager-message"></div>
-
-                <div class="session-list">
-                    <div class="session-list-row header">
-                        <div>Academic Session</div>
-                        <div>Status</div>
-                    </div>
-                    <div id="sessionListContainer">
-                        <div class="empty-state">Loading sessions...</div>
-                    </div>
-                </div>
-
-            </div>
 
             <div class="card">
 
@@ -2192,6 +1945,21 @@ button {
                         <div class="form-help">
                             Student ID is permanent across academic years.
                         </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="formApaarId">
+                            APAAR ID
+                        </label>
+
+                        <input
+                            type="text"
+                            id="formApaarId"
+                            placeholder="Enter APAAR ID"
+                        >
 
                     </div>
 
@@ -2578,21 +2346,6 @@ const roleBadge =
 const logoutButton =
     document.getElementById("logoutButton");
 
-const sessionNextName =
-    document.getElementById("sessionNextName");
-
-const sessionNextHelp =
-    document.getElementById("sessionNextHelp");
-
-const createNextSessionButton =
-    document.getElementById("createNextSessionButton");
-
-const sessionManagerMessage =
-    document.getElementById("sessionManagerMessage");
-
-const sessionListContainer =
-    document.getElementById("sessionListContainer");
-
 const sessionFilter =
     document.getElementById("sessionFilter");
 
@@ -2653,7 +2406,6 @@ const toast =
 const printSession = document.getElementById("printSession");
 const printClass = document.getElementById("printClass");
 const printExam = document.getElementById("printExam");
-const printSort = document.getElementById("printSort");
 const printStudentSearch = document.getElementById("printStudentSearch");
 const printStudentSelect = document.getElementById("printStudentSelect");
 const printStudentInfo = document.getElementById("printStudentInfo");
@@ -3118,201 +2870,6 @@ async function loadSessions() {
 
 }
 
-/* =========================================================
-   ACADEMIC SESSION MANAGER
-========================================================= */
-
-function getNextAcademicSessionName() {
-    const active = sessions.find(s => s.is_active);
-
-    if (!active || !active.session_name) {
-        return null;
-    }
-
-    const cleaned = String(active.session_name)
-        .trim()
-        .replace(/[–—]/g, "-");
-
-    const match = cleaned.match(/^(\d{4})-(\d{2}|\d{4})$/);
-
-    if (!match) {
-        return null;
-    }
-
-    const startYear = Number(match[1]);
-    return `${startYear + 1}-${String((startYear + 2) % 100).padStart(2, "0")}`;
-}
-
-function setSessionManagerMessage(message = "", type = "") {
-    if (!sessionManagerMessage) return;
-    sessionManagerMessage.textContent = message;
-    sessionManagerMessage.className = `session-manager-message${type ? ` ${type}` : ""}`;
-}
-
-function renderSessionManager() {
-    if (!sessionNextName || !sessionListContainer) return;
-
-    const active = sessions.find(s => s.is_active);
-    const nextName = getNextAcademicSessionName();
-
-    sessionNextName.textContent = nextName || "Not available";
-
-    if (!active) {
-        sessionNextHelp.textContent =
-            "No active academic session is available. Set an active session first.";
-        createNextSessionButton.disabled = true;
-        setSessionManagerMessage("No active academic session found.", "error");
-    } else if (!nextName) {
-        sessionNextHelp.textContent =
-            `Current session is "${active.session_name}". Use the standard YYYY-YY format to create the next session automatically.`;
-        createNextSessionButton.disabled = true;
-        setSessionManagerMessage("");
-    } else {
-        const alreadyExists = sessions.some(
-            s => String(s.session_name).trim() === nextName
-        );
-
-        if (alreadyExists) {
-            sessionNextHelp.textContent =
-                `${nextName} already exists and is ready to use for promotion.`;
-            createNextSessionButton.disabled = true;
-            setSessionManagerMessage("");
-        } else {
-            sessionNextHelp.textContent =
-                `${nextName} will be created as an upcoming session. The current active session will not be changed.`;
-            createNextSessionButton.disabled = currentRole !== "admin";
-            setSessionManagerMessage(
-                currentRole === "admin"
-                    ? ""
-                    : "Only Admin can create a new academic session."
-            );
-        }
-    }
-
-    const sorted = [...sessions].sort((a, b) =>
-        String(b.session_name || "").localeCompare(String(a.session_name || ""))
-    );
-
-    if (!sorted.length) {
-        sessionListContainer.innerHTML =
-            `<div class="empty-state">No academic sessions found.</div>`;
-        return;
-    }
-
-    sessionListContainer.innerHTML = sorted.map(session => {
-        const isActive = !!session.is_active;
-        const next = nextName && String(session.session_name).trim() === nextName;
-
-        let statusText = "Previous";
-        let statusClass = "past";
-
-        if (isActive) {
-            statusText = "Active";
-            statusClass = "active";
-        } else if (next) {
-            statusText = "Upcoming";
-            statusClass = "upcoming";
-        }
-
-        return `
-            <div class="session-list-row">
-                <div><strong>${escapeHtml(session.session_name)}</strong></div>
-                <div><span class="session-status ${statusClass}">${statusText}</span></div>
-            </div>
-        `;
-    }).join("");
-}
-
-async function openSessionManager() {
-    setSessionManagerMessage("");
-    await loadSessions();
-    renderSessionManager();
-}
-
-async function createNextAcademicSession() {
-    if (currentRole !== "admin") {
-        showToast("Only Admin can create an academic session.", "error");
-        return;
-    }
-
-    const active = sessions.find(s => s.is_active);
-    const nextName = getNextAcademicSessionName();
-
-    if (!active) {
-        showToast("No active academic session found.", "error");
-        renderSessionManager();
-        return;
-    }
-
-    if (!nextName) {
-        showToast("The active session must use the format YYYY-YY, for example 2025-26.", "error");
-        renderSessionManager();
-        return;
-    }
-
-    const existing = sessions.find(
-        s => String(s.session_name).trim() === nextName
-    );
-
-    if (existing) {
-        showToast(`${nextName} already exists.`, "info");
-        renderSessionManager();
-        return;
-    }
-
-    const confirmed = confirm(
-        `Create the next academic session ${nextName}?\n\n` +
-        `The current session ${active.session_name} will remain active. ` +
-        `The new session will be available for promotion.`
-    );
-
-    if (!confirmed) return;
-
-    createNextSessionButton.disabled = true;
-    setSessionManagerMessage(`Creating ${nextName}...`);
-
-    try {
-        const { data, error } = await supabaseClient
-            .from("academic_sessions")
-            .insert({
-                session_name: nextName,
-                is_active: false
-            })
-            .select("id, session_name, is_active")
-            .single();
-
-        if (error) throw error;
-
-        await loadSessions();
-        renderSessionManager();
-
-        setSessionManagerMessage(
-            `${data.session_name} was created successfully. You can now use it for promotion.`,
-            "success"
-        );
-        showToast(`${data.session_name} created successfully.`, "success");
-    } catch (error) {
-        createNextSessionButton.disabled = false;
-
-        const duplicate =
-            error?.code === "23505" ||
-            String(error?.message || "").toLowerCase().includes("duplicate");
-
-        setSessionManagerMessage(
-            duplicate
-                ? `${nextName} already exists. Refreshing the session list.`
-                : `Could not create ${nextName}: ${error.message}`,
-            "error"
-        );
-
-        await loadSessions();
-        renderSessionManager();
-    }
-}
-
-
-
-
 
 /* =========================================================
    CLASS NAME
@@ -3380,6 +2937,7 @@ async function loadStudents() {
                     id,
                     student_id,
                     student_name,
+                    apaar_id,
                     father_name,
                     mother_name,
                     date_of_birth,
@@ -3435,6 +2993,9 @@ async function loadStudents() {
 
                 studentName:
                     record.students?.student_name || "",
+
+                apaarId:
+                    record.students?.apaar_id || "",
 
                 fatherName:
                     record.students?.father_name || "",
@@ -4564,7 +4125,7 @@ async function loadPrintData() {
     const {data: subjects, error: se} = await supabaseClient.from("subjects").select("id,subject_name,display_order").eq("class_no",classNo).order("display_order",{ascending:true});
     if (se) { showToast("Unable to load subjects: " + se.message,"error"); return; }
     printSubjects = subjects || [];
-    const {data: records,error:re} = await supabaseClient.from("academic_records").select("id,student_profile_id,class_no,roll_no,status,students(id,student_id,student_name,father_name,mother_name,date_of_birth,gender)").eq("session_id",sessionId).eq("class_no",classNo).order("roll_no",{ascending:true});
+    const {data: records,error:re} = await supabaseClient.from("academic_records").select("id,student_profile_id,class_no,roll_no,status,students(id,student_id,student_name,apaar_id,father_name,mother_name,date_of_birth,gender)").eq("session_id",sessionId).eq("class_no",classNo).order("roll_no",{ascending:true});
     if (re) { showToast("Unable to load students: " + re.message,"error"); return; }
     printStudents = records || [];
     const ids = printStudents.map(r=>r.id);
@@ -4592,47 +4153,16 @@ function calcPrintRecord(record){
     const pct=max?(total/max)*100:0;
     return {total,pct,max,grade:entered?printGrade(pct):""};
 }
-function getPrintSortValue(record, sortKey){
-    const student=record.students||{};
-    if(sortKey==="name") return String(student.student_name||"").trim().toLowerCase();
-    if(sortKey==="roll") return Number(record.roll_no??999999);
-    const c=calcPrintRecord(record);
-    if(sortKey==="total") return c.total;
-    if(sortKey==="percentage") return c.pct;
-    if(sortKey==="rank") return calcRank(record);
-    return 0;
-}
-function getSortedPrintStudents(sourceList=printStudents){
-    const list=[...sourceList];
-    const sort=(printSort?.value||"roll_asc");
-    const [field,direction]=sort.split("_");
-    list.sort((a,b)=>{
-        let av=getPrintSortValue(a,field), bv=getPrintSortValue(b,field);
-        let cmp;
-        if(field==="name") cmp=String(av).localeCompare(String(bv),undefined,{sensitivity:"base"});
-        else cmp=Number(av)-Number(bv);
-        if(cmp===0){
-            // Stable tie-breaker: roll number, then student name.
-            cmp=Number(a.roll_no??999999)-Number(b.roll_no??999999);
-            if(cmp===0){
-                cmp=String(a.students?.student_name||"").localeCompare(String(b.students?.student_name||""),undefined,{sensitivity:"base"});
-            }
-        }
-        return direction==="desc" ? -cmp : cmp;
-    });
-    return list;
-}
 function filterPrintStudents(){
     if(!printStudentSelect) return;
     const q=(printStudentSearch.value||"").trim().toLowerCase();
-    const filtered=printStudents.filter(r=>{
+    const list=printStudents.filter(r=>{
         const s=r.students||{};
         return !q ||
             String(s.student_id||"").toLowerCase().includes(q) ||
             String(s.student_name||"").toLowerCase().includes(q) ||
             String(r.roll_no??"").toLowerCase().includes(q);
     });
-    const list=getSortedPrintStudents(filtered);
     printStudentSelect.innerHTML=list.length
         ? `<option value="">${q ? "Select student" : "Select student"}${list.length>1 ? ` (${list.length})` : ""}</option>` +
           list.map(r=>`<option value="${r.id}">${escapeHtml(r.students?.student_name||"")}</option>`).join("")
@@ -4656,12 +4186,9 @@ function filterPrintStudents(){
 function renderSelectedPrintStudent(){
     const r=printStudents.find(x=>String(x.id)===String(printStudentSelect.value));
     if(!r){ printStudentInfo.textContent="No student selected."; return; }
-    printStudentInfo.innerHTML=`<strong>${escapeHtml(r.students?.student_name||"")}</strong><br>Roll: ${escapeHtml(r.roll_no??"")} ${r.students?.student_id?`| Student ID: ${escapeHtml(r.students.student_id)}`:""}`;
+    printStudentInfo.innerHTML=`<strong>${escapeHtml(r.students?.student_name||"")}</strong><br>Roll: ${escapeHtml(r.roll_no??"")} ${r.students?.student_id?`| PEN / Student ID: ${escapeHtml(r.students.student_id)}`:""} ${r.students?.apaar_id?`| APAAR ID: ${escapeHtml(r.students.apaar_id)}`:""}`;
 }
-function renderPrintClassInfo(){
-    const sortLabel=printSort?.selectedOptions?.[0]?.text || "Roll Number — Low to High";
-    printClassInfo.textContent=`${printStudents.length} students • ${printSubjects.length} subjects • ${printExam.value} • Sorted: ${sortLabel}`;
-}
+function renderPrintClassInfo(){ printClassInfo.textContent=`${printStudents.length} students • ${printSubjects.length} subjects • ${printExam.value}`; }
 function resultHtml(record,pageNo,totalPages){
     const s=record.students||{}, c=calcPrintRecord(record);
     const isFinal=printExam.value==="Final";
@@ -4677,16 +4204,12 @@ function resultHtml(record,pageNo,totalPages){
         const v=getPrintMark(record.id,sub.id,printExam.value);
         return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${v??""}</td><td>50</td></tr>`;
     }).join("");
-    const summaryColspan = isFinal ? 4 : 2;
-    const totalRow = `<tr class="result-summary-row"><th>Total</th><td colspan="${summaryColspan}">${c.total}</td></tr>`;
-    const summaryRows = `${totalRow}<tr class="result-summary-row"><th>Percentage</th><td colspan="${summaryColspan}">${c.pct.toFixed(2)}%</td></tr><tr class="result-summary-row"><th>Grade</th><td colspan="${summaryColspan}">${escapeHtml(c.grade || "—")}</td></tr>`;
-    return `<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Student Result</h2><div class="small">Muzaffarpur, Bihar • Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")}</div><div class="small">${escapeHtml(printExam.value)} Examination</div></div><div class="result-info"><div><b>Student ID:</b> ${escapeHtml(s.student_id||"")}</div><div><b>Class:</b> ${escapeHtml(printClassName(record.class_no))}</div><div><b>Name:</b> ${escapeHtml(s.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(record.roll_no??"")}</div><div><b>Father's Name:</b> ${escapeHtml(s.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(s.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(s.date_of_birth||"")}</div></div><table class="result-table"><thead><tr><th>Subject</th>${markHeader}</tr></thead><tbody>${rows}${summaryRows}</tbody></table><div class="rank-highlight"><span>RANK</span><strong>${calcRank(record)}</strong></div><div class="page-number">Page ${pageNo} of ${totalPages}</div></div>`;
+    return `<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Student Result</h2><div class="small">Muzaffarpur, Bihar • Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")}</div><div class="small">${escapeHtml(printExam.value)} Examination</div></div><div class="result-info"><div><b>PEN / Student ID:</b> ${escapeHtml(s.student_id||"")}</div><div><b>APAAR ID:</b> ${escapeHtml(s.apaar_id||"")}</div><div><b>Class:</b> ${escapeHtml(printClassName(record.class_no))}</div><div><b>Name:</b> ${escapeHtml(s.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(record.roll_no??"")}</div><div><b>Father's Name:</b> ${escapeHtml(s.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(s.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(s.date_of_birth||"")}</div></div><table class="result-table"><thead><tr><th>Subject</th>${markHeader}</tr></thead><tbody>${rows}</tbody></table><div class="result-summary"><b>Total:</b> ${c.total} / ${c.max} &nbsp;&nbsp; <b>Percentage:</b> ${c.pct.toFixed(2)}% &nbsp;&nbsp; <b>Rank:</b> ${calcRank(record)} </div><div class="page-number">Page ${pageNo} of ${totalPages}</div></div>`;
 }
 function calcRank(record){ const ranked=printStudents.map(r=>({r,c:calcPrintRecord(r)})).sort((a,b)=>b.c.total-a.c.total||b.c.pct-a.c.pct||Number(a.r.roll_no??999999)-Number(b.r.roll_no??999999)); return ranked.findIndex(x=>x.r.id===record.id)+1; }
 let printTitleBeforeJob="";
 function openPrint(html, suggestedFileName="Student Marks Result"){
-    const isFolio=html.includes("folio-print");
-    printDocumentHost.innerHTML=`<div class="print-document ${isFolio ? "folio-print-mode" : ""}">${html}</div>`;
+    printDocumentHost.innerHTML=`<div class="print-document">${html}</div>`;
     printTitleBeforeJob=document.title;
     document.title=suggestedFileName;
     window.print();
@@ -4700,21 +4223,16 @@ function printOneStudent(){
 }
 function printAllStudents(){
     if(!printStudents.length){showToast("No students found.","error");return;}
-    const sortedStudents=getSortedPrintStudents();
-    const total=sortedStudents.length;
+    const total=printStudents.length;
     const classLabel=printClassName(Number(printClass.value));
-    openPrint(sortedStudents.map((r,i)=>resultHtml(r,i+1,total)).join(""), `${classLabel} ${printExam.value} Results`);
+    openPrint(printStudents.map((r,i)=>resultHtml(r,i+1,total)).join(""), `${classLabel} ${printExam.value} Results`);
 }
 async function printClassFolio(){
     if(!printStudents.length){showToast("No students found.","error");return;}
-    const sortedStudents=getSortedPrintStudents();
-    const fullMarks=printExam.value==="Final"?100:50;
-    const heads=printSubjects.map(s=>`<th class="folio-subject-head"><span>${escapeHtml(s.subject_name)}<small>/ ${fullMarks}</small></span></th>`).join("");
-    const rows=sortedStudents.map((r,i)=>{
-        const c=calcPrintRecord(r);
-        return `<tr><td>${i+1}</td><td>${escapeHtml(r.roll_no??"")}</td><td class="name">${escapeHtml(r.students?.student_name||"")}</td>${printSubjects.map(s=>{let v;if(printExam.value==="Final"){v=(getPrintMark(r.id,s.id,"Half-Yearly")||0)+(getPrintMark(r.id,s.id,"Annual")||0);}else v=getPrintMark(r.id,s.id,printExam.value);return `<td>${v??""}</td>`}).join("")}<td>${c.total}</td><td>${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;
-    }).join("");
-    openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th>Percentage</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
+    const ranked=[...printStudents].sort((a,b)=>Number(a.roll_no??999999)-Number(b.roll_no??999999));
+    const heads=printSubjects.map(s=>`<th class="folio-subject-head"><span>${escapeHtml(s.subject_name)}<br><small>${printExam.value==="Final"?100:50}</small></span></th>`).join("");
+    const rows=ranked.map((r,i)=>{const c=calcPrintRecord(r);return `<tr><td>${i+1}</td><td>${escapeHtml(r.roll_no??"")}</td><td class="name">${escapeHtml(r.students?.student_name||"")}</td>${printSubjects.map(s=>{let v;if(printExam.value==="Final"){v=(getPrintMark(r.id,s.id,"Half-Yearly")||0)+(getPrintMark(r.id,s.id,"Annual")||0);}else v=getPrintMark(r.id,s.id,printExam.value);return `<td>${v??""}</td>`}).join("")}<td>${c.total}</td><td>${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;}).join("");
+    openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th>%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table><div class="page-number">Students: ${printStudents.length}</div></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
 }
 
 /* =========================================================
@@ -4785,7 +4303,7 @@ async function loadPromotionStudents(){
     promotionListCard.classList.add("hidden");
     promotionReviewCard.classList.add("hidden");
     const {data:records,error}=await supabaseClient.from("academic_records")
-        .select("id,student_profile_id,class_no,roll_no,status,students(id,student_id,student_name,father_name,mother_name,date_of_birth,gender)")
+        .select("id,student_profile_id,class_no,roll_no,status,students(id,student_id,student_name,apaar_id,father_name,mother_name,date_of_birth,gender)")
         .eq("session_id",sessionId).eq("class_no",classNo).order("roll_no",{ascending:true});
     if(error){promotionMessage.textContent="Unable to load students: "+error.message;showToast("Unable to load promotion data.","error");return;}
     const {data:subjects,error:se}=await supabaseClient.from("subjects").select("id,subject_name,display_order").eq("class_no",classNo).order("display_order",{ascending:true});
@@ -4969,7 +4487,6 @@ function showSection(section) {
     if (section === "reports") loadPrintData();
     if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
     if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); }
-    if (section === "backup") { openSessionManager(); }
 }
 
 
@@ -4998,7 +4515,6 @@ document
 if (printSession) printSession.addEventListener("change", loadPrintData);
 if (printClass) printClass.addEventListener("change", loadPrintData);
 if (printExam) printExam.addEventListener("change", loadPrintData);
-if (printSort) printSort.addEventListener("change", ()=>{ filterPrintStudents(); renderPrintClassInfo(); });
 if (printStudentSearch) printStudentSearch.addEventListener("input", filterPrintStudents);
 if (printStudentSelect) printStudentSelect.addEventListener("change", renderSelectedPrintStudent);
 if (printStudentButton) printStudentButton.addEventListener("click", printOneStudent);
@@ -5199,6 +4715,14 @@ window.editStudent =
 
         document
             .getElementById(
+                "formApaarId"
+            )
+            .value =
+            student.apaarId || "";
+
+
+        document
+            .getElementById(
                 "formStudentName"
             )
             .value =
@@ -5320,6 +4844,19 @@ saveStudentButton.addEventListener(
             studentIdRaw || null;
 
 
+        const apaarIdRaw =
+            document
+                .getElementById(
+                    "formApaarId"
+                )
+                .value
+                .trim();
+
+
+        const apaarId =
+            apaarIdRaw || null;
+
+
         const fatherName =
             document
                 .getElementById(
@@ -5400,6 +4937,7 @@ saveStudentButton.addEventListener(
                 await updateExistingStudent({
 
                     studentId,
+                    apaarId,
                     studentName,
                     fatherName,
                     motherName,
@@ -5416,6 +4954,7 @@ saveStudentButton.addEventListener(
                 await createNewStudent({
 
                     studentId,
+                    apaarId,
                     studentName,
                     fatherName,
                     motherName,
@@ -5480,6 +5019,9 @@ async function createNewStudent(values) {
 
                 student_id:
                     values.studentId,
+
+                apaar_id:
+                    values.apaarId,
 
                 student_name:
                     values.studentName,
@@ -5579,6 +5121,9 @@ async function updateExistingStudent(values) {
 
                 student_id:
                     values.studentId,
+
+                apaar_id:
+                    values.apaarId,
 
                 student_name:
                     values.studentName,
