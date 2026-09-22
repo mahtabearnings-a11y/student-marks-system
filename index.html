@@ -935,6 +935,33 @@ tbody tr:hover {
 
 
 /* =========================
+   ACADEMIC SESSION MANAGER
+========================= */
+.session-manager-card{margin-bottom:18px}
+.session-manager-header{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap}
+.session-manager-title{color:#123b73;margin-bottom:4px}
+.session-manager-subtitle{color:#6b7280;font-size:13px;line-height:1.5}
+.session-next-box{margin-top:16px;padding:14px 16px;border:1px solid #dbe7f5;background:#f8fbff;border-radius:10px}
+.session-next-label{font-size:12px;color:#6b7280;margin-bottom:4px}
+.session-next-name{font-size:20px;font-weight:700;color:#123b73}
+.session-next-help{margin-top:5px;color:#6b7280;font-size:12px}
+.session-list{margin-top:16px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
+.session-list-row{display:grid;grid-template-columns:1.5fr 1fr;gap:10px;padding:12px 14px;border-bottom:1px solid #edf0f3;align-items:center}
+.session-list-row:last-child{border-bottom:0}
+.session-list-row.header{background:#f8fafc;font-size:12px;font-weight:700;color:#4b5563}
+.session-status{display:inline-block;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.session-status.active{background:#ecfdf5;color:#047857}
+.session-status.upcoming{background:#eff6ff;color:#1d4ed8}
+.session-status.past{background:#f3f4f6;color:#6b7280}
+.session-manager-message{margin-top:12px;font-size:13px;line-height:1.5}
+.session-manager-message.error{color:#b91c1c}
+.session-manager-message.success{color:#047857}
+@media(max-width:600px){
+    .session-list-row{grid-template-columns:1fr}
+    .session-list-row.header{display:none}
+}
+
+/* =========================
    ATTENDANCE MODULE
 ========================= */
 .attendance-month-picker {
@@ -1875,6 +1902,44 @@ tbody tr:hover {
             id="backupSection"
             class="app-section hidden">
 
+            <div class="card session-manager-card">
+
+                <div class="session-manager-header">
+                    <div>
+                        <h2 class="session-manager-title">Academic Sessions</h2>
+                        <div class="session-manager-subtitle">
+                            Create the next academic session without changing the current session.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="session-next-box">
+                    <div class="session-next-label">Next Academic Session</div>
+                    <div id="sessionNextName" class="session-next-name">Loading...</div>
+                    <div id="sessionNextHelp" class="session-next-help">
+                        The new session will be available for promotion.
+                    </div>
+                    <div style="margin-top:12px">
+                        <button id="createNextSessionButton" class="btn btn-primary">
+                            + Create Next Session
+                        </button>
+                    </div>
+                </div>
+
+                <div id="sessionManagerMessage" class="session-manager-message"></div>
+
+                <div class="session-list">
+                    <div class="session-list-row header">
+                        <div>Academic Session</div>
+                        <div>Status</div>
+                    </div>
+                    <div id="sessionListContainer">
+                        <div class="empty-state">Loading sessions...</div>
+                    </div>
+                </div>
+
+            </div>
+
             <div class="card">
 
                 <h2 style="color:#123b73;margin-bottom:10px">
@@ -2330,6 +2395,21 @@ const roleBadge =
 
 const logoutButton =
     document.getElementById("logoutButton");
+
+const sessionNextName =
+    document.getElementById("sessionNextName");
+
+const sessionNextHelp =
+    document.getElementById("sessionNextHelp");
+
+const createNextSessionButton =
+    document.getElementById("createNextSessionButton");
+
+const sessionManagerMessage =
+    document.getElementById("sessionManagerMessage");
+
+const sessionListContainer =
+    document.getElementById("sessionListContainer");
 
 const sessionFilter =
     document.getElementById("sessionFilter");
@@ -2854,6 +2934,202 @@ async function loadSessions() {
     }
 
 }
+
+/* =========================================================
+   ACADEMIC SESSION MANAGER
+========================================================= */
+
+function getNextAcademicSessionName() {
+    const active = sessions.find(s => s.is_active);
+
+    if (!active || !active.session_name) {
+        return null;
+    }
+
+    const match = String(active.session_name).trim().match(/^(\d{4})-(\d{2})$/);
+
+    if (!match) {
+        return null;
+    }
+
+    const startYear = Number(match[1]);
+    return `${startYear + 1}-${String((startYear + 2) % 100).padStart(2, "0")}`;
+}
+
+function setSessionManagerMessage(message = "", type = "") {
+    if (!sessionManagerMessage) return;
+    sessionManagerMessage.textContent = message;
+    sessionManagerMessage.className = `session-manager-message${type ? ` ${type}` : ""}`;
+}
+
+function renderSessionManager() {
+    if (!sessionNextName || !sessionListContainer) return;
+
+    const active = sessions.find(s => s.is_active);
+    const nextName = getNextAcademicSessionName();
+
+    sessionNextName.textContent = nextName || "Not available";
+
+    if (!active) {
+        sessionNextHelp.textContent =
+            "No active academic session is available. Set an active session first.";
+        createNextSessionButton.disabled = true;
+        setSessionManagerMessage("No active academic session found.", "error");
+    } else if (!nextName) {
+        sessionNextHelp.textContent =
+            `Current session is "${active.session_name}". Use the standard YYYY-YY format to create the next session automatically.`;
+        createNextSessionButton.disabled = true;
+        setSessionManagerMessage("");
+    } else {
+        const alreadyExists = sessions.some(
+            s => String(s.session_name).trim() === nextName
+        );
+
+        if (alreadyExists) {
+            sessionNextHelp.textContent =
+                `${nextName} already exists and is ready to use for promotion.`;
+            createNextSessionButton.disabled = true;
+            setSessionManagerMessage("");
+        } else {
+            sessionNextHelp.textContent =
+                `${nextName} will be created as an upcoming session. The current active session will not be changed.`;
+            createNextSessionButton.disabled = currentRole !== "admin";
+            setSessionManagerMessage(
+                currentRole === "admin"
+                    ? ""
+                    : "Only Admin can create a new academic session."
+            );
+        }
+    }
+
+    const sorted = [...sessions].sort((a, b) =>
+        String(b.session_name || "").localeCompare(String(a.session_name || ""))
+    );
+
+    if (!sorted.length) {
+        sessionListContainer.innerHTML =
+            `<div class="empty-state">No academic sessions found.</div>`;
+        return;
+    }
+
+    sessionListContainer.innerHTML = sorted.map(session => {
+        const isActive = !!session.is_active;
+        const next = nextName && String(session.session_name).trim() === nextName;
+
+        let statusText = "Previous";
+        let statusClass = "past";
+
+        if (isActive) {
+            statusText = "Active";
+            statusClass = "active";
+        } else if (next) {
+            statusText = "Upcoming";
+            statusClass = "upcoming";
+        }
+
+        return `
+            <div class="session-list-row">
+                <div><strong>${escapeHtml(session.session_name)}</strong></div>
+                <div><span class="session-status ${statusClass}">${statusText}</span></div>
+            </div>
+        `;
+    }).join("");
+}
+
+async function openSessionManager() {
+    setSessionManagerMessage("");
+    await loadSessions();
+    renderSessionManager();
+}
+
+async function createNextAcademicSession() {
+    if (currentRole !== "admin") {
+        showToast("Only Admin can create an academic session.", "error");
+        return;
+    }
+
+    const active = sessions.find(s => s.is_active);
+    const nextName = getNextAcademicSessionName();
+
+    if (!active) {
+        showToast("No active academic session found.", "error");
+        renderSessionManager();
+        return;
+    }
+
+    if (!nextName) {
+        showToast("The active session must use the format YYYY-YY, for example 2025-26.", "error");
+        renderSessionManager();
+        return;
+    }
+
+    const existing = sessions.find(
+        s => String(s.session_name).trim() === nextName
+    );
+
+    if (existing) {
+        showToast(`${nextName} already exists.`, "info");
+        renderSessionManager();
+        return;
+    }
+
+    const confirmed = confirm(
+        `Create the next academic session ${nextName}?\n\n` +
+        `The current session ${active.session_name} will remain active. ` +
+        `The new session will be available for promotion.`
+    );
+
+    if (!confirmed) return;
+
+    createNextSessionButton.disabled = true;
+    setSessionManagerMessage(`Creating ${nextName}...`);
+
+    try {
+        const { data, error } = await supabaseClient
+            .from("academic_sessions")
+            .insert({
+                session_name: nextName,
+                is_active: false
+            })
+            .select("id, session_name, is_active")
+            .single();
+
+        if (error) throw error;
+
+        await loadSessions();
+        renderSessionManager();
+
+        setSessionManagerMessage(
+            `${data.session_name} was created successfully. You can now use it for promotion.`,
+            "success"
+        );
+        showToast(`${data.session_name} created successfully.`, "success");
+    } catch (error) {
+        createNextSessionButton.disabled = false;
+
+        const duplicate =
+            error?.code === "23505" ||
+            String(error?.message || "").toLowerCase().includes("duplicate");
+
+        setSessionManagerMessage(
+            duplicate
+                ? `${nextName} already exists. Refreshing the session list.`
+                : `Could not create ${nextName}: ${error.message}`,
+            "error"
+        );
+
+        await loadSessions();
+        renderSessionManager();
+    }
+}
+
+if (createNextSessionButton) {
+    createNextSessionButton.addEventListener(
+        "click",
+        createNextAcademicSession
+    );
+}
+
 
 
 /* =========================================================
@@ -4468,6 +4744,7 @@ function showSection(section) {
     if (section === "reports") loadPrintData();
     if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
     if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); }
+    if (section === "backup") { openSessionManager(); }
 }
 
 
