@@ -1133,6 +1133,43 @@ tbody tr:hover {
 @media(max-width:700px){.topbar-credit{font-size:10px}.dashboard-overview-table{font-size:12px}.attendance-grid-wrapper{max-height:62vh}.attendance-table th:nth-child(2),.attendance-table td:nth-child(2){left:58px;min-width:155px;width:155px}.attendance-table th:nth-child(1),.attendance-table td:nth-child(1){min-width:58px;width:58px}}
 
 /* =========================================================
+   ACADEMIC SESSION MODULE
+========================================================= */
+function setSessionMessage(msg,type="") { if(sessionMessage){ sessionMessage.textContent=msg; sessionMessage.style.color=type==="error"?"#b91c1c":type==="success"?"#166534":""; } }
+async function renderAcademicSessions(){
+    if(!sessionTableBody) return;
+    sessionTableBody.innerHTML=sessions.length?sessions.map(s=>`<tr><td><strong>${escapeHtml(s.session_name)}</strong></td><td class="${s.is_active?"session-active":""}">${s.is_active?"Active":"Not Active"}</td><td>${currentRole==="admin"?`${!s.is_active?`<button class="btn btn-secondary session-activate" data-id="${s.id}">Set Active</button>`:""}<button class="btn btn-secondary session-delete session-danger" data-id="${s.id}" ${s.is_active?"disabled":""}>Delete</button>`:"View Only"}</td></tr>`).join(""):`<tr><td colspan="3">No academic sessions found.</td></tr>`;
+    if(currentRole==="admin") {
+      sessionTableBody.querySelectorAll(".session-activate").forEach(b=>b.addEventListener("click",()=>activateAcademicSession(Number(b.dataset.id))));
+      sessionTableBody.querySelectorAll(".session-delete").forEach(b=>b.addEventListener("click",()=>deleteAcademicSession(Number(b.dataset.id))));
+    }
+}
+async function refreshAcademicSessions(){
+    try{ await loadSessions(); await renderAcademicSessions(); populatePromotionSessions(); if(typeof populateMarksSessions==="function") populateMarksSessions(); if(typeof populateAttendanceSessions==="function") populateAttendanceSessions(); if(typeof populatePrintSessions==="function") populatePrintSessions(); if(typeof updateDashboardCounts==="function") await updateDashboardCounts(); }catch(e){setSessionMessage("Unable to load academic sessions: "+e.message,"error");}
+}
+async function createAcademicSession(){
+    if(currentRole!=="admin"){setSessionMessage("Only an Admin can create an academic session.","error");return;}
+    const name=(newSessionName?.value||"").trim();
+    if(!name){setSessionMessage("Session Name is required.","error");return;}
+    if(sessions.some(s=>s.session_name.trim()===name)){setSessionMessage("That academic session already exists.","error");return;}
+    createSessionButton.disabled=true;
+    try{ const {error}=await supabaseClient.from("academic_sessions").insert({session_name:name,is_active:false}); if(error)throw error; newSessionName.value=""; await refreshAcademicSessions(); setSessionMessage(`Academic session ${name} created successfully. You can now use it for Promotion.`,"success"); }catch(e){setSessionMessage("Session could not be created: "+e.message,"error");}finally{createSessionButton.disabled=false;}
+}
+async function activateAcademicSession(id){
+    if(currentRole!=="admin")return;
+    const target=sessions.find(s=>s.id===id); if(!target)return;
+    if(!confirm(`Set ${target.session_name} as the active academic session?`))return;
+    try{ const {error:off}=await supabaseClient.from("academic_sessions").update({is_active:false}).neq("id",id); if(off)throw off; const {error:on}=await supabaseClient.from("academic_sessions").update({is_active:true}).eq("id",id); if(on)throw on; await refreshAcademicSessions(); setSessionMessage(`${target.session_name} is now the active academic session.` ,"success"); }catch(e){setSessionMessage("Unable to change active session: "+e.message,"error");}
+}
+async function deleteAcademicSession(id){
+    if(currentRole!=="admin")return;
+    const target=sessions.find(s=>s.id===id); if(!target)return;
+    if(target.is_active){setSessionMessage("The active academic session cannot be deleted. Set another session active first.","error");return;}
+    if(!confirm(`Are you sure you want to permanently delete academic session ${target.session_name}? This is allowed only if it contains no student academic records.`))return;
+    try{ const {count,error:ce}=await supabaseClient.from("academic_records").select("id",{count:"exact",head:true}).eq("session_id",id); if(ce)throw ce; if((count||0)>0){setSessionMessage(`Cannot delete ${target.session_name}: it already contains ${count} academic record${count===1?"":"s"}. Historical student data is protected.`,"error");return;} const {error}=await supabaseClient.from("academic_sessions").delete().eq("id",id); if(error)throw error; await refreshAcademicSessions(); setSessionMessage(`${target.session_name} was deleted.`,"success"); }catch(e){setSessionMessage("Session could not be deleted: "+e.message,"error");}
+}
+
+/* =========================================================
    PROMOTION MODULE
 ========================================================= */
 .promotion-controls{grid-template-columns:1fr 1fr 1fr}
@@ -1151,6 +1188,7 @@ tbody tr:hover {
 .promotion-status{font-weight:600}
 .promotion-status.promoted{color:#166534}.promotion-status.repeated{color:#92400e}.promotion-status.left{color:#b91c1c}.promotion-status.completed{color:#1d4ed8}
 .promotion-note{margin-top:14px;padding:12px 14px;background:#f8fafc;border-left:4px solid #2563eb;color:#4b5563;font-size:13px;line-height:1.5}
+.session-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.session-table{width:100%;border-collapse:collapse}.session-table th,.session-table td{padding:10px 9px;border-bottom:1px solid #e5e7eb;text-align:left}.session-table th{background:#eef4fb;color:#123b73}.session-active{font-weight:700;color:#166534}.session-danger{color:#b91c1c}.promotion-history-table{min-width:900px;border-collapse:separate;border-spacing:0}.promotion-history-table th,.promotion-history-table td{padding:9px 8px;border-bottom:1px solid #e5e7eb;white-space:nowrap;text-align:center}.promotion-history-table th{background:#eef4fb;color:#123b73}.history-warning{margin-top:10px;padding:10px 12px;background:#fff7ed;border-left:4px solid #f59e0b;color:#92400e;font-size:13px;line-height:1.5}
 @media(max-width:700px){.promotion-controls{grid-template-columns:1fr}.promotion-table{min-width:1080px}}
 </style>
 </head>
@@ -1282,6 +1320,14 @@ tbody tr:hover {
             data-section="promotion">
 
             Promotion
+
+        </button>
+
+        <button
+            class="nav-btn"
+            data-section="sessions">
+
+            Academic Session
 
         </button>
 
@@ -1799,8 +1845,53 @@ tbody tr:hover {
                     <strong>Important:</strong> Confirming promotion creates new academic records for the selected students. Previous session records, marks and attendance are not changed or deleted.
                 </div>
             </div>
+
+            <div id="promotionHistoryCard" class="card" style="margin-top:15px">
+                <div class="table-top">
+                    <div>
+                        <h3 style="color:#123b73;margin:0 0 5px">Promotion History</h3>
+                        <div class="record-count">Completed promotions can be undone. After an undo, the promotion can be performed again.</div>
+                    </div>
+                    <button id="refreshPromotionHistoryButton" class="btn btn-secondary">Refresh</button>
+                </div>
+                <div id="promotionHistoryContainer" class="table-wrapper"></div>
+            </div>
         </section>
 
+
+        <section id="sessionsSection" class="app-section hidden">
+            <div class="page-header">
+                <div>
+                    <h2>Academic Session</h2>
+                    <div class="creator-credit">Create and manage academic sessions</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="color:#123b73;margin-bottom:12px">Create Next Academic Session</h3>
+                <div class="print-controls" style="grid-template-columns:1fr 1fr">
+                    <div class="filter-item">
+                        <label for="newSessionName">Session Name</label>
+                        <input id="newSessionName" type="text" placeholder="e.g. 2027–28">
+                    </div>
+                    <div class="filter-item" style="display:flex;align-items:flex-end">
+                        <button id="createSessionButton" class="btn btn-primary" style="width:100%">Create Session</button>
+                    </div>
+                </div>
+                <div id="sessionMessage" class="promotion-message">Only an Admin can create, activate or delete academic sessions.</div>
+            </div>
+
+            <div class="card" style="margin-top:15px">
+                <h3 style="color:#123b73;margin-bottom:12px">Academic Sessions</h3>
+                <div class="table-wrapper">
+                    <table class="session-table">
+                        <thead><tr><th>Session</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody id="sessionTableBody"><tr><td colspan="3">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="history-warning"><strong>Delete safety:</strong> An academic session can be deleted only when it has no student academic records. Existing student history is never deleted accidentally.</div>
+            </div>
+        </section>
 
         <section
             id="reportsSection"
@@ -4232,6 +4323,12 @@ const promotionTableContainer = document.getElementById("promotionTableContainer
 const promotionReviewContainer = document.getElementById("promotionReviewContainer");
 const promotionRecordCount = document.getElementById("promotionRecordCount");
 const promotionReviewInfo = document.getElementById("promotionReviewInfo");
+const promotionHistoryContainer = document.getElementById("promotionHistoryContainer");
+const refreshPromotionHistoryButton = document.getElementById("refreshPromotionHistoryButton");
+const sessionTableBody = document.getElementById("sessionTableBody");
+const newSessionName = document.getElementById("newSessionName");
+const createSessionButton = document.getElementById("createSessionButton");
+const sessionMessage = document.getElementById("sessionMessage");
 let promotionStudents = [];
 let promotionReviewRows = [];
 
@@ -4391,6 +4488,29 @@ function renderPromotionReview(){
     promotionReviewContainer.querySelectorAll(".promotion-roll").forEach(el=>el.addEventListener("input",()=>{promotionReviewRows[Number(el.dataset.index)].rollNo=el.value.replace(/\D/g,"");}));
 }
 
+async function loadPromotionHistory(){
+    if(!promotionHistoryContainer)return;
+    const {data,error}=await supabaseClient.from("promotion_history").select("id,student_profile_id,from_session_id,to_session_id,from_class,to_class,from_roll,to_roll,status,created_at").order("created_at",{ascending:false}).limit(200);
+    if(error){promotionHistoryContainer.innerHTML=`<div class="empty-state">Unable to load promotion history: ${escapeHtml(error.message)}</div>`;return;}
+    const rows=data||[];
+    if(!rows.length){promotionHistoryContainer.innerHTML=`<div class="empty-state">No promotion history yet.</div>`;return;}
+    const studentIds=[...new Set(rows.map(r=>r.student_profile_id).filter(Boolean))], sessionIds=[...new Set(rows.flatMap(r=>[r.from_session_id,r.to_session_id]).filter(Boolean))];
+    const [{data:students},{data:sess}]=await Promise.all([studentIds.length?supabaseClient.from("students").select("id,student_name").in("id",studentIds):Promise.resolve({data:[]}),sessionIds.length?supabaseClient.from("academic_sessions").select("id,session_name").in("id",sessionIds):Promise.resolve({data:[]})]);
+    const sm=Object.fromEntries((students||[]).map(x=>[x.id,x.student_name])), sem=Object.fromEntries((sess||[]).map(x=>[x.id,x.session_name]));
+    promotionHistoryContainer.innerHTML=`<table class="promotion-history-table"><thead><tr><th>Date</th><th>Student</th><th>From</th><th>To</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows.map(r=>{const date=r.created_at?new Date(r.created_at).toLocaleString():"";const from=`${sem[r.from_session_id]||""} • Class ${r.from_class??""} • Roll ${r.from_roll??""}`;const to=r.to_session_id?`${sem[r.to_session_id]||""} • Class ${r.to_class??""} • Roll ${r.to_roll??""}`:(r.status==="Completed"?"Class VIII completed":"—");return `<tr><td>${escapeHtml(date)}</td><td>${escapeHtml(sm[r.student_profile_id]||"Student")}</td><td>${escapeHtml(from)}</td><td>${escapeHtml(to)}</td><td>${escapeHtml(r.status||"")}</td><td>${currentRole==="admin"?`<button class="btn btn-secondary undo-promotion" data-id="${r.id}" data-name="${escapeHtml(sm[r.student_profile_id]||"Student")}" data-to="${r.to_session_id||""}" data-profile="${r.student_profile_id}" data-roll="${r.to_roll??""}">Undo</button>`:"View Only"}</td></tr>`}).join("")}</tbody></table>`;
+    if(currentRole==="admin")promotionHistoryContainer.querySelectorAll(".undo-promotion").forEach(b=>b.addEventListener("click",()=>undoPromotion(Number(b.dataset.id),b.dataset.name,Number(b.dataset.to||0),Number(b.dataset.profile),b.dataset.roll)));
+}
+async function undoPromotion(historyId,name,toSessionId,profileId,toRoll){
+    if(currentRole!=="admin")return;
+    if(!confirm(`Undo the promotion for ${name}? The academic record created by this promotion will be removed. Previous session data will remain unchanged.`))return;
+    try{
+      const {data:history,error:he}=await supabaseClient.from("promotion_history").select("id,to_session_id,status").eq("id",historyId).maybeSingle(); if(he)throw he; if(!history)throw new Error("Promotion history record not found.");
+      if(history.to_session_id){ const {data:rec,error:re}=await supabaseClient.from("academic_records").select("id").eq("session_id",history.to_session_id).eq("student_profile_id",profileId).maybeSingle(); if(re)throw re; if(rec){ const {error:de}=await supabaseClient.from("academic_records").delete().eq("id",rec.id); if(de)throw de; }}
+      const {error:dh}=await supabaseClient.from("promotion_history").delete().eq("id",historyId); if(dh)throw dh;
+      showToast(`Promotion for ${name} was undone. You can promote the student again.`,"success"); await loadPromotionHistory();
+    }catch(e){showToast("Promotion could not be undone: "+e.message,"error");}
+}
+
 async function confirmPromotion(){
     if(currentRole!=="admin"){showToast("Only an Admin can confirm promotion.","error");return;}
     if(!promotionReviewRows.length)return;
@@ -4439,6 +4559,9 @@ if(promotionSort)promotionSort.addEventListener("change",renderPromotionStudents
 if(promoteStudentsButton)promoteStudentsButton.addEventListener("click",openPromotionReview);
 if(promotionBackButton)promotionBackButton.addEventListener("click",()=>{promotionReviewCard.classList.add("hidden");promotionListCard.classList.remove("hidden");});
 if(confirmPromotionButton)confirmPromotionButton.addEventListener("click",confirmPromotion);
+if(createSessionButton)createSessionButton.addEventListener("click",createAcademicSession);
+if(newSessionName)newSessionName.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();createAcademicSession();}});
+if(refreshPromotionHistoryButton)refreshPromotionHistoryButton.addEventListener("click",loadPromotionHistory);
 
 /* =========================================================
    SECTION NAVIGATION
@@ -4467,7 +4590,8 @@ function showSection(section) {
     if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
     if (section === "reports") loadPrintData();
     if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
-    if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); }
+    if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); loadPromotionHistory(); }
+    if (section === "sessions") { refreshAcademicSessions(); }
 }
 
 
