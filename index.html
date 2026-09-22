@@ -930,6 +930,8 @@ tbody tr:hover {
   .attendance-print-table th:nth-child(5),
   .attendance-print-table th:nth-child(6){width:14%;white-space:normal;line-height:1.1;}
   .attendance-print-table th:nth-child(7){width:16%;white-space:normal;line-height:1.1;}
+  .attendance-print-table { border-bottom:none !important; }
+  .attendance-print-table tbody tr:last-child td { border-bottom:none !important; }
 }
 
 
@@ -1145,28 +1147,78 @@ async function renderAcademicSessions(){
     }
 }
 async function refreshAcademicSessions(){
-    try{ await loadSessions(); await renderAcademicSessions(); populatePromotionSessions(); if(typeof populateMarksSessions==="function") populateMarksSessions(); if(typeof populateAttendanceSessions==="function") populateAttendanceSessions(); if(typeof populatePrintSessions==="function") populatePrintSessions(); if(typeof updateDashboardCounts==="function") await updateDashboardCounts(); }catch(e){setSessionMessage("Unable to load academic sessions: "+e.message,"error");}
+    try{ await loadSessions(); await renderAcademicSessions(); await loadDeletedSessions(); populatePromotionSessions(); if(typeof populateMarksSessions==="function") populateMarksSessions(); if(typeof populateAttendanceSessions==="function") populateAttendanceSessions(); if(typeof populatePrintSessions==="function") populatePrintSessions(); if(typeof updateDashboardCounts==="function") await updateDashboardCounts(); }catch(e){setSessionMessage("Unable to load academic sessions: "+e.message,"error");}
 }
-async function createAcademicSession(){
-    if(currentRole!=="admin"){setSessionMessage("Only an Admin can create an academic session.","error");return;}
-    const name=(newSessionName?.value||"").trim();
-    if(!name){setSessionMessage("Session Name is required.","error");return;}
-    if(sessions.some(s=>s.session_name.trim()===name)){setSessionMessage("That academic session already exists.","error");return;}
-    createSessionButton.disabled=true;
-    try{ const {error}=await supabaseClient.from("academic_sessions").insert({session_name:name,is_active:false}); if(error)throw error; newSessionName.value=""; await refreshAcademicSessions(); setSessionMessage(`Academic session ${name} created successfully. You can now use it for Promotion.`,"success"); }catch(e){setSessionMessage("Session could not be created: "+e.message,"error");}finally{createSessionButton.disabled=false;}
+function normalizeSessionName(value){
+    const raw=String(value||"").trim().replace(/[–—−]/g,"-").replace(/\s+/g,"");
+    const m=raw.match(/^(\d{4})-(\d{2}|\d{4})$/);
+    if(!m)return null;
+    const start=Number(m[1]);
+    const end=Number(m[2].length===2 ? String(start).slice(0,2)+m[2] : m[2]);
+    if(!Number.isInteger(start)||!Number.isInteger(end)||end!==start+1)return null;
+    return `${start}-${end}`;
+}
+function sessionNumber(name){
+    const m=String(name||"").match(/^(\d{4})-(\d{4})$/);
+    return m?Number(m[1]):null;
+}
+async function createAcademicSession(explicitName){
+    if(currentRole!=="admin"){setSessionMessage("Only an Admin can create an academic session.","error");return null;}
+    const raw=explicitName ?? (newSessionName?.value||"");
+    const name=normalizeSessionName(raw);
+    if(!name){setSessionMessage("Enter the session in YYYY-YYYY format, for example 2027-2028. 2027-28 is also accepted and normalized automatically.","error");return null;}
+    const existing=sessions.find(s=>normalizeSessionName(s.session_name)===name);
+    if(existing){setSessionMessage(`Academic session ${name} already exists.`,"error");return existing;}
+    createSessionButton && (createSessionButton.disabled=true);
+    try{
+        const {data,error}=await supabaseClient.from("academic_sessions").insert({session_name:name,is_active:false,is_archived:false}).select("id,session_name,is_active,is_archived").single();
+        if(error)throw error;
+        if(newSessionName)newSessionName.value="";
+        await refreshAcademicSessions();
+        setSessionMessage(`Academic session ${name} created successfully.`,"success");
+        return data;
+    }catch(e){setSessionMessage("Session could not be created: "+e.message,"error");return null;}
+    finally{if(createSessionButton)createSessionButton.disabled=false;}
 }
 async function activateAcademicSession(id){
     if(currentRole!=="admin")return;
     const target=sessions.find(s=>s.id===id); if(!target)return;
     if(!confirm(`Set ${target.session_name} as the active academic session?`))return;
-    try{ const {error:off}=await supabaseClient.from("academic_sessions").update({is_active:false}).neq("id",id); if(off)throw off; const {error:on}=await supabaseClient.from("academic_sessions").update({is_active:true}).eq("id",id); if(on)throw on; await refreshAcademicSessions(); setSessionMessage(`${target.session_name} is now the active academic session.` ,"success"); }catch(e){setSessionMessage("Unable to change active session: "+e.message,"error");}
+    try{ const {error:off}=await supabaseClient.from("academic_sessions").update({is_active:false}).eq("is_archived",false); if(off)throw off; const {error:on}=await supabaseClient.from("academic_sessions").update({is_active:true}).eq("id",id); if(on)throw on; await refreshAcademicSessions(); setSessionMessage(`${target.session_name} is now the active academic session.` ,"success"); }catch(e){setSessionMessage("Unable to change active session: "+e.message,"error");}
 }
 async function deleteAcademicSession(id){
     if(currentRole!=="admin")return;
     const target=sessions.find(s=>s.id===id); if(!target)return;
     if(target.is_active){setSessionMessage("The active academic session cannot be deleted. Set another session active first.","error");return;}
-    if(!confirm(`Are you sure you want to permanently delete academic session ${target.session_name}? This is allowed only if it contains no student academic records.`))return;
-    try{ const {count,error:ce}=await supabaseClient.from("academic_records").select("id",{count:"exact",head:true}).eq("session_id",id); if(ce)throw ce; if((count||0)>0){setSessionMessage(`Cannot delete ${target.session_name}: it already contains ${count} academic record${count===1?"":"s"}. Historical student data is protected.`,"error");return;} const {error}=await supabaseClient.from("academic_sessions").delete().eq("id",id); if(error)throw error; await refreshAcademicSessions(); setSessionMessage(`${target.session_name} was deleted.`,"success"); }catch(e){setSessionMessage("Session could not be deleted: "+e.message,"error");}
+    const {count,error:ce}=await supabaseClient.from("academic_records").select("id",{count:"exact",head:true}).eq("session_id",id);
+    if(ce){setSessionMessage("Unable to check session records: "+ce.message,"error");return;}
+    if((count||0)>0){setSessionMessage(`Cannot delete ${target.session_name}: it already contains ${count} academic record${count===1?"":"s"}. Historical student data is protected. Use Undo Promotion where applicable.`,"error");return;}
+    if(!confirm(`Move academic session ${target.session_name} to Recently Deleted?
+
+It will not be permanently removed and can be restored later.`))return;
+    try{
+        const {error}=await supabaseClient.from("academic_sessions").update({is_archived:true,is_active:false}).eq("id",id);
+        if(error)throw error;
+        await refreshAcademicSessions();
+        setSessionMessage(`${target.session_name} was moved to Recently Deleted. It can be restored.`,"success");
+        await loadDeletedSessions();
+    }catch(e){setSessionMessage("Session could not be moved to Recently Deleted: "+e.message,"error");}
+}
+async function loadDeletedSessions(){
+    const box=document.getElementById("deletedSessionsContainer"); if(!box)return;
+    if(currentRole!=="admin"){box.innerHTML="<div class="empty-state">Only Admin can restore deleted sessions.</div>";return;}
+    const {data,error}=await supabaseClient.from("academic_sessions").select("id,session_name,is_active,is_archived,created_at").eq("is_archived",true).order("session_name",{ascending:false});
+    if(error){box.innerHTML=`<div class="empty-state">Unable to load deleted sessions: ${escapeHtml(error.message)}</div>`;return;}
+    if(!data?.length){box.innerHTML='<div class="empty-state">No deleted academic sessions.</div>';return;}
+    box.innerHTML=`<table class="session-table"><thead><tr><th>Session</th><th>Deleted / Archived</th><th>Action</th></tr></thead><tbody>${data.map(s=>`<tr><td><strong>${escapeHtml(s.session_name)}</strong></td><td>Recently Deleted</td><td><button type="button" class="btn btn-secondary restore-session" data-id="${s.id}">Restore</button></td></tr>`).join("")}</tbody></table>`;
+    box.querySelectorAll(".restore-session").forEach(b=>b.addEventListener("click",()=>restoreAcademicSession(Number(b.dataset.id))));
+}
+async function restoreAcademicSession(id){
+    if(currentRole!=="admin")return;
+    const {data:target,error:te}=await supabaseClient.from("academic_sessions").select("id,session_name,is_archived").eq("id",id).maybeSingle();
+    if(te||!target||!target.is_archived){setSessionMessage("The deleted session could not be found.","error");return;}
+    if(!confirm(`Restore academic session ${target.session_name}?`))return;
+    try{const {error}=await supabaseClient.from("academic_sessions").update({is_archived:false}).eq("id",id);if(error)throw error;await refreshAcademicSessions();await loadDeletedSessions();setSessionMessage(`${target.session_name} was restored successfully.` ,"success");}catch(e){setSessionMessage("Session could not be restored: "+e.message,"error");}
 }
 
 /* =========================================================
@@ -1880,13 +1932,14 @@ async function deleteAcademicSession(id){
                 <div class="print-controls" style="grid-template-columns:1fr 1fr">
                     <div class="filter-item">
                         <label for="newSessionName">Session Name</label>
-                        <input id="newSessionName" type="text" placeholder="e.g. 2027–28">
+                        <input id="newSessionName" type="text" placeholder="e.g. 2027-2028" autocomplete="off"><small style="display:block;margin-top:6px;color:#64748b">Format: YYYY-YYYY &nbsp; Example: <strong>2027-2028</strong>. You may also enter 2027-28; it will be normalized automatically.</small>>
+                        <div class="form-help">Format: YYYY-YYYY. Example: 2027-2028. Short forms such as 2027-28 are accepted and normalized.</div>
                     </div>
                     <div class="filter-item" style="display:flex;align-items:flex-end">
                         <button id="createSessionButton" class="btn btn-primary" style="width:100%">Create Session</button>
                     </div>
                 </div>
-                <div id="sessionMessage" class="promotion-message">Only an Admin can create, activate or delete academic sessions.</div>
+                <div id="sessionMessage" class="promotion-message">Only an Admin can create, activate, archive or restore academic sessions.</div>
             </div>
 
             <div class="card" style="margin-top:15px">
@@ -1898,6 +1951,12 @@ async function deleteAcademicSession(id){
                     </table>
                 </div>
                 <div class="history-warning"><strong>Delete safety:</strong> An academic session can be deleted only when it has no student academic records. Existing student history is never deleted accidentally.</div>
+
+                <div class="card" style="margin-top:15px">
+                    <h3 style="color:#123b73;margin-bottom:8px">Recently Deleted Sessions</h3>
+                    <div class="record-count" style="margin-bottom:12px">Empty sessions are archived instead of permanently deleted, so an accidental deletion can be restored.</div>
+                    <div id="deletedSessionsContainer" class="table-wrapper"><div class="empty-state">Loading...</div></div>
+                </div>
             </div>
         </section>
 
@@ -2945,15 +3004,9 @@ async function loadSessions() {
     } =
         await supabaseClient
             .from("academic_sessions")
-            .select(
-                "id, session_name, is_active"
-            )
-            .order(
-                "session_name",
-                {
-                    ascending: false
-                }
-            );
+            .select("id, session_name, is_active, is_archived")
+            .eq("is_archived", false)
+            .order("session_name", { ascending: false });
 
 
     if (error) {
@@ -3329,6 +3382,8 @@ function renderStudents() {
 
                 <tr>
 
+                    <th>Sl. No.</th>
+
                     <th>Roll No.</th>
 
                     <th>Student ID</th>
@@ -3358,11 +3413,13 @@ function renderStudents() {
 
 
     list.forEach(
-        student => {
+        (student, index) => {
 
             html += `
 
                 <tr>
+
+                    <td>${index + 1}</td>
 
                     <td>
                         ${escapeHtml(
@@ -4388,9 +4445,10 @@ function populatePromotionSessions(){
 }
 
 function getNextSession(sourceId){
-    const ordered=[...sessions].sort((a,b)=>Number(a.id)-Number(b.id));
-    const idx=ordered.findIndex(s=>String(s.id)===String(sourceId));
-    return idx>=0 ? ordered[idx+1] || null : null;
+    const source=sessions.find(s=>String(s.id)===String(sourceId));
+    const start=source?sessionNumber(normalizeSessionName(source.session_name)):null;
+    if(start===null)return null;
+    return sessions.find(s=>sessionNumber(normalizeSessionName(s.session_name))===start+1) || null;
 }
 
 async function getPromotionMarks(records, subjects){
@@ -4483,15 +4541,60 @@ function selectedPromotionStudents(){
 
 function defaultPromotionStatus(sourceClass){ return sourceClass===8 ? "Completed" : "Promoted"; }
 
-function openPromotionReview(){
+function normalizeAcademicSessionName(value){
+    const raw=String(value||"").trim().replace(/[–—−]/g,"-").replace(/\s+/g,"");
+    const m=raw.match(/^(\d{4})-(\d{2}|\d{4})$/);
+    if(!m)return null;
+    const start=Number(m[1]);
+    const end=Number(m[2].length===2 ? String(start).slice(0,2)+m[2] : m[2]);
+    if(end!==start+1)return null;
+    return `${start}-${end}`;
+}
+function nextAcademicSessionName(sessionName){
+    const canonical=normalizeAcademicSessionName(sessionName);
+    if(!canonical)return null;
+    const start=Number(canonical.slice(0,4));
+    return `${start+1}-${start+2}`;
+}
+async function ensureNextAcademicSession(sourceSessionOrId){
+    const source = sourceSessionOrId && typeof sourceSessionOrId === "object"
+        ? sourceSessionOrId
+        : sessions.find(s=>String(s.id)===String(sourceSessionOrId));
+    const desired=nextAcademicSessionName(source?.session_name);
+    if(!desired) throw new Error(`The current academic session "${source?.session_name||""}" is not in a valid format. Use YYYY-YYYY, for example 2026-2027.`);
+    let existing=sessions.find(s=>normalizeAcademicSessionName(s.session_name)===desired);
+    if(existing)return existing;
+    if(currentRole!=="admin") throw new Error(`The next academic session ${desired} does not exist. Only an Admin can create it automatically.`);
+    const {data,error}=await supabaseClient.from("academic_sessions").insert({session_name:desired,is_active:false,is_archived:false}).select("id,session_name,is_active,is_archived").single();
+    if(error){
+        const {data:again,error:againError}=await supabaseClient.from("academic_sessions").select("id,session_name,is_active,is_archived").eq("is_archived",false);
+        if(againError)throw error;
+        existing=(again||[]).find(s=>normalizeAcademicSessionName(s.session_name)===desired);
+        if(existing){sessions=again;return existing;}
+        throw error;
+    }
+    sessions=[...sessions,data];
+    populatePromotionSessions();
+    if(typeof populatePrintSessions==="function") populatePrintSessions();
+    if(typeof populateAttendanceSessions==="function") populateAttendanceSessions();
+    if(typeof populateMarksSessions==="function") populateMarksSessions();
+    return data;
+}
+
+async function openPromotionReview(){
     const selected=selectedPromotionStudents();
     if(!selected.length){showToast("Select at least one student.","error");return;}
-    const sourceClass=Number(promotionClass.value), sourceSession=promotionSession.value;
-    const next=getNextSession(sourceSession);
-    if(sourceClass!==8 && !next){
-        showToast("Create the next academic session before confirming promotion.","error");
-        promotionMessage.textContent="No later academic session is available. Create the next session first, then return here.";
-        return;
+    const sourceClass=Number(promotionClass.value), sourceSessionId=promotionSession.value;
+    const sourceSession=sessions.find(s=>String(s.id)===String(sourceSessionId));
+    let next=null;
+    if(sourceClass!==8){
+        try{
+            next=await ensureNextAcademicSession(sourceSession);
+        }catch(e){
+            showToast(e.message,"error");
+            if(promotionMessage)promotionMessage.textContent=e.message;
+            return;
+        }
     }
     const ordered=[...selected].sort((a,b)=>a.rank-b.rank||Number(a.roll_no??999999)-Number(b.roll_no??999999));
     promotionReviewRows=ordered.map((r,i)=>({
@@ -4505,7 +4608,7 @@ function openPromotionReview(){
     promotionReviewCard.classList.remove("hidden");
     promotionReviewInfo.textContent=sourceClass===8
         ? `${selected.length} student${selected.length===1?"":"s"} selected • Class VIII completion`
-        : `${selected.length} student${selected.length===1?"":"s"} selected • Proposed next session: ${next.session_name}`;
+        : `${selected.length} student${selected.length===1?"":"s"} selected • Next session: ${next.session_name} (created automatically if needed)`;
 }
 
 function renderPromotionReview(){
@@ -4560,8 +4663,11 @@ async function undoPromotion(historyId,name,toSessionId,profileId,toRoll){
 async function confirmPromotion(){
     if(currentRole!=="admin"){showToast("Only an Admin can confirm promotion.","error");return;}
     if(!promotionReviewRows.length)return;
-    const sourceSessionId=Number(promotionSession.value), sourceClass=Number(promotionClass.value), next=getNextSession(sourceSessionId);
-    if(sourceClass!==8 && !next){showToast("Create the next academic session first.","error");return;}
+    const sourceSessionId=Number(promotionSession.value), sourceClass=Number(promotionClass.value);
+    let next=null;
+    if(sourceClass!==8){
+        try{ next=await ensureNextAcademicSession(sourceSessionId); }catch(e){ showToast(e.message,"error"); return; }
+    }
     const bad=promotionReviewRows.find(r=>r.status!=="Left School" && sourceClass!==8 && (!r.rollNo || Number(r.rollNo)<1 || Number(r.classNo)<1 || Number(r.classNo)>8));
     if(bad){showToast(`Please enter a valid class and roll for ${bad.name}.`,"error");return;}
     const message=sourceClass===8
@@ -5867,5 +5973,45 @@ initializeApplication();
 
 </script>
 
+
+<script>
+/* =========================================================
+   ROBUST UI EVENT BRIDGE
+   Keeps filters and Print controls working even if another
+   optional module handler fails earlier in the main script.
+========================================================= */
+(function(){
+    function byId(id){return document.getElementById(id);}
+    document.addEventListener("click", function(event){
+        const btn=event.target.closest("button");
+        if(!btn) return;
+        try{
+            if(btn.id==="printStudentButton"){ event.preventDefault(); event.stopImmediatePropagation(); printOneStudent(); return; }
+            if(btn.id==="printAllStudentsButton"){ event.preventDefault(); event.stopImmediatePropagation(); printAllStudents(); return; }
+            if(btn.id==="printClassFolioButton"){ event.preventDefault(); event.stopImmediatePropagation(); printClassFolio(); return; }
+            if(btn.id==="attendancePrintButton"){ event.preventDefault(); event.stopImmediatePropagation(); printAttendanceSummary(); return; }
+            if(btn.id==="promoteStudentsButton"){ event.preventDefault(); event.stopImmediatePropagation(); openPromotionReview(); return; }
+            if(btn.id==="confirmPromotionButton"){ event.preventDefault(); event.stopImmediatePropagation(); confirmPromotion(); return; }
+        }catch(e){ console.error("Button action failed",e); if(typeof showToast==="function")showToast(e.message||"Action could not be completed.","error"); }
+    }, true);
+
+    document.addEventListener("change", function(event){
+        const el=event.target;
+        try{
+            if(el.id==="printSession" || el.id==="printClass" || el.id==="printExam"){ event.stopImmediatePropagation(); loadPrintData(); return; }
+            if(el.id==="printStudentSelect"){ event.stopImmediatePropagation(); renderSelectedPrintStudent(); return; }
+            if(el.id==="attendanceSort"){ event.stopImmediatePropagation(); if(typeof renderAttendanceTable==="function")renderAttendanceTable(); return; }
+        }catch(e){ console.error("Filter action failed",e); if(typeof showToast==="function")showToast(e.message||"Filter could not be applied.","error"); }
+    }, true);
+
+    document.addEventListener("input", function(event){
+        const el=event.target;
+        try{
+            if(el.id==="printStudentSearch"){ event.stopImmediatePropagation(); filterPrintStudents(); return; }
+            if(el.id==="studentSearch"){ event.stopImmediatePropagation(); renderStudents(); return; }
+        }catch(e){ console.error("Search action failed",e); }
+    }, true);
+})();
+</script>
 </body>
 </html>
