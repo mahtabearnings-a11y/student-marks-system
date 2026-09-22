@@ -789,51 +789,51 @@ tbody tr:hover {
    GLOBAL UI FONT SIZE
    ========================= */
 body {
-    font-size: 13pt;
+    font-size: 14pt;
 }
 
 input,
 select {
-    font-size: 13pt;
+    font-size: 14pt;
 }
 
 button {
-    font-size: 13pt;
+    font-size: 14pt;
 }
 
 .nav-btn {
-    font-size: 13pt;
+    font-size: 14pt;
 }
 
 .school-title {
-    font-size: 16.5pt;
+    font-size: 17.5pt;
 }
 
 .school-subtitle,
 .user-email,
 .role-badge {
-    font-size: 13pt;
+    font-size: 14pt;
 }
 
 .page-header h2 {
-    font-size: 18pt;
+    font-size: 19pt;
 }
 
 .card,
 .dashboard-card,
 .context-card {
-    font-size: 13pt;
+    font-size: 14pt;
 }
 
 .dashboard-card .label {
-    font-size: 13pt;
+    font-size: 14pt;
 }
 
 .creator-credit,
 .topbar-credit,
 .login-page-credit,
 .login-note {
-    font-size: 13pt;
+    font-size: 14pt;
 }
 
 .marks-table {
@@ -841,7 +841,24 @@ button {
 }
 
 .marks-input {
-    font-size: 13pt;
+    font-size: 14pt;
+}
+
+/* Supabase data in the website UI: keep dynamically loaded records readable at 13pt.
+   This applies only to the screen UI; printable documents remain unchanged. */
+@media screen {
+  .marks-table,
+  .marks-table td,
+  .students-table,
+  .students-table td,
+  .attendance-table,
+  .attendance-table td,
+  .promotion-table,
+  .promotion-table td,
+  .print-results-table,
+  .print-results-table td,
+  .dashboard-overview-table,
+  .dashboard-overview-table td { font-size:13pt; }
 }
 
 /* Keep the printed result/folio sizes unchanged. */
@@ -1285,6 +1302,36 @@ button {
 .promotion-status.promoted{color:#166534}.promotion-status.repeated{color:#92400e}.promotion-status.left{color:#b91c1c}.promotion-status.completed{color:#1d4ed8}
 .promotion-note{margin-top:14px;padding:12px 14px;background:#f8fafc;border-left:4px solid #2563eb;color:#4b5563;font-size:13px;line-height:1.5}
 @media(max-width:700px){.promotion-controls{grid-template-columns:1fr}.promotion-table{min-width:1080px}}
+
+/* Final screen UI sizing: readable controls, while Supabase-loaded data stays at 13pt. */
+@media screen {
+  body { font-size:14pt; }
+  input, select, button, .nav-btn { font-size:14pt; }
+  .school-title { font-size:17.5pt; }
+  .school-subtitle, .user-email, .role-badge { font-size:14pt; }
+  .page-header h2 { font-size:19pt; }
+  .card, .dashboard-card, .context-card { font-size:14pt; }
+  .dashboard-card .label { font-size:14pt; }
+  .creator-credit, .topbar-credit, .login-page-credit, .login-note { font-size:14pt; }
+
+  /* Supabase-loaded data in the UI only. */
+  .dashboard-card .number,
+  .dashboard-card .dashboard-session-number,
+  .dashboard-overview-table td,
+  #studentTableContainer table td,
+  .marks-table td,
+  .attendance-table td,
+  .promotion-table td,
+  .session-list-row:not(.header),
+  .session-list-row:not(.header) * { font-size:13pt !important; }
+
+  .marks-table { font-size:13pt !important; }
+  .marks-table th,
+  .attendance-table th,
+  .promotion-table th,
+  .dashboard-overview-table th,
+  #studentTableContainer table th { font-size:14pt !important; }
+}
 </style>
 </head>
 
