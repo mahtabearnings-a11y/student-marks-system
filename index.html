@@ -297,73 +297,6 @@ select:focus {
     gap: 15px;
 }
 
-.dashboard-summary-grid {
-    margin-bottom: 18px;
-}
-
-.dashboard-overview-card {
-    margin-top: 18px;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 20px;
-}
-
-.dashboard-overview-header h3 {
-    margin: 0;
-    color: #123b73;
-    font-size: 18px;
-}
-
-.dashboard-overview-subtitle {
-    margin-top: 4px;
-    color: #6b7280;
-    font-size: 13px;
-}
-
-.dashboard-overview-table-wrap {
-    margin-top: 15px;
-    overflow-x: auto;
-}
-
-.dashboard-overview-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 520px;
-}
-
-.dashboard-overview-table th,
-.dashboard-overview-table td {
-    border: 1px solid #dbe3ee;
-    padding: 11px 12px;
-    text-align: center;
-    font-size: 14px;
-}
-
-.dashboard-overview-table thead th {
-    background: #eef4fb;
-    color: #123b73;
-    font-weight: 700;
-}
-
-.dashboard-overview-table tbody tr:nth-child(even) {
-    background: #f8fafc;
-}
-
-.dashboard-overview-table tbody tr:hover {
-    background: #f1f5f9;
-}
-
-.dashboard-overview-table tfoot th {
-    background: #eef4fb;
-    color: #123b73;
-}
-
-.dashboard-empty {
-    color: #6b7280;
-    padding: 18px !important;
-}
-
 .dashboard-card {
     background: white;
     border: 1px solid #e5e7eb;
@@ -869,8 +802,8 @@ tbody tr:hover {
   .attendance-print-table th:nth-child(3){width:34%;}
   .attendance-print-table th:nth-child(4),
   .attendance-print-table th:nth-child(5),
-  .attendance-print-table th:nth-child(6){width:90px;}
-  .attendance-print-table th:nth-child(7){width:96px;}
+  .attendance-print-table th:nth-child(6){width:14%;white-space:normal;line-height:1.1;}
+  .attendance-print-table th:nth-child(7){width:16%;white-space:normal;line-height:1.1;}
 }
 
 
@@ -1004,6 +937,27 @@ tbody tr:hover {
   .marks-table th.sticky-name,.marks-table td.sticky-name{left:56px;min-width:155px;width:155px}
   .marks-input{width:56px;height:38px;padding:6px 4px}
 }
+
+/* =========================
+   DASHBOARD / BRANDING / ATTENDANCE FIXES
+========================= */
+.login-page-credit{margin-top:16px;text-align:center;color:#9ca3af;font-size:12px}
+.topbar-credit{font-size:11px;color:#9ca3af;margin-top:3px}
+.dashboard-overview{margin-top:18px}
+.dashboard-overview h3{margin:0 0 12px;color:#123b73}
+.dashboard-overview-table{min-width:0 !important;width:100% !important}
+.dashboard-overview-table th,.dashboard-overview-table td{text-align:center}
+.dashboard-overview-table th:nth-child(2){text-align:center}
+.attendance-grid-wrapper{width:100%;overflow:auto;-webkit-overflow-scrolling:touch;max-height:65vh}
+.attendance-table{min-width:980px;border-collapse:separate;border-spacing:0}
+.attendance-table th,.attendance-table td{white-space:nowrap}
+.attendance-table th{position:sticky;top:0;z-index:5;background:#eef4fb}
+.attendance-table th:nth-child(1),.attendance-table td:nth-child(1){position:sticky;left:0;z-index:7;background:#fff;min-width:58px;width:58px;text-align:center}
+.attendance-table th:nth-child(2),.attendance-table td:nth-child(2){position:sticky;left:58px;z-index:7;background:#fff;min-width:180px;width:180px;text-align:left;box-shadow:2px 0 4px rgba(0,0,0,.06)}
+.attendance-table th:nth-child(1),.attendance-table th:nth-child(2){background:#eef4fb;z-index:9}
+.attendance-table .attendance-input{background:#fff}
+.attendance-table .attendance-input:focus{outline:2px solid #7aa7d9}
+@media(max-width:700px){.topbar-credit{font-size:10px}.dashboard-overview-table{font-size:12px}.attendance-grid-wrapper{max-height:62vh}.attendance-table th:nth-child(2),.attendance-table td:nth-child(2){left:58px;min-width:155px;width:155px}.attendance-table th:nth-child(1),.attendance-table td:nth-child(1){min-width:58px;width:58px}}
 </style>
 </head>
 
@@ -1071,6 +1025,8 @@ tbody tr:hover {
             Your access level is determined by your account.
         </div>
 
+        <div class="login-page-credit">Created by ABU MAHTAB RAUSHAN</div>
+
     </div>
 
 </div>
@@ -1092,6 +1048,7 @@ tbody tr:hover {
             <div class="school-subtitle">
                 Student Marks Management System
             </div>
+            <div class="topbar-credit">Created by ABU MAHTAB RAUSHAN</div>
         </div>
 
         <div class="user-area">
@@ -1200,58 +1157,20 @@ tbody tr:hover {
             </div>
 
 
-            <div class="dashboard-grid dashboard-summary-grid">
-
-                <div class="dashboard-card">
-                    <div id="dashboardTotalStudents" class="number">—</div>
-                    <div class="label">Total Students</div>
-                </div>
-
-                <div class="dashboard-card">
-                    <div id="dashboardMaleStudents" class="number">—</div>
-                    <div class="label">Male Students</div>
-                </div>
-
-                <div class="dashboard-card">
-                    <div id="dashboardFemaleStudents" class="number">—</div>
-                    <div class="label">Female Students</div>
-                </div>
-
-                <div class="dashboard-card">
-                    <div id="dashboardClasses" class="number">8</div>
-                    <div class="label">Classes</div>
-                </div>
-
+            <div class="dashboard-grid">
+                <div class="dashboard-card"><div id="dashboardTotalStudents" class="number">—</div><div class="label">Total Students</div></div>
+                <div class="dashboard-card"><div id="dashboardMaleStudents" class="number">—</div><div class="label">Male Students</div></div>
+                <div class="dashboard-card"><div id="dashboardFemaleStudents" class="number">—</div><div class="label">Female Students</div></div>
+                <div class="dashboard-card"><div id="dashboardClasses" class="number">8</div><div class="label">Classes</div></div>
             </div>
 
-            <div class="dashboard-overview-card">
-                <div class="dashboard-overview-header">
-                    <div>
-                        <h3>Class-wise Student Overview</h3>
-                        <div id="dashboardOverviewSession" class="dashboard-overview-subtitle">Active Academic Session</div>
-                    </div>
-                </div>
-                <div class="dashboard-overview-table-wrap">
+            <div class="card dashboard-overview">
+                <h3>Class-wise Student Overview</h3>
+                <div class="table-wrapper">
                     <table class="dashboard-overview-table">
-                        <thead>
-                            <tr>
-                                <th>Class</th>
-                                <th>Total Students</th>
-                                <th>Male</th>
-                                <th>Female</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dashboardClassOverviewBody">
-                            <tr><td colspan="4" class="dashboard-empty">Loading...</td></tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th>Total</th>
-                                <th id="dashboardOverviewTotal">0</th>
-                                <th id="dashboardOverviewMale">0</th>
-                                <th id="dashboardOverviewFemale">0</th>
-                            </tr>
-                        </tfoot>
+                        <thead><tr><th>Class</th><th>Total Students</th><th>Male</th><th>Female</th></tr></thead>
+                        <tbody id="dashboardOverviewBody"><tr><td colspan="4">Loading...</td></tr></tbody>
+                        <tfoot><tr><th>Total</th><th id="dashboardOverviewTotal">0</th><th id="dashboardOverviewMale">0</th><th id="dashboardOverviewFemale">0</th></tr></tfoot>
                     </table>
                 </div>
             </div>
@@ -1619,13 +1538,13 @@ tbody tr:hover {
                 <div class="table-top">
                     <div id="attendanceRecordCount" class="record-count">Select session, class and month(s).</div>
                     <div class="print-actions" style="margin-top:0">
-                        <button id="attendanceLoadButton" class="btn btn-primary">Load Attendance</button>
+                        
                         <button id="attendanceSaveButton" class="btn btn-primary">Save Attendance</button>
                         <button id="attendancePrintButton" class="btn btn-secondary">Print Attendance Summary</button>
                     </div>
                 </div>
                 <div id="attendanceTableContainer" class="table-wrapper">
-                    <div class="empty-state">Select session, class and month(s) to load attendance.</div>
+                    <div class="empty-state">Select session, class and month(s).</div>
                 </div>
             </div>
 
@@ -2258,7 +2177,6 @@ const attendanceMonths = document.getElementById("attendanceMonths");
 const attendanceSelectedLabel = document.getElementById("attendanceSelectedLabel");
 const attendanceRecordCount = document.getElementById("attendanceRecordCount");
 const attendanceTableContainer = document.getElementById("attendanceTableContainer");
-const attendanceLoadButton = document.getElementById("attendanceLoadButton");
 const attendanceSaveButton = document.getElementById("attendanceSaveButton");
 const attendancePrintButton = document.getElementById("attendancePrintButton");
 const attendanceSelectAll = document.getElementById("attendanceSelectAll");
@@ -3293,78 +3211,33 @@ function formatDate(value) {
 ========================================================= */
 
 async function updateDashboardCounts() {
-    const totalEl = document.getElementById("dashboardTotalStudents");
-    const maleEl = document.getElementById("dashboardMaleStudents");
-    const femaleEl = document.getElementById("dashboardFemaleStudents");
-    const bodyEl = document.getElementById("dashboardClassOverviewBody");
-    const totalFooter = document.getElementById("dashboardOverviewTotal");
-    const maleFooter = document.getElementById("dashboardOverviewMale");
-    const femaleFooter = document.getElementById("dashboardOverviewFemale");
-    const sessionLabel = document.getElementById("dashboardOverviewSession");
-
-    const activeSession = sessions.find(s => s.is_active);
-    if (!activeSession) {
-        if (totalEl) totalEl.textContent = "0";
-        if (maleEl) maleEl.textContent = "0";
-        if (femaleEl) femaleEl.textContent = "0";
-        if (bodyEl) bodyEl.innerHTML = `<tr><td colspan="4" class="dashboard-empty">No active academic session.</td></tr>`;
-        if (sessionLabel) sessionLabel.textContent = "No active academic session";
-        return;
-    }
-
-    if (sessionLabel) sessionLabel.textContent = `Academic Session: ${activeSession.session_name}`;
-
-    const { data, error } = await supabaseClient
-        .from("academic_records")
-        .select(`class_no, students ( gender )`)
-        .eq("session_id", activeSession.id);
-
+    const body = document.getElementById("dashboardOverviewBody");
+    const totalEl = document.getElementById("dashboardOverviewTotal");
+    const maleEl = document.getElementById("dashboardOverviewMale");
+    const femaleEl = document.getElementById("dashboardOverviewFemale");
+    const totalCard = document.getElementById("dashboardTotalStudents");
+    const maleCard = document.getElementById("dashboardMaleStudents");
+    const femaleCard = document.getElementById("dashboardFemaleStudents");
+    const session = sessions.find(x => x.is_active);
+    if (!session) return;
+    const { data: records, error } = await supabaseClient.from("academic_records")
+        .select("class_no, students(gender)").eq("session_id", session.id);
     if (error) {
-        console.error("Dashboard overview error:", error);
-        if (bodyEl) bodyEl.innerHTML = `<tr><td colspan="4" class="dashboard-empty">Unable to load dashboard data.</td></tr>`;
+        if(body) body.innerHTML = `<tr><td colspan="4">Unable to load dashboard data.</td></tr>`;
         return;
     }
-
-    const overview = Array.from({ length: 8 }, (_, i) => ({
-        classNo: i + 1,
-        total: 0,
-        male: 0,
-        female: 0
-    }));
-
-    (data || []).forEach(record => {
-        const item = overview[Number(record.class_no) - 1];
-        if (!item) return;
-        item.total += 1;
-        const gender = String(record.students?.gender || "").trim().toLowerCase();
-        if (gender === "male" || gender === "m") item.male += 1;
-        else if (gender === "female" || gender === "f") item.female += 1;
-    });
-
-    const total = overview.reduce((sum, item) => sum + item.total, 0);
-    const male = overview.reduce((sum, item) => sum + item.male, 0);
-    const female = overview.reduce((sum, item) => sum + item.female, 0);
-
-    if (totalEl) totalEl.textContent = total;
-    if (maleEl) maleEl.textContent = male;
-    if (femaleEl) femaleEl.textContent = female;
-
-    if (bodyEl) {
-        bodyEl.innerHTML = overview.map(item => `
-            <tr>
-                <td>${escapeHtml(className(item.classNo))}</td>
-                <td>${item.total}</td>
-                <td>${item.male}</td>
-                <td>${item.female}</td>
-            </tr>
-        `).join("");
-    }
-
-    if (totalFooter) totalFooter.textContent = total;
-    if (maleFooter) maleFooter.textContent = male;
-    if (femaleFooter) femaleFooter.textContent = female;
+    const counts = Array.from({length:8},(_,i)=>({total:0,male:0,female:0}));
+    (records||[]).forEach(r=>{ const c=counts[Number(r.class_no)-1]; if(!c)return; c.total++; const g=String(r.students?.gender||"").trim().toLowerCase(); if(g==="male"||g==="m")c.male++; else if(g==="female"||g==="f")c.female++; });
+    if(body) body.innerHTML=counts.map((c,i)=>`<tr><td>Class ${className(i+1).replace(/^Class\s*/i,"")}</td><td>${c.total}</td><td>${c.male}</td><td>${c.female}</td></tr>`).join("");
+    const totals=counts.reduce((a,c)=>({total:a.total+c.total,male:a.male+c.male,female:a.female+c.female}),{total:0,male:0,female:0});
+    if(totalEl) totalEl.textContent=totals.total; if(maleEl) maleEl.textContent=totals.male; if(femaleEl) femaleEl.textContent=totals.female;
+    if(totalCard) totalCard.textContent=totals.total; if(maleCard) maleCard.textContent=totals.male; if(femaleCard) femaleCard.textContent=totals.female;
+    if(totalEl) totalEl.textContent=totals.total; if(maleEl) maleEl.textContent=totals.male; if(femaleEl) femaleEl.textContent=totals.female;
+    if(document.getElementById("dashboardSession")) document.getElementById("dashboardSession").textContent=session.session_name;
+    if(totalEl) document.getElementById("dashboardOverviewTotal").textContent=totals.total;
+    if(maleEl) document.getElementById("dashboardOverviewMale").textContent=totals.male;
+    if(femaleEl) document.getElementById("dashboardOverviewFemale").textContent=totals.female;
 }
-
 
 
 /* =========================================================
@@ -3664,11 +3537,11 @@ function renderAttendanceMonthButtons() {
     }
 }
 
-function resetAttendanceGridForSelectionChange() {
-    attendanceStudents = [];
-    attendanceData = {};
-    if (attendanceRecordCount) attendanceRecordCount.textContent = attendanceSelectedMonths.length ? "Load Attendance to view the selected months." : "Select month(s) to continue.";
-    if (attendanceTableContainer) attendanceTableContainer.innerHTML = `<div class="empty-state">Load Attendance after selecting your month(s).</div>`;
+async function resetAttendanceGridForSelectionChange() {
+    attendanceStudents = []; attendanceData = {};
+    if (attendanceRecordCount) attendanceRecordCount.textContent = attendanceSelectedMonths.length ? "Loading attendance..." : "Select month(s) to continue.";
+    if (!attendanceSelectedMonths.length) { if(attendanceTableContainer) attendanceTableContainer.innerHTML=`<div class="empty-state">Select month(s) to continue.</div>`; return; }
+    await loadAttendanceGrid();
 }
 
 function getAttendanceSortedStudents() {
@@ -3696,20 +3569,30 @@ function getAttendanceStudentTotals(recordId) {
     });
     present = Math.min(present, working);
     const absent = Math.max(0, working - present);
-    const pct = working ? (present / working) * 100 : 0;
-    return { working, present, absent, pct };
+    const hasAny = attendanceSelectedMonths.some(monthNo => { const row=attendanceData[`${recordId}_${monthNo}`]||{}; return row.working_days!==undefined || row.present_days!==undefined; });
+    const pct = working ? (present / working) * 100 : null;
+    return { working, present, absent, pct, hasAny };
+}
+
+function attendanceMaxDays(monthNo) {
+    const sessionName = attendanceSession?.options[attendanceSession.selectedIndex]?.text || "2026–27";
+    const m = String(sessionName).match(/(\d{4})/); const startYear = m ? Number(m[1]) : new Date().getFullYear();
+    const calendarMonth = monthNo <= 9 ? monthNo + 3 : monthNo - 9;
+    const year = monthNo <= 9 ? startYear : startYear + 1;
+    return new Date(year, calendarMonth, 0).getDate();
 }
 
 function updateAttendanceCell(recordId, monthNo, field, value) {
-    const key = `${recordId}_${monthNo}`;
-    if (!attendanceData[key]) attendanceData[key] = {};
-    const n = Math.max(0, Number(value || 0));
-    attendanceData[key][field === "working" ? "working_days" : "present_days"] = Number.isFinite(n) ? Math.round(n) : 0;
-    const row = attendanceData[key];
-    if (Number(row.present_days || 0) > Number(row.working_days || 0)) row.present_days = Number(row.working_days || 0);
-    updateAttendanceTotalsRow(recordId);
+    const key=`${recordId}_${monthNo}`; if(!attendanceData[key]) attendanceData[key]={};
+    const inputValue=String(value??"").trim();
+    if(inputValue==="") { delete attendanceData[key][field==="working"?"working_days":"present_days"]; updateAttendanceTotalsRow(recordId); return; }
+    const n=Number(inputValue);
+    const max=field==="working" ? attendanceMaxDays(monthNo) : Number(attendanceData[key].working_days);
+    if(!Number.isFinite(n)||!Number.isInteger(n)||n<0||n>max||(field==="present"&&(!Number.isFinite(max)||n>max))) {
+        delete attendanceData[key][field==="working"?"working_days":"present_days"]; updateAttendanceTotalsRow(recordId); return;
+    }
+    attendanceData[key][field==="working"?"working_days":"present_days"]=n; updateAttendanceTotalsRow(recordId);
 }
-
 function updateAttendanceTotalsRow(recordId) {
     const t = getAttendanceStudentTotals(recordId);
     document.querySelector(`[data-att-total-wd="${recordId}"]`)?.replaceChildren(document.createTextNode(String(t.working)));
@@ -3726,34 +3609,33 @@ function renderAttendanceTable() {
     }
     const sorted = getAttendanceSortedStudents();
     const selected = attendanceSelectedMonths;
-    const headers = selected.map(monthNo => `<th>${attendanceMonthNames[monthNo - 1]}<br><small>WD / Present</small></th>`).join("");
+    const headers = selected.map(monthNo => `<th>${attendanceMonthNames[monthNo - 1]}<br><small>Working Days / Present</small></th>`).join("");
     const rows = sorted.map(r => {
         const monthCells = selected.map(monthNo => {
             const row = attendanceData[`${r.id}_${monthNo}`] || {};
-            return `<td>
-                <input class="attendance-input" type="number" min="0" step="1" inputmode="numeric" value="${row.working_days ?? ""}" placeholder="Working" data-att-rec="${r.id}" data-att-month="${monthNo}" data-att-field="working">
-                <input class="attendance-input" type="number" min="0" step="1" inputmode="numeric" value="${row.present_days ?? ""}" placeholder="Present" data-att-rec="${r.id}" data-att-month="${monthNo}" data-att-field="present" style="margin-top:5px">
-            </td>`;
+            return `<td><input class="attendance-input" type="number" min="0" step="1" inputmode="numeric" value="${row.working_days ?? ""}" data-att-rec="${r.id}" data-att-month="${monthNo}" data-att-field="working" aria-label="Working Days"><input class="attendance-input" type="number" min="0" step="1" inputmode="numeric" value="${row.present_days ?? ""}" data-att-rec="${r.id}" data-att-month="${monthNo}" data-att-field="present" style="margin-top:5px" aria-label="Present Days"></td>`;
         }).join("");
         const t = getAttendanceStudentTotals(r.id);
         return `<tr>
             <td>${escapeHtml(String(r.roll_no ?? ""))}</td>
             <td class="student-name-cell">${escapeHtml(r.students?.student_name || "")}</td>
             ${monthCells}
-            <td data-att-total-wd="${r.id}">${t.working}</td>
-            <td data-att-total-p="${r.id}">${t.present}</td>
-            <td data-att-total-a="${r.id}">${t.absent}</td>
-            <td data-att-pct="${r.id}">${t.pct.toFixed(2)}%</td>
+            <td data-att-total-wd="${r.id}">${t.hasAny?t.working:""}</td>
+            <td data-att-total-p="${r.id}">${t.hasAny?t.present:""}</td>
+            <td data-att-total-a="${r.id}">${t.hasAny?t.absent:""}</td>
+            <td data-att-pct="${r.id}">${t.pct===null?"":t.pct.toFixed(2)+"%"}</td>
         </tr>`;
     }).join("");
-    attendanceTableContainer.innerHTML = `<div style="overflow-x:auto"><table class="attendance-table"><thead><tr><th>Roll</th><th>Student Name</th>${headers}<th>Working Days</th><th>Present</th><th>Absent</th><th>Attendance %</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    attendanceTableContainer.innerHTML = `<div class="attendance-grid-wrapper"><table class="attendance-table"><thead><tr><th>Roll</th><th>Student Name</th>${headers}<th>Working Days</th><th>Present</th><th>Absent</th><th>Attendance %</th></tr></thead><tbody>${rows}</tbody></table></div>`;
     attendanceTableContainer.querySelectorAll("input[data-att-rec]").forEach(input => {
+        input.addEventListener("focus", () => { if(input.value==="0") input.value=""; });
         input.addEventListener("input", () => {
-            updateAttendanceCell(Number(input.dataset.attRec), Number(input.dataset.attMonth), input.dataset.attField, input.value);
-            if (input.dataset.attField === "present") {
-                const row = attendanceData[`${input.dataset.attRec}_${input.dataset.attMonth}`] || {};
-                if (Number(row.present_days || 0) !== Number(input.value || 0)) input.value = row.present_days || 0;
-            }
+            const rec=Number(input.dataset.attRec), month=Number(input.dataset.attMonth), field=input.dataset.attField;
+            updateAttendanceCell(rec,month,field,input.value);
+            const row=attendanceData[`${rec}_${month}`]||{};
+            const stored=field==="working"?row.working_days:row.present_days;
+            if(String(input.value).trim()!=="" && stored===undefined) input.value=""; else if(stored!==undefined) input.value=String(stored);
+            if(field==="working" && row.present_days!==undefined && Number(row.present_days)>Number(row.working_days)) { delete row.present_days; const p=attendanceTableContainer.querySelector(`input[data-att-rec="${rec}"][data-att-month="${month}"][data-att-field="present"]`); if(p)p.value=""; }
         });
     });
     if (attendanceRecordCount) attendanceRecordCount.textContent = `${attendanceStudents.length} students • ${selected.map(n => attendanceMonthNames[n - 1]).join(", ")} • ${attendanceSort?.selectedOptions[0]?.text || "Roll Number — Low to High"}`;
@@ -3791,8 +3673,8 @@ async function loadAttendanceGrid() {
         }
         (rows || []).forEach(row => {
             attendanceData[`${row.academic_record_id}_${row.month_no}`] = {
-                working_days: Number(row.working_days || 0),
-                present_days: Number(row.present_days || 0)
+                working_days: row.working_days === null ? undefined : Number(row.working_days),
+                present_days: row.present_days === null ? undefined : Number(row.present_days)
             };
         });
     }
@@ -3813,10 +3695,11 @@ async function saveAttendance() {
     const rows = [];
     attendanceStudents.forEach(record => {
         attendanceSelectedMonths.forEach(monthNo => {
-            const row = attendanceData[`${record.id}_${monthNo}`] || {};
-            const working = Math.max(0, Math.round(Number(row.working_days || 0)));
-            const present = Math.min(working, Math.max(0, Math.round(Number(row.present_days || 0))));
-            rows.push({ academic_record_id: record.id, month_no: monthNo, working_days: working, present_days: present });
+            const row=attendanceData[`${record.id}_${monthNo}`]||{};
+            const hasW=row.working_days!==undefined; const hasP=row.present_days!==undefined;
+            if(!hasW && !hasP) return;
+            if(!hasW || !hasP) return;
+            rows.push({academic_record_id:record.id,month_no:monthNo,working_days:Number(row.working_days),present_days:Number(row.present_days)});
         });
     });
     const { error } = await supabaseClient
@@ -3875,8 +3758,10 @@ if (attendanceClearMonths) attendanceClearMonths.addEventListener("click", () =>
     renderAttendanceMonthButtons();
     resetAttendanceGridForSelectionChange();
 });
-if (attendanceLoadButton) attendanceLoadButton.addEventListener("click", loadAttendanceGrid);
 if (attendanceSaveButton) attendanceSaveButton.addEventListener("click", saveAttendance);
+if (attendanceSession) attendanceSession.addEventListener("change", () => { if(attendanceSelectedMonths.length) loadAttendanceGrid(); });
+if (attendanceClass) attendanceClass.addEventListener("change", () => { if(attendanceSelectedMonths.length) loadAttendanceGrid(); });
+if (attendanceSort) attendanceSort.addEventListener("change", renderAttendanceTable);
 if (attendancePrintButton) attendancePrintButton.addEventListener("click", printAttendanceSummary);
 if (attendanceSort) attendanceSort.addEventListener("change", () => { if (attendanceStudents.length) renderAttendanceTable(); });
 if (attendanceSession) attendanceSession.addEventListener("change", resetAttendanceGridForSelectionChange);
