@@ -635,6 +635,36 @@ tbody tr:hover {
     color: #6b7280;
 }
 
+/* APAAR/student form readability */
+.form-group label {
+    font-size: 15px;
+}
+.form-group input,
+.form-group select {
+    font-size: 15px;
+    padding: 12px 13px;
+}
+.form-help {
+    font-size: 12px;
+}
+#studentModal .modal-header h3 {
+    font-size: 22px;
+}
+#studentModal .modal-body {
+    font-size: 15px;
+}
+#studentModal .modal-footer .btn {
+    font-size: 15px;
+    padding: 11px 16px;
+}
+
+.table-card td {
+    font-size: 14px;
+}
+.table-card th {
+    font-size: 13px;
+}
+
 /* =========================
    MODAL
 ========================= */
@@ -652,7 +682,7 @@ tbody tr:hover {
 
 .modal {
     width: 100%;
-    max-width: 1000px;
+    max-width: 720px;
     max-height: 90vh;
     overflow-y: auto;
     background: white;
@@ -670,7 +700,6 @@ tbody tr:hover {
 
 .modal-header h3 {
     color: #123b73;
-    font-size: 24px;
 }
 
 .modal-close {
@@ -681,7 +710,7 @@ tbody tr:hover {
 }
 
 .modal-body {
-    padding: 26px 28px;
+    padding: 20px;
 }
 
 .modal-footer {
@@ -695,7 +724,7 @@ tbody tr:hover {
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2,1fr);
-    gap: 18px;
+    gap: 14px;
 }
 
 .form-group.full {
@@ -703,15 +732,11 @@ tbody tr:hover {
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 7px;
-    font-size: 16px;
-    font-weight: 500;
-    color: #374151;
+    margin-bottom: 5px;
 }
 
 .form-help {
-    font-size: 13px;
+    font-size: 11px;
     color: #6b7280;
     margin-top: 4px;
 }
@@ -1963,6 +1988,7 @@ tbody tr:hover {
                         <input
                             type="text"
                             id="formApaarId"
+                            inputmode="numeric"
                             placeholder="Enter APAAR ID"
                         >
 
@@ -3257,9 +3283,7 @@ function renderStudents() {
 
                     <td>
                         ${student.apaarId
-                            ? escapeHtml(
-                                student.apaarId
-                              )
+                            ? escapeHtml(student.apaarId)
                             : "<span style='color:#9ca3af'>Blank</span>"
                         }
                     </td>
@@ -4860,15 +4884,6 @@ saveStudentButton.addEventListener(
             studentIdRaw || null;
 
 
-        const apaarId =
-            document
-                .getElementById(
-                    "formApaarId"
-                )
-                .value
-                .trim() || null;
-
-
         const fatherName =
             document
                 .getElementById(
@@ -4901,6 +4916,19 @@ saveStudentButton.addEventListener(
                     "formGender"
                 )
                 .value || null;
+
+
+        const apaarIdRaw =
+            document
+                .getElementById(
+                    "formApaarId"
+                )
+                .value
+                .trim();
+
+
+        const apaarId =
+            apaarIdRaw || null;
 
 
         const classNo =
