@@ -1958,8 +1958,12 @@ tbody tr:hover {
                         <input
                             type="text"
                             id="formApaarId"
-                            placeholder="Enter APAAR ID"
+                            placeholder="Enter APAAR ID manually"
                         >
+
+                        <div class="form-help">
+                            APAAR ID can be entered or edited manually.
+                        </div>
 
                     </div>
 
@@ -2936,8 +2940,8 @@ async function loadStudents() {
                 students (
                     id,
                     student_id,
-                    student_name,
                     apaar_id,
+                    student_name,
                     father_name,
                     mother_name,
                     date_of_birth,
@@ -2991,11 +2995,11 @@ async function loadStudents() {
                 studentId:
                     record.students?.student_id || "",
 
-                studentName:
-                    record.students?.student_name || "",
-
                 apaarId:
                     record.students?.apaar_id || "",
+
+                studentName:
+                    record.students?.student_name || "",
 
                 fatherName:
                     record.students?.father_name || "",
@@ -4125,7 +4129,7 @@ async function loadPrintData() {
     const {data: subjects, error: se} = await supabaseClient.from("subjects").select("id,subject_name,display_order").eq("class_no",classNo).order("display_order",{ascending:true});
     if (se) { showToast("Unable to load subjects: " + se.message,"error"); return; }
     printSubjects = subjects || [];
-    const {data: records,error:re} = await supabaseClient.from("academic_records").select("id,student_profile_id,class_no,roll_no,status,students(id,student_id,student_name,apaar_id,father_name,mother_name,date_of_birth,gender)").eq("session_id",sessionId).eq("class_no",classNo).order("roll_no",{ascending:true});
+    const {data: records,error:re} = await supabaseClient.from("academic_records").select("id,student_profile_id,class_no,roll_no,status,students(id,student_id,apaar_id,student_name,father_name,mother_name,date_of_birth,gender)").eq("session_id",sessionId).eq("class_no",classNo).order("roll_no",{ascending:true});
     if (re) { showToast("Unable to load students: " + re.message,"error"); return; }
     printStudents = records || [];
     const ids = printStudents.map(r=>r.id);
@@ -4303,7 +4307,7 @@ async function loadPromotionStudents(){
     promotionListCard.classList.add("hidden");
     promotionReviewCard.classList.add("hidden");
     const {data:records,error}=await supabaseClient.from("academic_records")
-        .select("id,student_profile_id,class_no,roll_no,status,students(id,student_id,student_name,apaar_id,father_name,mother_name,date_of_birth,gender)")
+        .select("id,student_profile_id,class_no,roll_no,status,students(id,student_id,apaar_id,student_name,father_name,mother_name,date_of_birth,gender)")
         .eq("session_id",sessionId).eq("class_no",classNo).order("roll_no",{ascending:true});
     if(error){promotionMessage.textContent="Unable to load students: "+error.message;showToast("Unable to load promotion data.","error");return;}
     const {data:subjects,error:se}=await supabaseClient.from("subjects").select("id,subject_name,display_order").eq("class_no",classNo).order("display_order",{ascending:true});
@@ -4844,17 +4848,13 @@ saveStudentButton.addEventListener(
             studentIdRaw || null;
 
 
-        const apaarIdRaw =
+        const apaarId =
             document
                 .getElementById(
                     "formApaarId"
                 )
                 .value
-                .trim();
-
-
-        const apaarId =
-            apaarIdRaw || null;
+                .trim() || null;
 
 
         const fatherName =
