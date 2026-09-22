@@ -713,8 +713,44 @@ tbody tr:hover {
   .result-table td.subject { text-align:left; }
   .result-summary { margin-top:8px; font-size:14pt;}
   .page-number { text-align:right; font-size:8pt; margin-top:4px;}
-  .folio-print .result-table { font-size:11px; }
-  .folio-print .result-table th,.folio-print .result-table td { padding:6px 4px; }
+  .folio-print .result-table {
+    width:100% !important;
+    min-width:0 !important;
+    table-layout:fixed;
+    font-size:9pt;
+  }
+  .folio-print .result-table th,
+  .folio-print .result-table td {
+    padding:4px 3px;
+    line-height:1.1;
+  }
+  .folio-print .result-table th.folio-subject-head {
+    height:78px;
+    padding:3px 1px;
+    vertical-align:middle;
+    overflow:hidden;
+  }
+  .folio-print .result-table th.folio-subject-head > span {
+    display:inline-block;
+    white-space:nowrap;
+    transform:rotate(-90deg);
+    transform-origin:center center;
+    line-height:1;
+  }
+  .folio-print .result-table th.folio-subject-head small {
+    font-size:8pt;
+  }
+  .folio-print .result-table th:nth-child(1) { width:32px; }
+  .folio-print .result-table th:nth-child(2) { width:38px; }
+  .folio-print .result-table th:nth-child(3) { width:90px; }
+  .folio-print .result-table th:nth-last-child(3) { width:48px; }
+  .folio-print .result-table th:nth-last-child(2) { width:48px; }
+  .folio-print .result-table th:last-child { width:48px; }
+  .folio-print .result-table td.name {
+    text-align:left;
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
 }
 
 /* =========================
@@ -3464,7 +3500,7 @@ function printAllStudents(){
 async function printClassFolio(){
     if(!printStudents.length){showToast("No students found.","error");return;}
     const ranked=[...printStudents].sort((a,b)=>Number(a.roll_no??999999)-Number(b.roll_no??999999));
-    const heads=printSubjects.map(s=>`<th>${escapeHtml(s.subject_name)}<br><small>${printExam.value==="Final"?100:50}</small></th>`).join("");
+    const heads=printSubjects.map(s=>`<th class="folio-subject-head"><span>${escapeHtml(s.subject_name)}<br><small>${printExam.value==="Final"?100:50}</small></span></th>`).join("");
     const rows=ranked.map((r,i)=>{const c=calcPrintRecord(r);return `<tr><td>${i+1}</td><td>${escapeHtml(r.roll_no??"")}</td><td class="name">${escapeHtml(r.students?.student_name||"")}</td>${printSubjects.map(s=>{let v;if(printExam.value==="Final"){v=(getPrintMark(r.id,s.id,"Half-Yearly")||0)+(getPrintMark(r.id,s.id,"Annual")||0);}else v=getPrintMark(r.id,s.id,printExam.value);return `<td>${v??""}</td>`}).join("")}<td>${c.total}</td><td>${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;}).join("");
     openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th>%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table><div class="page-number">Students: ${printStudents.length}</div></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
 }
