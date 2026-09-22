@@ -297,6 +297,73 @@ select:focus {
     gap: 15px;
 }
 
+.dashboard-summary-grid {
+    margin-bottom: 18px;
+}
+
+.dashboard-overview-card {
+    margin-top: 18px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.dashboard-overview-header h3 {
+    margin: 0;
+    color: #123b73;
+    font-size: 18px;
+}
+
+.dashboard-overview-subtitle {
+    margin-top: 4px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.dashboard-overview-table-wrap {
+    margin-top: 15px;
+    overflow-x: auto;
+}
+
+.dashboard-overview-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 520px;
+}
+
+.dashboard-overview-table th,
+.dashboard-overview-table td {
+    border: 1px solid #dbe3ee;
+    padding: 11px 12px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.dashboard-overview-table thead th {
+    background: #eef4fb;
+    color: #123b73;
+    font-weight: 700;
+}
+
+.dashboard-overview-table tbody tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+.dashboard-overview-table tbody tr:hover {
+    background: #f1f5f9;
+}
+
+.dashboard-overview-table tfoot th {
+    background: #eef4fb;
+    color: #123b73;
+}
+
+.dashboard-empty {
+    color: #6b7280;
+    padding: 18px !important;
+}
+
 .dashboard-card {
     background: white;
     border: 1px solid #e5e7eb;
@@ -1133,78 +1200,61 @@ tbody tr:hover {
             </div>
 
 
-            <div class="dashboard-grid">
+            <div class="dashboard-grid dashboard-summary-grid">
 
                 <div class="dashboard-card">
-
-                    <div
-                        id="dashboardStudentCount"
-                        class="number">
-
-                        —
-
-                    </div>
-
-                    <div class="label">
-                        Students in Selected Class
-                    </div>
-
+                    <div id="dashboardTotalStudents" class="number">—</div>
+                    <div class="label">Total Students</div>
                 </div>
 
-
                 <div class="dashboard-card">
-
-                    <div
-                        id="dashboardTotalStudents"
-                        class="number">
-
-                        —
-
-                    </div>
-
-                    <div class="label">
-                        Total Student Profiles
-                    </div>
-
+                    <div id="dashboardMaleStudents" class="number">—</div>
+                    <div class="label">Male Students</div>
                 </div>
 
-
                 <div class="dashboard-card">
-
-                    <div
-                        id="dashboardClasses"
-                        class="number">
-
-                        8
-
-                    </div>
-
-                    <div class="label">
-                        Classes
-                    </div>
-
+                    <div id="dashboardFemaleStudents" class="number">—</div>
+                    <div class="label">Female Students</div>
                 </div>
 
-
                 <div class="dashboard-card">
-
-                    <div
-                        id="dashboardSession"
-                        class="number"
-                        style="font-size:22px">
-
-                        2026–27
-
-                    </div>
-
-                    <div class="label">
-                        Active Academic Session
-                    </div>
-
+                    <div id="dashboardClasses" class="number">8</div>
+                    <div class="label">Classes</div>
                 </div>
 
             </div>
 
+            <div class="dashboard-overview-card">
+                <div class="dashboard-overview-header">
+                    <div>
+                        <h3>Class-wise Student Overview</h3>
+                        <div id="dashboardOverviewSession" class="dashboard-overview-subtitle">Active Academic Session</div>
+                    </div>
+                </div>
+                <div class="dashboard-overview-table-wrap">
+                    <table class="dashboard-overview-table">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Total Students</th>
+                                <th>Male</th>
+                                <th>Female</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboardClassOverviewBody">
+                            <tr><td colspan="4" class="dashboard-empty">Loading...</td></tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Total</th>
+                                <th id="dashboardOverviewTotal">0</th>
+                                <th id="dashboardOverviewMale">0</th>
+                                <th id="dashboardOverviewFemale">0</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
 
             <div class="context-card">
 
@@ -3243,42 +3293,78 @@ function formatDate(value) {
 ========================================================= */
 
 async function updateDashboardCounts() {
+    const totalEl = document.getElementById("dashboardTotalStudents");
+    const maleEl = document.getElementById("dashboardMaleStudents");
+    const femaleEl = document.getElementById("dashboardFemaleStudents");
+    const bodyEl = document.getElementById("dashboardClassOverviewBody");
+    const totalFooter = document.getElementById("dashboardOverviewTotal");
+    const maleFooter = document.getElementById("dashboardOverviewMale");
+    const femaleFooter = document.getElementById("dashboardOverviewFemale");
+    const sessionLabel = document.getElementById("dashboardOverviewSession");
 
-    document
-        .getElementById(
-            "dashboardStudentCount"
-        )
-        .textContent =
-        studentsData.length;
-
-
-    const {
-        count,
-        error
-    } =
-        await supabaseClient
-            .from("students")
-            .select(
-                "id",
-                {
-                    count: "exact",
-                    head: true
-                }
-            );
-
-
-    if (!error) {
-
-        document
-            .getElementById(
-                "dashboardTotalStudents"
-            )
-            .textContent =
-            count ?? 0;
-
+    const activeSession = sessions.find(s => s.is_active);
+    if (!activeSession) {
+        if (totalEl) totalEl.textContent = "0";
+        if (maleEl) maleEl.textContent = "0";
+        if (femaleEl) femaleEl.textContent = "0";
+        if (bodyEl) bodyEl.innerHTML = `<tr><td colspan="4" class="dashboard-empty">No active academic session.</td></tr>`;
+        if (sessionLabel) sessionLabel.textContent = "No active academic session";
+        return;
     }
 
+    if (sessionLabel) sessionLabel.textContent = `Academic Session: ${activeSession.session_name}`;
+
+    const { data, error } = await supabaseClient
+        .from("academic_records")
+        .select(`class_no, students ( gender )`)
+        .eq("session_id", activeSession.id);
+
+    if (error) {
+        console.error("Dashboard overview error:", error);
+        if (bodyEl) bodyEl.innerHTML = `<tr><td colspan="4" class="dashboard-empty">Unable to load dashboard data.</td></tr>`;
+        return;
+    }
+
+    const overview = Array.from({ length: 8 }, (_, i) => ({
+        classNo: i + 1,
+        total: 0,
+        male: 0,
+        female: 0
+    }));
+
+    (data || []).forEach(record => {
+        const item = overview[Number(record.class_no) - 1];
+        if (!item) return;
+        item.total += 1;
+        const gender = String(record.students?.gender || "").trim().toLowerCase();
+        if (gender === "male" || gender === "m") item.male += 1;
+        else if (gender === "female" || gender === "f") item.female += 1;
+    });
+
+    const total = overview.reduce((sum, item) => sum + item.total, 0);
+    const male = overview.reduce((sum, item) => sum + item.male, 0);
+    const female = overview.reduce((sum, item) => sum + item.female, 0);
+
+    if (totalEl) totalEl.textContent = total;
+    if (maleEl) maleEl.textContent = male;
+    if (femaleEl) femaleEl.textContent = female;
+
+    if (bodyEl) {
+        bodyEl.innerHTML = overview.map(item => `
+            <tr>
+                <td>${escapeHtml(className(item.classNo))}</td>
+                <td>${item.total}</td>
+                <td>${item.male}</td>
+                <td>${item.female}</td>
+            </tr>
+        `).join("");
+    }
+
+    if (totalFooter) totalFooter.textContent = total;
+    if (maleFooter) maleFooter.textContent = male;
+    if (femaleFooter) femaleFooter.textContent = female;
 }
+
 
 
 /* =========================================================
