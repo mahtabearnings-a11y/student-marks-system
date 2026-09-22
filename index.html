@@ -1284,6 +1284,7 @@ async function deleteAcademicSession(id){
     <nav class="navbar">
 
         <button
+            type="button"
             class="nav-btn active"
             data-section="dashboard">
 
@@ -1292,6 +1293,7 @@ async function deleteAcademicSession(id){
         </button>
 
         <button
+            type="button"
             class="nav-btn"
             data-section="students">
 
@@ -1300,6 +1302,7 @@ async function deleteAcademicSession(id){
         </button>
 
         <button
+            type="button"
             class="nav-btn"
             data-section="marks">
 
@@ -1308,6 +1311,7 @@ async function deleteAcademicSession(id){
         </button>
 
         <button
+            type="button"
             class="nav-btn"
             data-section="attendance">
 
@@ -1316,6 +1320,7 @@ async function deleteAcademicSession(id){
         </button>
 
         <button
+            type="button"
             class="nav-btn"
             data-section="promotion">
 
@@ -1324,6 +1329,7 @@ async function deleteAcademicSession(id){
         </button>
 
         <button
+            type="button"
             class="nav-btn"
             data-section="sessions">
 
@@ -1332,6 +1338,7 @@ async function deleteAcademicSession(id){
         </button>
 
         <button
+            type="button"
             class="nav-btn"
             data-section="reports">
 
@@ -1340,6 +1347,7 @@ async function deleteAcademicSession(id){
         </button>
 
         <button
+            type="button"
             class="nav-btn"
             data-section="backup">
 
@@ -2314,6 +2322,64 @@ async function deleteAcademicSession(id){
 
 <div id="printDocumentHost"></div>
 
+
+
+<script>
+/* =========================================================
+   FAIL-SAFE APPLICATION NAVIGATION
+   This controller is intentionally independent of Supabase/data loaders.
+   It guarantees that clicking a navigation tab changes the visible module
+   even if another module later throws a JavaScript/runtime error.
+========================================================= */
+(function () {
+    function switchAppSection(section) {
+        var target = document.getElementById(section + "Section");
+        if (!target) return;
+
+        document.querySelectorAll(".app-section").forEach(function (item) {
+            item.classList.add("hidden");
+        });
+
+        target.classList.remove("hidden");
+
+        document.querySelectorAll(".nav-btn[data-section]").forEach(function (button) {
+            button.classList.toggle("active", button.getAttribute("data-section") === section);
+        });
+
+        // Data loading is optional here. Navigation itself must never depend on it.
+        try {
+            if (section === "students" && typeof loadStudents === "function") loadStudents();
+            if (section === "marks" && typeof populateMarksSessions === "function" && typeof loadMarksGrid === "function") {
+                populateMarksSessions();
+                loadMarksGrid();
+            }
+            if (section === "attendance" && typeof populateAttendanceSessions === "function") {
+                populateAttendanceSessions();
+                if (typeof renderAttendanceMonthButtons === "function") renderAttendanceMonthButtons();
+            }
+            if (section === "promotion" && typeof populatePromotionSessions === "function") {
+                populatePromotionSessions();
+                if (typeof loadPromotionStudents === "function") loadPromotionStudents();
+                if (typeof loadPromotionHistory === "function") loadPromotionHistory();
+            }
+            if (section === "sessions" && typeof refreshAcademicSessions === "function") refreshAcademicSessions();
+            if (section === "reports" && typeof loadPrintData === "function") loadPrintData();
+        } catch (error) {
+            console.error("Navigation data-loading error:", error);
+        }
+    }
+
+    window.switchAppSection = switchAppSection;
+
+    document.addEventListener("click", function (event) {
+        var button = event.target.closest && event.target.closest(".nav-btn[data-section]");
+        if (!button) return;
+        event.preventDefault();
+        event.stopPropagation();
+        switchAppSection(button.getAttribute("data-section"));
+    }, true);
+})();
+</script>
 
 <script>
 
@@ -4561,39 +4627,22 @@ function resetPromotionState(){
 }
 
 function showSection(section) {
-    // Switch the visible section first so navigation remains responsive even
-    // if a module's data-loading function encounters a runtime/API error.
-    document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.section === section));
-    document.querySelectorAll(".app-section").forEach(item => item.classList.add("hidden"));
-    const target = document.getElementById(section + "Section");
-    if (!target) return;
-    target.classList.remove("hidden");
-
-    try {
-        resetModuleState(section);
-        if (section === "students") loadStudents();
-        if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
-        if (section === "reports") loadPrintData();
-        if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
-        if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); loadPromotionHistory(); }
-        if (section === "sessions") { refreshAcademicSessions(); }
-    } catch (error) {
-        console.error("Section error:", section, error);
+    if (typeof window.switchAppSection === "function") {
+        window.switchAppSection(section);
+        return;
     }
+
+    document.querySelectorAll(".nav-btn").forEach(function(b) {
+        b.classList.toggle("active", b.dataset.section === section);
+    });
+    document.querySelectorAll(".app-section").forEach(function(item) {
+        item.classList.add("hidden");
+    });
+    var target = document.getElementById(section + "Section");
+    if (target) target.classList.remove("hidden");
 }
 
 
-/* =========================================================
-   NAVIGATION
-========================================================= */
-
-// Delegated navigation handler: attached once and independent of module data loading.
-document.addEventListener("click", function(event) {
-    const button = event.target.closest(".nav-btn[data-section]");
-    if (!button) return;
-    event.preventDefault();
-    showSection(button.dataset.section);
-});
 
 
 if (printSession) printSession.addEventListener("change", loadPrintData);
