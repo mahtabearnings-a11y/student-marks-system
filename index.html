@@ -1303,6 +1303,26 @@ button {
 .promotion-note{margin-top:14px;padding:12px 14px;background:#f8fafc;border-left:4px solid #2563eb;color:#4b5563;font-size:13px;line-height:1.5}
 @media(max-width:700px){.promotion-controls{grid-template-columns:1fr}.promotion-table{min-width:1080px}}
 
+/* Dashboard KPI styling: keep key totals distinctive and prominent. */
+@media screen {
+  .dashboard-card .number {
+    font-size: 30px !important;
+    font-weight: 700 !important;
+    color: #155eef !important;
+  }
+
+  .dashboard-card .dashboard-session-number {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    color: #155eef !important;
+  }
+
+  .dashboard-card .label {
+    font-size: 14pt !important;
+    color: #6b7280 !important;
+  }
+}
+
 /* Final screen UI sizing: readable controls, while Supabase-loaded data stays at 13pt. */
 @media screen {
   body { font-size:14pt; }
@@ -1376,8 +1396,7 @@ button {
                 </form>
 
                 <div class="login-note"><strong>Authorized Access Only</strong><br>Your access level is determined by your school account.</div>
-                <div class="login-page-credit">Created by<strong>ABU MAHTAB RAUSHAN</strong></div>
-            </div>
+</div>
         </div>
     </div>
 </div>
@@ -1399,8 +1418,7 @@ button {
             <div class="school-subtitle">
                 Student Marks Management System
             </div>
-            <div class="topbar-credit">Created by ABU MAHTAB RAUSHAN</div>
-        </div>
+</div>
 
         <div class="user-area">
 
@@ -1499,11 +1517,7 @@ button {
 
                 <div>
                     <h2>Dashboard</h2>
-
-                    <div class="creator-credit">
-                        Created by ABU MAHTAB RAUSHAN
-                    </div>
-                </div>
+</div>
 
             </div>
 
@@ -1583,12 +1597,7 @@ button {
                 <div>
 
                     <h2>Students</h2>
-
-                    <div class="creator-credit">
-                        Created by ABU MAHTAB RAUSHAN
-                    </div>
-
-                </div>
+</div>
 
                 <button
                     id="addStudentButton"
