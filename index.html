@@ -1131,6 +1131,27 @@ tbody tr:hover {
 .attendance-table .attendance-input{background:#fff}
 .attendance-table .attendance-input:focus{outline:2px solid #7aa7d9}
 @media(max-width:700px){.topbar-credit{font-size:10px}.dashboard-overview-table{font-size:12px}.attendance-grid-wrapper{max-height:62vh}.attendance-table th:nth-child(2),.attendance-table td:nth-child(2){left:58px;min-width:155px;width:155px}.attendance-table th:nth-child(1),.attendance-table td:nth-child(1){min-width:58px;width:58px}}
+
+/* =========================================================
+   PROMOTION MODULE
+========================================================= */
+.promotion-controls{grid-template-columns:1fr 1fr 180px}
+.promotion-action-wrap .btn{width:100%}
+.promotion-message{margin-top:12px;padding:10px 12px;border-radius:8px;background:#f5f8fc;color:#5b6575;font-size:13px}
+.promotion-table{min-width:1080px;border-collapse:separate;border-spacing:0}
+.promotion-table th,.promotion-table td{padding:9px 8px;border-bottom:1px solid #e5e7eb;white-space:nowrap;text-align:center}
+.promotion-table th{background:#eef4fb;color:#123b73;position:sticky;top:0;z-index:4}
+.promotion-table th:nth-child(1),.promotion-table td:nth-child(1){position:sticky;left:0;z-index:6;background:#fff;min-width:44px}
+.promotion-table th:nth-child(2),.promotion-table td:nth-child(2){position:sticky;left:44px;z-index:6;background:#fff;min-width:58px}
+.promotion-table th:nth-child(3),.promotion-table td:nth-child(3){position:sticky;left:102px;z-index:6;background:#fff;min-width:190px;text-align:left;box-shadow:2px 0 4px rgba(0,0,0,.06)}
+.promotion-table th:nth-child(1),.promotion-table th:nth-child(2),.promotion-table th:nth-child(3){z-index:7}
+.promotion-table input[type="checkbox"]{width:18px;height:18px;accent-color:#2563eb}
+.promotion-table select,.promotion-table input.promotion-roll{width:125px;min-height:38px;padding:7px 8px}
+.promotion-table input.promotion-roll{width:90px;text-align:center}
+.promotion-status{font-weight:600}
+.promotion-status.promoted{color:#166534}.promotion-status.repeated{color:#92400e}.promotion-status.left{color:#b91c1c}.promotion-status.completed{color:#1d4ed8}
+.promotion-note{margin-top:14px;padding:12px 14px;background:#f8fafc;border-left:4px solid #2563eb;color:#4b5563;font-size:13px;line-height:1.5}
+@media(max-width:700px){.promotion-controls{grid-template-columns:1fr}.promotion-table{min-width:1080px}}
 </style>
 </head>
 
@@ -1315,12 +1336,11 @@ tbody tr:hover {
             </div>
 
             <div class="card dashboard-overview">
-                <h3>Class-wise Student Overview</h3>
+                <h3>Student Overview</h3>
                 <div class="table-wrapper">
                     <table class="dashboard-overview-table">
-                        <thead><tr><th>Class</th><th>Total Students</th><th>Male</th><th>Female</th></tr></thead>
+                        <thead><tr><th>Classes</th><th>Total Students</th><th>Male</th><th>Female</th></tr></thead>
                         <tbody id="dashboardOverviewBody"><tr><td colspan="4">Loading...</td></tr></tbody>
-                        <tfoot><tr><th>Total</th><th id="dashboardOverviewTotal">0</th><th id="dashboardOverviewMale">0</th><th id="dashboardOverviewFemale">0</th></tr></tfoot>
                     </table>
                 </div>
             </div>
@@ -1711,23 +1731,64 @@ tbody tr:hover {
 
         </section>
 
-        <section
-            id="promotionSection"
-            class="app-section hidden">
-
-            <div class="card">
-
-                <h2 style="color:#123b73;margin-bottom:10px">
-                    Promotion
-                </h2>
-
-                <p style="color:#6b7280">
-                    Promotion and Review & Confirmation
-                    will be added in the next stage.
-                </p>
-
+        <section id="promotionSection" class="app-section hidden">
+            <div class="page-header">
+                <div>
+                    <h2>Promotion</h2>
+                    <div class="creator-credit">Promote students to the next academic session</div>
+                </div>
             </div>
 
+            <div class="card filter-card">
+                <div class="print-controls promotion-controls">
+                    <div class="filter-item">
+                        <label for="promotionSession">Academic Session</label>
+                        <select id="promotionSession"></select>
+                    </div>
+                    <div class="filter-item">
+                        <label for="promotionClass">Class</label>
+                        <select id="promotionClass">
+                            <option value="1">Class I</option><option value="2">Class II</option>
+                            <option value="3">Class III</option><option value="4">Class IV</option>
+                            <option value="5">Class V</option><option value="6">Class VI</option>
+                            <option value="7">Class VII</option><option value="8">Class VIII</option>
+                        </select>
+                    </div>
+                    <div class="filter-item promotion-action-wrap">
+                        <label>&nbsp;</label>
+                        <button id="loadPromotionButton" class="btn btn-primary">Load Students</button>
+                    </div>
+                </div>
+                <div id="promotionMessage" class="promotion-message">Select a session and class, then load the students.</div>
+            </div>
+
+            <div id="promotionListCard" class="card hidden">
+                <div class="table-top">
+                    <div>
+                        <h3 style="color:#123b73;margin:0 0 5px">Students for Promotion</h3>
+                        <div id="promotionRecordCount" class="record-count"></div>
+                    </div>
+                    <button id="promoteStudentsButton" class="btn btn-primary">Promote Students</button>
+                </div>
+                <div id="promotionTableContainer" class="table-wrapper"></div>
+            </div>
+
+            <div id="promotionReviewCard" class="card hidden">
+                <div class="table-top">
+                    <div>
+                        <h3 style="color:#123b73;margin:0 0 5px">Review &amp; Confirmation</h3>
+                        <div id="promotionReviewInfo" class="record-count"></div>
+                    </div>
+                    <div class="print-actions" style="margin-top:0">
+                        <button id="promotionBackButton" class="btn btn-secondary">Back</button>
+                        <button id="confirmPromotionButton" class="btn btn-primary">Confirm Promotion</button>
+                    </div>
+                </div>
+                <div id="promotionReviewContainer" class="table-wrapper"></div>
+                <div class="promotion-note">
+                    <strong>Important:</strong> Confirming promotion creates new academic records for the selected students. Previous session records, marks and attendance are not changed or deleted.
+                </div>
+            </div>
         </section>
 
 
@@ -3373,35 +3434,46 @@ function formatDate(value) {
 
 async function updateDashboardCounts() {
     const body = document.getElementById("dashboardOverviewBody");
-    const totalEl = document.getElementById("dashboardOverviewTotal");
-    const maleEl = document.getElementById("dashboardOverviewMale");
-    const femaleEl = document.getElementById("dashboardOverviewFemale");
     const totalCard = document.getElementById("dashboardTotalStudents");
     const maleCard = document.getElementById("dashboardMaleStudents");
     const femaleCard = document.getElementById("dashboardFemaleStudents");
     const sessionCard = document.getElementById("dashboardAcademicSession");
     const session = sessions.find(x => x.is_active);
     if (!session) return;
+
     const { data: records, error } = await supabaseClient.from("academic_records")
         .select("class_no, students(gender)").eq("session_id", session.id);
     if (error) {
-        if(body) body.innerHTML = `<tr><td colspan="4">Unable to load dashboard data.</td></tr>`;
+        if (body) body.innerHTML = `<tr><td colspan="4">Unable to load dashboard data.</td></tr>`;
         return;
     }
-    const counts = Array.from({length:8},(_,i)=>({total:0,male:0,female:0}));
-    (records||[]).forEach(r=>{ const c=counts[Number(r.class_no)-1]; if(!c)return; c.total++; const g=String(r.students?.gender||"").trim().toLowerCase(); if(g==="male"||g==="m")c.male++; else if(g==="female"||g==="f")c.female++; });
-    if(body) body.innerHTML=counts.map((c,i)=>`<tr><td>Class ${className(i+1).replace(/^Class\s*/i,"")}</td><td>${c.total}</td><td>${c.male}</td><td>${c.female}</td></tr>`).join("");
-    const totals=counts.reduce((a,c)=>({total:a.total+c.total,male:a.male+c.male,female:a.female+c.female}),{total:0,male:0,female:0});
-    if(totalEl) totalEl.textContent=totals.total; if(maleEl) maleEl.textContent=totals.male; if(femaleEl) femaleEl.textContent=totals.female;
-    if(totalCard) totalCard.textContent=totals.total; if(maleCard) maleCard.textContent=totals.male; if(femaleCard) femaleCard.textContent=totals.female;
-    if(totalEl) totalEl.textContent=totals.total; if(maleEl) maleEl.textContent=totals.male; if(femaleEl) femaleEl.textContent=totals.female;
-    if(femaleCard) femaleCard.textContent=totals.female;
-    if(sessionCard) sessionCard.textContent=session.session_name;
-    if(document.getElementById("dashboardSession")) document.getElementById("dashboardSession").textContent=session.session_name;
-    if(totalEl) document.getElementById("dashboardOverviewTotal").textContent=totals.total;
-    if(maleEl) document.getElementById("dashboardOverviewMale").textContent=totals.male;
-    if(femaleEl) document.getElementById("dashboardOverviewFemale").textContent=totals.female;
+
+    const groups = [
+        { label: "Classes I–V", classes: [1,2,3,4,5], total: 0, male: 0, female: 0 },
+        { label: "Classes VI–VIII", classes: [6,7,8], total: 0, male: 0, female: 0 }
+    ];
+    (records || []).forEach(r => {
+        const group = groups.find(g => g.classes.includes(Number(r.class_no)));
+        if (!group) return;
+        group.total++;
+        const gender = String(r.students?.gender || "").trim().toLowerCase();
+        if (gender === "male" || gender === "m") group.male++;
+        else if (gender === "female" || gender === "f") group.female++;
+    });
+
+    if (body) body.innerHTML = groups.map(g =>
+        `<tr><td><strong>${g.label}</strong></td><td>${g.total}</td><td>${g.male}</td><td>${g.female}</td></tr>`
+    ).join("");
+
+    const totals = groups.reduce((a,g) => ({
+        total: a.total + g.total, male: a.male + g.male, female: a.female + g.female
+    }), {total:0,male:0,female:0});
+    if (totalCard) totalCard.textContent = totals.total;
+    if (maleCard) maleCard.textContent = totals.male;
+    if (femaleCard) femaleCard.textContent = totals.female;
+    if (sessionCard) sessionCard.textContent = session.session_name;
 }
+
 
 
 /* =========================================================
@@ -3985,6 +4057,7 @@ function resetModuleState(section){
     if(section==="marks") resetMarksState();
     if(section==="reports") resetPrintState();
     if(section==="attendance") resetAttendanceState();
+    if(section==="promotion") resetPromotionState();
 }
 function showSection(section) {
     resetModuleState(section);
@@ -4133,11 +4206,227 @@ async function printClassFolio(){
 }
 
 /* =========================================================
+   PROMOTION MODULE
+========================================================= */
+const promotionSession = document.getElementById("promotionSession");
+const promotionClass = document.getElementById("promotionClass");
+const loadPromotionButton = document.getElementById("loadPromotionButton");
+const promoteStudentsButton = document.getElementById("promoteStudentsButton");
+const promotionBackButton = document.getElementById("promotionBackButton");
+const confirmPromotionButton = document.getElementById("confirmPromotionButton");
+const promotionMessage = document.getElementById("promotionMessage");
+const promotionListCard = document.getElementById("promotionListCard");
+const promotionReviewCard = document.getElementById("promotionReviewCard");
+const promotionTableContainer = document.getElementById("promotionTableContainer");
+const promotionReviewContainer = document.getElementById("promotionReviewContainer");
+const promotionRecordCount = document.getElementById("promotionRecordCount");
+const promotionReviewInfo = document.getElementById("promotionReviewInfo");
+let promotionStudents = [];
+let promotionReviewRows = [];
+
+function populatePromotionSessions(){
+    if(!promotionSession) return;
+    promotionSession.innerHTML = sessions.length
+        ? sessions.map(s=>`<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("")
+        : `<option value="">No sessions</option>`;
+    const active=sessions.find(s=>s.is_active);
+    if(active) promotionSession.value=String(active.id);
+}
+
+function getNextSession(sourceId){
+    const ordered=[...sessions].sort((a,b)=>Number(a.id)-Number(b.id));
+    const idx=ordered.findIndex(s=>String(s.id)===String(sourceId));
+    return idx>=0 ? ordered[idx+1] || null : null;
+}
+
+async function getPromotionMarks(records, subjects){
+    const marks={};
+    const ids=records.map(r=>r.id);
+    if(!ids.length || !subjects.length) return marks;
+    const {data,error}=await supabaseClient.from("exam_marks")
+        .select("academic_record_id,subject_id,examination,marks")
+        .in("academic_record_id",ids).in("subject_id",subjects.map(s=>s.id));
+    if(error) throw error;
+    (data||[]).forEach(m=>marks[`${m.academic_record_id}_${m.subject_id}_${m.examination}`]=m.marks===null?null:Number(m.marks));
+    return marks;
+}
+
+function promotionCalc(record, subjects, marks){
+    let total=0, entered=0;
+    subjects.forEach(sub=>{
+        const h=marks[`${record.id}_${sub.id}_Half-Yearly`];
+        const a=marks[`${record.id}_${sub.id}_Annual`];
+        if(h!==null && h!==undefined) entered++;
+        if(a!==null && a!==undefined) entered++;
+        total+=(h||0)+(a||0);
+    });
+    const max=subjects.length*100;
+    const pct=max?(total/max)*100:0;
+    return {total,pct,grade:entered?gradeFromPercentage(pct):""};
+}
+
+async function loadPromotionStudents(){
+    if(!promotionSession || !promotionClass) return;
+    const sessionId=Number(promotionSession.value), classNo=Number(promotionClass.value);
+    if(!sessionId || !classNo) return;
+    promotionMessage.textContent="Loading students...";
+    promotionListCard.classList.add("hidden");
+    promotionReviewCard.classList.add("hidden");
+    const {data:records,error}=await supabaseClient.from("academic_records")
+        .select("id,student_profile_id,class_no,roll_no,status,students(id,student_id,student_name,father_name,mother_name,date_of_birth,gender)")
+        .eq("session_id",sessionId).eq("class_no",classNo).order("roll_no",{ascending:true});
+    if(error){promotionMessage.textContent="Unable to load students: "+error.message;showToast("Unable to load promotion data.","error");return;}
+    const {data:subjects,error:se}=await supabaseClient.from("subjects").select("id,subject_name,display_order").eq("class_no",classNo).order("display_order",{ascending:true});
+    if(se){promotionMessage.textContent="Unable to load subjects: "+se.message;return;}
+    let marks={};
+    try{marks=await getPromotionMarks(records||[],subjects||[]);}catch(e){promotionMessage.textContent="Unable to load marks: "+e.message;return;}
+    promotionStudents=(records||[]).map(r=>({...r,calc:promotionCalc(r,subjects||[],marks)}));
+    const ranked=[...promotionStudents].sort((a,b)=>b.calc.total-a.calc.total||String(a.students?.student_name||"").localeCompare(String(b.students?.student_name||"")));
+    const rankMap=new Map(ranked.map((r,i)=>[r.id,i+1]));
+    promotionStudents.forEach(r=>r.rank=rankMap.get(r.id));
+    renderPromotionStudents();
+    promotionMessage.textContent=classNo===8
+        ? "Class VIII students complete Class VIII here. Their historical records will be retained; no Class IX record will be created."
+        : "Select the students you want to process, then choose Promote Students to review the proposed next class and roll numbers.";
+}
+
+function renderPromotionStudents(){
+    if(!promotionTableContainer)return;
+    const rows=promotionStudents.map(r=>`<tr>
+        <td><input type="checkbox" class="promotion-select" data-record-id="${r.id}" checked></td>
+        <td>${escapeHtml(r.roll_no??"")}</td>
+        <td>${escapeHtml(r.students?.student_name||"")}</td>
+        <td>${escapeHtml(r.students?.student_id||"")}</td>
+        <td>${r.calc.total}</td><td>${r.calc.pct.toFixed(2)}%</td><td>${escapeHtml(r.calc.grade)}</td><td>${r.rank||""}</td>
+        <td>${escapeHtml(r.status||"")}</td>
+    </tr>`).join("");
+    promotionTableContainer.innerHTML=`<table class="promotion-table"><thead><tr><th>Select</th><th>Current Roll</th><th>Student Name</th><th>Student ID</th><th>Final Total</th><th>%</th><th>Grade</th><th>Rank</th><th>Status</th></tr></thead><tbody>${rows||`<tr><td colspan="9">No students found.</td></tr>`}</tbody></table>`;
+    promotionRecordCount.textContent=`${promotionStudents.length} student${promotionStudents.length===1?"":"s"} found`;
+    promotionListCard.classList.remove("hidden");
+}
+
+function selectedPromotionStudents(){
+    const ids=new Set([...document.querySelectorAll(".promotion-select:checked")].map(x=>String(x.dataset.recordId)));
+    return promotionStudents.filter(r=>ids.has(String(r.id)));
+}
+
+function defaultPromotionStatus(sourceClass){ return sourceClass===8 ? "Completed" : "Promoted"; }
+
+function openPromotionReview(){
+    const selected=selectedPromotionStudents();
+    if(!selected.length){showToast("Select at least one student.","error");return;}
+    const sourceClass=Number(promotionClass.value), sourceSession=promotionSession.value;
+    const next=getNextSession(sourceSession);
+    if(sourceClass!==8 && !next){
+        showToast("Create the next academic session before confirming promotion.","error");
+        promotionMessage.textContent="No later academic session is available. Create the next session first, then return here.";
+        return;
+    }
+    const ordered=[...selected].sort((a,b)=>a.rank-b.rank||Number(a.roll_no??999999)-Number(b.roll_no??999999));
+    promotionReviewRows=ordered.map((r,i)=>({
+        recordId:r.id,studentProfileId:r.student_profile_id,name:r.students?.student_name||"",rank:r.rank,
+        status:defaultPromotionStatus(sourceClass),
+        classNo:sourceClass===8?8:sourceClass+1,
+        rollNo:sourceClass===8?"":i+1
+    }));
+    renderPromotionReview();
+    promotionListCard.classList.add("hidden");
+    promotionReviewCard.classList.remove("hidden");
+    promotionReviewInfo.textContent=sourceClass===8
+        ? `${selected.length} student${selected.length===1?"":"s"} selected • Class VIII completion`
+        : `${selected.length} student${selected.length===1?"":"s"} selected • Proposed next session: ${next.session_name}`;
+}
+
+function renderPromotionReview(){
+    const sourceClass=Number(promotionClass.value);
+    const next=getNextSession(promotionSession.value);
+    const classOptions=Array.from({length:8},(_,i)=>`<option value="${i+1}">Class ${className(i+1).replace(/^Class\s*/i,"")}</option>`).join("");
+    promotionReviewContainer.innerHTML=`<table class="promotion-table"><thead><tr><th>Student</th><th>Rank</th><th>Status</th><th>Proposed Class</th><th>Proposed Roll</th></tr></thead><tbody>${promotionReviewRows.map((r,i)=>{
+        const opts=sourceClass===8
+            ? `<option value="8" selected>Class VIII – Completed</option>`
+            : classOptions.replace(`value="${r.classNo}"`,`value="${r.classNo}" selected`);
+        const statusOpts=sourceClass===8
+            ? `<option value="Completed" ${r.status==="Completed"?"selected":""}>Completed</option><option value="Left School" ${r.status==="Left School"?"selected":""}>Left School</option>`
+            : `<option value="Promoted" ${r.status==="Promoted"?"selected":""}>Promoted</option><option value="Repeated" ${r.status==="Repeated"?"selected":""}>Repeated</option><option value="Left School" ${r.status==="Left School"?"selected":""}>Left School</option>`;
+        return `<tr><td style="text-align:left"><strong>${escapeHtml(r.name)}</strong></td><td>${r.rank}</td><td><select class="promotion-review-status" data-index="${i}">${statusOpts}</select></td><td><select class="promotion-review-class" data-index="${i}" ${sourceClass===8?"disabled":""}>${opts}</select></td><td><input class="promotion-roll" data-index="${i}" type="text" inputmode="numeric" value="${escapeHtml(r.rollNo)}" ${sourceClass===8?"disabled":""}></td></tr>`;
+    }).join("")}</tbody></table>`;
+    promotionReviewContainer.querySelectorAll(".promotion-review-status").forEach(el=>el.addEventListener("change",()=>{
+        const i=Number(el.dataset.index);promotionReviewRows[i].status=el.value;
+        if(Number(promotionClass.value)!==8){
+            if(el.value==="Promoted") promotionReviewRows[i].classNo=Number(promotionClass.value)+1;
+            else promotionReviewRows[i].classNo=Number(promotionClass.value);
+        }
+        if(el.value==="Left School") promotionReviewRows[i].rollNo="";
+        renderPromotionReview();
+    }));
+    promotionReviewContainer.querySelectorAll(".promotion-review-class").forEach(el=>el.addEventListener("change",()=>{promotionReviewRows[Number(el.dataset.index)].classNo=Number(el.value);}));
+    promotionReviewContainer.querySelectorAll(".promotion-roll").forEach(el=>el.addEventListener("input",()=>{promotionReviewRows[Number(el.dataset.index)].rollNo=el.value.replace(/\D/g,"");}));
+}
+
+async function confirmPromotion(){
+    if(currentRole!=="admin"){showToast("Only an Admin can confirm promotion.","error");return;}
+    if(!promotionReviewRows.length)return;
+    const sourceSessionId=Number(promotionSession.value), sourceClass=Number(promotionClass.value), next=getNextSession(sourceSessionId);
+    if(sourceClass!==8 && !next){showToast("Create the next academic session first.","error");return;}
+    const bad=promotionReviewRows.find(r=>r.status!=="Left School" && sourceClass!==8 && (!r.rollNo || Number(r.rollNo)<1 || Number(r.classNo)<1 || Number(r.classNo)>8));
+    if(bad){showToast(`Please enter a valid class and roll for ${bad.name}.`,"error");return;}
+    const message=sourceClass===8
+        ? `Complete ${promotionReviewRows.length} selected Class VIII student${promotionReviewRows.length===1?"":"s"}? Their historical data will remain unchanged.`
+        : `Confirm promotion for ${promotionReviewRows.length} selected student${promotionReviewRows.length===1?"":"s"} to ${next.session_name}?`;
+    if(!confirm(message))return;
+
+    confirmPromotionButton.disabled=true;
+    try{
+        for(const row of promotionReviewRows){
+            const source={id:row.recordId,student_profile_id:row.studentProfileId,roll_no:promotionStudents.find(x=>x.id===row.recordId)?.roll_no??null};
+            if(sourceClass===8){
+                const {error:he}=await supabaseClient.from("promotion_history").insert({student_profile_id:row.studentProfileId,from_session_id:sourceSessionId,to_session_id:null,from_class:8,to_class:null,from_roll:source.roll_no,to_roll:null,status:row.status});
+                if(he)throw he;
+                continue;
+            }
+            if(row.status==="Left School"){
+                const {error:he}=await supabaseClient.from("promotion_history").insert({student_profile_id:row.studentProfileId,from_session_id:sourceSessionId,to_session_id:next.id,from_class:sourceClass,to_class:null,from_roll:source.roll_no,to_roll:null,status:"Left School"});
+                if(he)throw he;
+                continue;
+            }
+            const {data:existing,error:ee}=await supabaseClient.from("academic_records").select("id").eq("session_id",next.id).eq("student_profile_id",row.studentProfileId).maybeSingle();
+            if(ee)throw ee;
+            if(existing){throw new Error(`${row.name} already has an academic record in ${next.session_name}.`);}
+            const {error:ae}=await supabaseClient.from("academic_records").insert({session_id:next.id,student_profile_id:row.studentProfileId,class_no:row.classNo,roll_no:Number(row.rollNo),status:row.status});
+            if(ae)throw ae;
+            const {error:he}=await supabaseClient.from("promotion_history").insert({student_profile_id:row.studentProfileId,from_session_id:sourceSessionId,to_session_id:next.id,from_class:sourceClass,to_class:row.classNo,from_roll:source.roll_no,to_roll:Number(row.rollNo),status:row.status});
+            if(he)throw he;
+        }
+        showToast(sourceClass===8?"Class VIII completion saved successfully.":"Promotion confirmed successfully.","success");
+        resetPromotionState();
+        promotionMessage.textContent=sourceClass===8?"Class VIII completion has been recorded. Historical data remains preserved.":"Promotion completed successfully. Historical data remains preserved.";
+    }catch(e){
+        showToast("Promotion could not be completed: "+e.message,"error");
+    }finally{confirmPromotionButton.disabled=false;}
+}
+
+if(loadPromotionButton)loadPromotionButton.addEventListener("click",loadPromotionStudents);
+if(promoteStudentsButton)promoteStudentsButton.addEventListener("click",openPromotionReview);
+if(promotionBackButton)promotionBackButton.addEventListener("click",()=>{promotionReviewCard.classList.add("hidden");promotionListCard.classList.remove("hidden");});
+if(confirmPromotionButton)confirmPromotionButton.addEventListener("click",confirmPromotion);
+
+/* =========================================================
    SECTION NAVIGATION
 ========================================================= */
+function resetPromotionState(){
+    const active = sessions.find(s => s.is_active);
+    if (promotionSession) promotionSession.value = active ? String(active.id) : "";
+    if (promotionClass) promotionClass.value = "1";
+    promotionStudents = [];
+    promotionReviewRows = [];
+    if (promotionListCard) promotionListCard.classList.add("hidden");
+    if (promotionReviewCard) promotionReviewCard.classList.add("hidden");
+    if (promotionMessage) promotionMessage.textContent = "Select a session and class, then load the students.";
+    if (promotionTableContainer) promotionTableContainer.innerHTML = "";
+    if (promotionReviewContainer) promotionReviewContainer.innerHTML = "";
+}
+
 function showSection(section) {
-    // Reset temporary UI state every time a module is opened.
-    // This never changes or deletes saved Supabase data.
     resetModuleState(section);
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.section === section));
     document.querySelectorAll(".app-section").forEach(item => item.classList.add("hidden"));
@@ -4147,7 +4436,9 @@ function showSection(section) {
     if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
     if (section === "reports") loadPrintData();
     if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
+    if (section === "promotion") populatePromotionSessions();
 }
+
 
 /* =========================================================
    NAVIGATION
