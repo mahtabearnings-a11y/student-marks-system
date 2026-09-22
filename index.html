@@ -20,6 +20,8 @@ body {
     background: #f4f7fb;
     color: #1f2937;
     min-height: 0;
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 button,
@@ -30,6 +32,25 @@ select {
 
 button {
     cursor: pointer;
+}
+
+/* Restore the original form-control appearance used throughout the system. */
+input,
+select {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    background: white;
+    color: #1f2937;
+}
+
+input:focus,
+select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.10);
 }
 
 .hidden {
@@ -142,8 +163,21 @@ button {
 
 .login-card {
     width: 100%;
-    max-width: 520px;
+    max-width: 560px;
     background: #fff;
+}
+
+.login-card input {
+    width: 100%;
+    min-height: 54px;
+    padding: 15px 15px;
+    font-size: 16px;
+    border-radius: 9px;
+    margin-bottom: 20px;
+}
+
+.login-card input::placeholder {
+    color: #9ca3af;
 }
 
 .login-school-logo {
@@ -970,7 +1004,7 @@ tbody tr:hover {
     }
     .login-brand h2 { font-size: 30px; }
     .login-brand p { font-size: 13px; }
-    .login-card { padding: 34px 28px; }
+     .login-card { max-width: 560px; }
 }
 
 /* =========================
