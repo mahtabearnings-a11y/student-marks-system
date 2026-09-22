@@ -2540,31 +2540,24 @@ function clearLoginError() {
 
 async function getUserRole(userId) {
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", userId)
-            .maybeSingle();
+    // Use the existing SECURITY DEFINER has_role() function so the
+    // role can be checked safely even when user_roles has restrictive RLS.
+    const adminCheck = await supabaseClient.rpc("has_role", { required_role: "admin" });
+    if (!adminCheck.error && adminCheck.data === true) return "admin";
 
+    const viewCheck = await supabaseClient.rpc("has_role", { required_role: "view_only" });
+    if (!viewCheck.error && viewCheck.data === true) return "view_only";
 
-    if (error) {
-        throw new Error(
-            "Unable to determine account permissions."
-        );
-    }
+    // Fallback to the existing direct lookup for installations where the
+    // helper function is unavailable.
+    const { data, error } = await supabaseClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle();
 
-
-    if (!data) {
-        throw new Error(
-            "This account has no assigned system role."
-        );
-    }
-
-
+    if (error) throw new Error("Unable to determine account permissions.");
+    if (!data) throw new Error("This account has no assigned system role.");
     return data.role;
 
 }
@@ -4161,19 +4154,6 @@ function resetModuleState(section){
     if(section==="attendance") resetAttendanceState();
     if(section==="promotion") resetPromotionState();
 }
-function showSection(section) {
-    resetModuleState(section);
-    document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.section === section));
-    document.querySelectorAll(".app-section").forEach(item => item.classList.add("hidden"));
-    const target = document.getElementById(section + "Section");
-    if (target) target.classList.remove("hidden");
-    if (section === "students") loadStudents();
-    if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
-    if (section === "reports") loadPrintData();
-    if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
-}
-
-
 /* =========================================================
    PRINT MODULE
 ========================================================= */
@@ -4581,17 +4561,25 @@ function resetPromotionState(){
 }
 
 function showSection(section) {
-    resetModuleState(section);
+    // Switch the visible section first so navigation remains responsive even
+    // if a module's data-loading function encounters a runtime/API error.
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.section === section));
     document.querySelectorAll(".app-section").forEach(item => item.classList.add("hidden"));
     const target = document.getElementById(section + "Section");
-    if (target) target.classList.remove("hidden");
-    if (section === "students") loadStudents();
-    if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
-    if (section === "reports") loadPrintData();
-    if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
-    if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); loadPromotionHistory(); }
-    if (section === "sessions") { refreshAcademicSessions(); }
+    if (!target) return;
+    target.classList.remove("hidden");
+
+    try {
+        resetModuleState(section);
+        if (section === "students") loadStudents();
+        if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
+        if (section === "reports") loadPrintData();
+        if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
+        if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); loadPromotionHistory(); }
+        if (section === "sessions") { refreshAcademicSessions(); }
+    } catch (error) {
+        console.error("Section error:", section, error);
+    }
 }
 
 
@@ -4599,22 +4587,13 @@ function showSection(section) {
    NAVIGATION
 ========================================================= */
 
-document
-    .querySelectorAll(".nav-btn")
-    .forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                function() {
-
-                    showSection(this.dataset.section);
-
-                }
-            );
-
-        }
-    );
+// Delegated navigation handler: attached once and independent of module data loading.
+document.addEventListener("click", function(event) {
+    const button = event.target.closest(".nav-btn[data-section]");
+    if (!button) return;
+    event.preventDefault();
+    showSection(button.dataset.section);
+});
 
 
 if (printSession) printSession.addEventListener("change", loadPrintData);
@@ -4630,46 +4609,23 @@ if (printClassFolioButton) printClassFolioButton.addEventListener("click", print
    FILTER EVENTS
 ========================================================= */
 
-sessionFilter.addEventListener(
-    "change",
-    async function() {
+sessionFilter.addEventListener("change", async function() {
+    await loadStudents();
+});
 
-        await loadStudents();
+// Students filters: use the actual control values and re-render only the
+// already-loaded student data. No database data is changed by filtering/sorting.
+classFilter.addEventListener("change", function() {
+    renderStudents();
+});
 
-    }
-);
+studentSearch.addEventListener("input", function() {
+    renderStudents();
+});
 
-
-classFilter.addEventListener(
-    "change",
-    function() {
-
-        renderStudents();
-
-        updateDashboardCounts();
-
-    }
-);
-
-
-studentSearch.addEventListener(
-    "input",
-    function() {
-
-        renderStudents();
-
-    }
-);
-
-
-studentSort.addEventListener(
-    "change",
-    function() {
-
-        renderStudents();
-
-    }
-);
+studentSort.addEventListener("change", function() {
+    renderStudents();
+});
 
 
 refreshStudentsButton.addEventListener(
