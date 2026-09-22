@@ -1920,7 +1920,7 @@ tbody tr:hover {
                         The new session will be available for promotion.
                     </div>
                     <div style="margin-top:12px">
-                        <button id="createNextSessionButton" class="btn btn-primary">
+                        <button type="button" id="createNextSessionButton" class="btn btn-primary" onclick="createNextAcademicSession()">
                             + Create Next Session
                         </button>
                     </div>
@@ -2946,7 +2946,11 @@ function getNextAcademicSessionName() {
         return null;
     }
 
-    const match = String(active.session_name).trim().match(/^(\d{4})-(\d{2})$/);
+    const cleaned = String(active.session_name)
+        .trim()
+        .replace(/[–—]/g, "-");
+
+    const match = cleaned.match(/^(\d{4})-(\d{2}|\d{4})$/);
 
     if (!match) {
         return null;
@@ -3123,12 +3127,7 @@ async function createNextAcademicSession() {
     }
 }
 
-if (createNextSessionButton) {
-    createNextSessionButton.addEventListener(
-        "click",
-        createNextAcademicSession
-    );
-}
+
 
 
 
