@@ -4561,17 +4561,25 @@ function resetPromotionState(){
 }
 
 function showSection(section) {
-    resetModuleState(section);
+    // Switch the visible section first so navigation remains responsive even
+    // if a module's data-loading function encounters a runtime/API error.
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.section === section));
     document.querySelectorAll(".app-section").forEach(item => item.classList.add("hidden"));
     const target = document.getElementById(section + "Section");
-    if (target) target.classList.remove("hidden");
-    if (section === "students") loadStudents();
-    if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
-    if (section === "reports") loadPrintData();
-    if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
-    if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); loadPromotionHistory(); }
-    if (section === "sessions") { refreshAcademicSessions(); }
+    if (!target) return;
+    target.classList.remove("hidden");
+
+    try {
+        resetModuleState(section);
+        if (section === "students") loadStudents();
+        if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
+        if (section === "reports") loadPrintData();
+        if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
+        if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); loadPromotionHistory(); }
+        if (section === "sessions") { refreshAcademicSessions(); }
+    } catch (error) {
+        console.error("Section error:", section, error);
+    }
 }
 
 
@@ -4579,22 +4587,13 @@ function showSection(section) {
    NAVIGATION
 ========================================================= */
 
-document
-    .querySelectorAll(".nav-btn")
-    .forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                function() {
-
-                    showSection(this.dataset.section);
-
-                }
-            );
-
-        }
-    );
+// Delegated navigation handler: attached once and independent of module data loading.
+document.addEventListener("click", function(event) {
+    const button = event.target.closest(".nav-btn[data-section]");
+    if (!button) return;
+    event.preventDefault();
+    showSection(button.dataset.section);
+});
 
 
 if (printSession) printSession.addEventListener("change", loadPrintData);
