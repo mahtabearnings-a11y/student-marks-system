@@ -3123,7 +3123,9 @@ function getFilteredStudents() {
 
 
     const classValue =
-        classFilter.value;
+        classFilter && classFilter.value
+            ? String(classFilter.value)
+            : "all";
 
 
     if (classValue !== "all") {
@@ -3182,7 +3184,9 @@ function getFilteredStudents() {
 
 
     const sort =
-        studentSort.value;
+        studentSort && studentSort.value
+            ? String(studentSort.value)
+            : "roll_asc";
 
 
     list.sort(
@@ -4154,9 +4158,9 @@ if (attendanceClass) attendanceClass.addEventListener("change", resetAttendanceG
 ========================================================= */
 function resetStudentsState(){
     if(sessionFilter){ const active=sessions.find(s=>s.is_active); sessionFilter.value=active?String(active.id):""; }
-    if(classFilter) classFilter.value="";
+    if(classFilter) classFilter.value="all";
     if(studentSearch) studentSearch.value="";
-    if(studentSort) studentSort.value="rollAsc";
+    if(studentSort) studentSort.value="roll_asc";
 }
 function resetMarksState(){
     if(marksSession){ const active=sessions.find(s=>s.is_active); marksSession.value=active?String(active.id):""; }
@@ -4638,36 +4642,23 @@ sessionFilter.addEventListener(
 );
 
 
-classFilter.addEventListener(
-    "change",
-    function() {
-
+/* =========================================================
+   STUDENTS FILTER CONTROLS
+   These controls only change the already-loaded display list.
+   They never modify Supabase data.
+========================================================= */
+document.addEventListener("change", function(event) {
+    if (event.target === classFilter || event.target === studentSort) {
         renderStudents();
-
-        updateDashboardCounts();
-
+        if (event.target === classFilter) updateDashboardCounts();
     }
-);
+});
 
-
-studentSearch.addEventListener(
-    "input",
-    function() {
-
+document.addEventListener("input", function(event) {
+    if (event.target === studentSearch) {
         renderStudents();
-
     }
-);
-
-
-studentSort.addEventListener(
-    "change",
-    function() {
-
-        renderStudents();
-
-    }
-);
+});
 
 
 refreshStudentsButton.addEventListener(
