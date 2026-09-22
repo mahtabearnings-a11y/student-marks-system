@@ -3123,9 +3123,7 @@ function getFilteredStudents() {
 
 
     const classValue =
-        classFilter && classFilter.value
-            ? String(classFilter.value)
-            : "all";
+        classFilter.value;
 
 
     if (classValue !== "all") {
@@ -3184,9 +3182,7 @@ function getFilteredStudents() {
 
 
     const sort =
-        studentSort && studentSort.value
-            ? String(studentSort.value)
-            : "roll_asc";
+        studentSort.value;
 
 
     list.sort(
@@ -4158,9 +4154,9 @@ if (attendanceClass) attendanceClass.addEventListener("change", resetAttendanceG
 ========================================================= */
 function resetStudentsState(){
     if(sessionFilter){ const active=sessions.find(s=>s.is_active); sessionFilter.value=active?String(active.id):""; }
-    if(classFilter) classFilter.value="all";
+    if(classFilter) classFilter.value="";
     if(studentSearch) studentSearch.value="";
-    if(studentSort) studentSort.value="roll_asc";
+    if(studentSort) studentSort.value="rollAsc";
 }
 function resetMarksState(){
     if(marksSession){ const active=sessions.find(s=>s.is_active); marksSession.value=active?String(active.id):""; }
@@ -4629,34 +4625,40 @@ if (printAllStudentsButton) printAllStudentsButton.addEventListener("click", pri
 if (printClassFolioButton) printClassFolioButton.addEventListener("click", printClassFolio);
 
 /* =========================================================
-   FILTER EVENTS
+   STUDENTS FILTERS
+   Read the current controls each time and re-render only the display.
+   These controls never modify Supabase data.
 ========================================================= */
-
-sessionFilter.addEventListener(
-    "change",
-    async function() {
-
-        await loadStudents();
-
-    }
-);
-
-
-/* =========================================================
-   STUDENTS FILTER CONTROLS
-   These controls only change the already-loaded display list.
-   They never modify Supabase data.
-========================================================= */
-document.addEventListener("change", function(event) {
-    if (event.target === classFilter || event.target === studentSort) {
+function applyStudentDisplayFilters() {
+    try {
         renderStudents();
-        if (event.target === classFilter) updateDashboardCounts();
+        if (typeof updateDashboardCounts === "function") {
+            updateDashboardCounts();
+        }
+    } catch (error) {
+        console.error("Student filter error:", error);
+    }
+}
+
+// Changing the academic session reloads the student data from Supabase.
+if (sessionFilter) {
+    sessionFilter.addEventListener("change", async function() {
+        await loadStudents();
+    });
+}
+
+// Delegated listeners make the three controls robust even if another part
+// of the page re-renders DOM content.
+document.addEventListener("change", function(event) {
+    if (!event.target) return;
+    if (event.target.id === "classFilter" || event.target.id === "studentSort") {
+        applyStudentDisplayFilters();
     }
 });
 
 document.addEventListener("input", function(event) {
-    if (event.target === studentSearch) {
-        renderStudents();
+    if (event.target && event.target.id === "studentSearch") {
+        applyStudentDisplayFilters();
     }
 });
 
