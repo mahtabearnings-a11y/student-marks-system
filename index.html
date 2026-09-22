@@ -2963,75 +2963,474 @@ function className(classNo) {
 
 
 /* =========================================================
-   STUDENTS MODULE — CLEAN IMPLEMENTATION
+   LOAD STUDENTS
 ========================================================= */
-async function loadStudents(){
-    if(!studentTableContainer||!sessionFilter)return;
-    studentTableContainer.innerHTML='<div class="loading">Loading students...</div>';
-    const sessionId=String(sessionFilter.value||'').trim();
-    if(!sessionId){studentsData=[];renderStudents();return;}
-    const {data,error}=await supabaseClient.from('academic_records').select(`
-        id, session_id, student_profile_id, class_no, roll_no, status,
-        students (id, student_id, student_name, father_name, mother_name, date_of_birth, gender)
-    `).eq('session_id',sessionId);
-    if(error){
-        console.error('Students load error:',error); studentsData=[];
-        studentTableContainer.innerHTML=`<div class="empty-state">Unable to load students.<br><br>${escapeHtml(error.message)}</div>`;
+
+async function loadStudents() {
+
+    studentTableContainer.innerHTML =
+        `<div class="loading">
+            Loading students...
+        </div>`;
+
+
+    const sessionId =
+        sessionFilter.value;
+
+
+    if (!sessionId) {
+
+        studentsData = [];
+
+        renderStudents();
+
         return;
+
     }
-    studentsData=(data||[]).map(r=>({
-        academicRecordId:r.id,sessionId:r.session_id,studentProfileId:r.student_profile_id,
-        classNo:Number(r.class_no),rollNo:r.roll_no,status:r.status||'',
-        studentId:r.students?.student_id||'',studentName:r.students?.student_name||'',
-        fatherName:r.students?.father_name||'',motherName:r.students?.mother_name||'',
-        dob:r.students?.date_of_birth||'',gender:r.students?.gender||''
-    }));
-    renderStudents(); updateDashboardCounts();
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("academic_records")
+            .select(`
+                id,
+                session_id,
+                student_profile_id,
+                class_no,
+                roll_no,
+                status,
+                students (
+                    id,
+                    student_id,
+                    student_name,
+                    father_name,
+                    mother_name,
+                    date_of_birth,
+                    gender
+                )
+            `)
+            .eq(
+                "session_id",
+                sessionId
+            );
+
+
+    if (error) {
+
+        console.error(error);
+
+        studentTableContainer.innerHTML =
+            `<div class="empty-state">
+                Unable to load students.
+                <br><br>
+                ${escapeHtml(error.message)}
+            </div>`;
+
+        return;
+
+    }
+
+
+    studentsData =
+        (data || []).map(
+            record => ({
+
+                academicRecordId:
+                    record.id,
+
+                sessionId:
+                    record.session_id,
+
+                studentProfileId:
+                    record.student_profile_id,
+
+                classNo:
+                    record.class_no,
+
+                rollNo:
+                    record.roll_no,
+
+                status:
+                    record.status || "",
+
+                studentId:
+                    record.students?.student_id || "",
+
+                studentName:
+                    record.students?.student_name || "",
+
+                fatherName:
+                    record.students?.father_name || "",
+
+                motherName:
+                    record.students?.mother_name || "",
+
+                dob:
+                    record.students?.date_of_birth || "",
+
+                gender:
+                    record.students?.gender || ""
+
+            })
+        );
+
+
+    renderStudents();
+
+    updateDashboardCounts();
+
 }
-function getFilteredStudents(){
-    let list=Array.isArray(studentsData)?[...studentsData]:[];
-    const cls=String(classFilter?.value||'all');
-    if(cls!=='all')list=list.filter(s=>String(s.classNo)===cls);
-    const q=String(studentSearch?.value||'').trim().toLowerCase();
-    if(q)list=list.filter(s=>String(s.studentId||'').toLowerCase().includes(q)||String(s.studentName||'').toLowerCase().includes(q)||String(s.rollNo??'').toLowerCase().includes(q));
-    const sort=String(studentSort?.value||'roll_asc');
-    const txt=v=>String(v??'').toLowerCase();
-    const num=v=>{const n=Number(v);return Number.isFinite(n)?n:Number.MAX_SAFE_INTEGER;};
-    list.sort((a,b)=>{
-        if(sort==='roll_desc')return num(b.rollNo)-num(a.rollNo);
-        if(sort==='name_asc')return txt(a.studentName).localeCompare(txt(b.studentName));
-        if(sort==='name_desc')return txt(b.studentName).localeCompare(txt(a.studentName));
-        if(sort==='id_asc')return txt(a.studentId).localeCompare(txt(b.studentId));
-        if(sort==='id_desc')return txt(b.studentId).localeCompare(txt(a.studentId));
-        if(sort==='status_asc')return txt(a.status).localeCompare(txt(b.status));
-        return num(a.rollNo)-num(b.rollNo);
-    });
+
+
+/* =========================================================
+   RENDER STUDENTS
+========================================================= */
+
+function getFilteredStudents() {
+
+    let list =
+        [...studentsData];
+
+
+    const classValue =
+        classFilter.value;
+
+
+    if (classValue !== "all") {
+
+        list =
+            list.filter(
+                student =>
+                    String(
+                        student.classNo
+                    ) === classValue
+            );
+
+    }
+
+
+    const search =
+        studentSearch.value
+            .trim()
+            .toLowerCase();
+
+
+    if (search) {
+
+        list =
+            list.filter(
+                student => {
+
+                    return (
+
+                        String(
+                            student.studentId
+                        )
+                        .toLowerCase()
+                        .includes(search)
+
+                        ||
+
+                        student.studentName
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(
+                            student.rollNo ?? ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+
+                    );
+
+                }
+            );
+
+    }
+
+
+    const sort =
+        studentSort.value;
+
+
+    list.sort(
+        (a,b) => {
+
+            if (sort === "roll_asc") {
+                return (
+                    (a.rollNo ?? 999999)
+                    -
+                    (b.rollNo ?? 999999)
+                );
+            }
+
+
+            if (sort === "roll_desc") {
+                return (
+                    (b.rollNo ?? -1)
+                    -
+                    (a.rollNo ?? -1)
+                );
+            }
+
+
+            if (sort === "name_asc") {
+                return a.studentName
+                    .localeCompare(
+                        b.studentName
+                    );
+            }
+
+
+            if (sort === "name_desc") {
+                return b.studentName
+                    .localeCompare(
+                        a.studentName
+                    );
+            }
+
+
+            if (sort === "id_asc") {
+                return String(
+                    a.studentId
+                ).localeCompare(
+                    String(b.studentId)
+                );
+            }
+
+
+            if (sort === "id_desc") {
+                return String(
+                    b.studentId
+                ).localeCompare(
+                    String(a.studentId)
+                );
+            }
+
+
+            if (sort === "status_asc") {
+                return String(
+                    a.status
+                ).localeCompare(
+                    String(b.status)
+                );
+            }
+
+
+            return 0;
+
+        }
+    );
+
+
     return list;
+
 }
-function renderStudents(){
-    if(!studentTableContainer)return;
-    const list=getFilteredStudents();
-    if(studentRecordCount)studentRecordCount.textContent=`${list.length} student${list.length===1?'':'s'}`;
-    if(!list.length){studentTableContainer.innerHTML='<div class="empty-state">No students found for the selected filters.</div>';return;}
-    const rows=list.map((s,i)=>`<tr>
-        <td>${i+1}</td><td>${escapeHtml(s.rollNo??'')}</td>
-        <td>${s.studentId?escapeHtml(s.studentId):"<span style='color:#9ca3af'>Blank</span>"}</td>
-        <td><strong>${escapeHtml(s.studentName)}</strong></td><td>${escapeHtml(s.fatherName)}</td>
-        <td>${escapeHtml(s.motherName)}</td><td>${formatDate(s.dob)}</td><td>${escapeHtml(s.gender)}</td>
-        <td>${className(s.classNo)}</td><td>${statusBadge(s.status)}</td>
-        <td><div class="actions">
-            <button class="btn btn-secondary btn-small" onclick="viewHistory(${s.studentProfileId})">History</button>
-            ${currentRole==='admin'?`<button class="btn btn-secondary btn-small" onclick="editStudent(${s.academicRecordId})">Edit</button>
-            <button class="btn btn-warning btn-small" onclick="markLeft(${s.academicRecordId})">Left</button>
-            <button class="btn btn-danger btn-small" onclick="deleteStudent(${s.academicRecordId})">Delete</button>`:''}
-        </div></td>
-    </tr>`).join('');
-    studentTableContainer.innerHTML=`<table><thead><tr>
-        <th>Sl. No.</th><th>Roll No.</th><th>Student ID</th><th>Student Name</th><th>Father's Name</th><th>Mother's Name</th>
-        <th>Date of Birth</th><th>Gender</th><th>Class</th><th>Status</th><th>Actions</th>
-    </tr></thead><tbody>${rows}</tbody></table>`;
+
+
+function renderStudents() {
+
+    const list =
+        getFilteredStudents();
+
+
+    studentRecordCount.textContent =
+        `${list.length} student${list.length === 1 ? "" : "s"}`;
+
+
+    if (!list.length) {
+
+        studentTableContainer.innerHTML =
+            `<div class="empty-state">
+                No students found for the selected filters.
+            </div>`;
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Roll No.</th>
+
+                    <th>Student ID</th>
+
+                    <th>Student Name</th>
+
+                    <th>Father's Name</th>
+
+                    <th>Mother's Name</th>
+
+                    <th>Date of Birth</th>
+
+                    <th>Gender</th>
+
+                    <th>Class</th>
+
+                    <th>Status</th>
+
+                    <th>Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+    `;
+
+
+    list.forEach(
+        student => {
+
+            html += `
+
+                <tr>
+
+                    <td>
+                        ${escapeHtml(
+                            student.rollNo ?? ""
+                        )}
+                    </td>
+
+                    <td>
+                        ${student.studentId
+                            ? escapeHtml(
+                                student.studentId
+                              )
+                            : "<span style='color:#9ca3af'>Blank</span>"
+                        }
+                    </td>
+
+                    <td>
+                        <strong>
+                            ${escapeHtml(
+                                student.studentName
+                            )}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            student.fatherName
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            student.motherName
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatDate(
+                            student.dob
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            student.gender
+                        )}
+                    </td>
+
+                    <td>
+                        ${className(
+                            student.classNo
+                        )}
+                    </td>
+
+                    <td>
+                        ${statusBadge(
+                            student.status
+                        )}
+                    </td>
+
+                    <td>
+
+                        <div class="actions">
+
+                            <button
+                                class="btn btn-secondary btn-small"
+                                onclick="viewHistory(${student.studentProfileId})">
+
+                                History
+
+                            </button>
+
+                            ${
+                                currentRole === "admin"
+                                ?
+
+                                `
+
+                                <button
+                                    class="btn btn-secondary btn-small"
+                                    onclick="editStudent(${student.academicRecordId})">
+
+                                    Edit
+
+                                </button>
+
+                                <button
+                                    class="btn btn-warning btn-small"
+                                    onclick="markLeft(${student.academicRecordId})">
+
+                                    Left
+
+                                </button>
+
+                                <button
+                                    class="btn btn-danger btn-small"
+                                    onclick="deleteStudent(${student.academicRecordId})">
+
+                                    Delete
+
+                                </button>
+
+                                `
+
+                                : ""
+
+                            }
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+            </tbody>
+
+        </table>
+
+    `;
+
+
+    studentTableContainer.innerHTML =
+        html;
+
 }
-function className(classNo){return ({1:'Class I',2:'Class II',3:'Class III',4:'Class IV',5:'Class V',6:'Class VI',7:'Class VII',8:'Class VIII'})[Number(classNo)]||'-';}
+
 
 /* =========================================================
    STATUS BADGE
@@ -3727,10 +4126,10 @@ if (attendanceClass) attendanceClass.addEventListener("change", resetAttendanceG
    SECTION NAVIGATION
 ========================================================= */
 function resetStudentsState(){
-    if(sessionFilter){const active=sessions.find(s=>s.is_active);if(active)sessionFilter.value=String(active.id);}
-    if(classFilter)classFilter.value='all';
-    if(studentSearch)studentSearch.value='';
-    if(studentSort)studentSort.value='roll_asc';
+    if(sessionFilter){ const active=sessions.find(s=>s.is_active); sessionFilter.value=active?String(active.id):""; }
+    if(classFilter) classFilter.value="";
+    if(studentSearch) studentSearch.value="";
+    if(studentSort) studentSort.value="rollAsc";
 }
 function resetMarksState(){
     if(marksSession){ const active=sessions.find(s=>s.is_active); marksSession.value=active?String(active.id):""; }
@@ -4207,28 +4606,148 @@ if (printAllStudentsButton) printAllStudentsButton.addEventListener("click", pri
 if (printClassFolioButton) printClassFolioButton.addEventListener("click", printClassFolio);
 
 /* =========================================================
-   STUDENTS EVENTS + ADD STUDENT
+   FILTER EVENTS
 ========================================================= */
-if(sessionFilter)sessionFilter.addEventListener('change',loadStudents);
-if(classFilter)classFilter.addEventListener('change',renderStudents);
-if(studentSearch)studentSearch.addEventListener('input',renderStudents);
-if(studentSort)studentSort.addEventListener('change',renderStudents);
-if(refreshStudentsButton)refreshStudentsButton.addEventListener('click',async()=>{await loadStudents();showToast('Student list refreshed.','success');});
 
-function openStudentModal(){if(studentModal)studentModal.classList.remove('hidden');}
-function closeStudentForm(){if(studentModal)studentModal.classList.add('hidden');editingStudent=null;if(studentForm)studentForm.reset();}
+sessionFilter.addEventListener(
+    "change",
+    async function() {
 
-if(addStudentButton)addStudentButton.addEventListener('click',function(event){
-    event.preventDefault();
-    if(currentRole!=='admin'){showToast('Only Admin can add students.','error');return;}
-    editingStudent=null;
-    studentModalTitle.textContent='Add Student';
+        await loadStudents();
+
+    }
+);
+
+
+classFilter.addEventListener(
+    "change",
+    function() {
+
+        renderStudents();
+
+        updateDashboardCounts();
+
+    }
+);
+
+
+studentSearch.addEventListener(
+    "input",
+    function() {
+
+        renderStudents();
+
+    }
+);
+
+
+studentSort.addEventListener(
+    "change",
+    function() {
+
+        renderStudents();
+
+    }
+);
+
+
+refreshStudentsButton.addEventListener(
+    "click",
+    async function() {
+
+        await loadStudents();
+
+        showToast(
+            "Student list refreshed.",
+            "success"
+        );
+
+    }
+);
+
+
+/* =========================================================
+   MODAL HELPERS
+========================================================= */
+
+function openStudentModal() {
+
+    studentModal.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+function closeStudentForm() {
+
+    studentModal.classList.add(
+        "hidden"
+    );
+
+    editingStudent =
+        null;
+
     studentForm.reset();
-    const selectedClass=String(classFilter?.value||'all');
-    if(selectedClass!=='all')document.getElementById('formClass').value=selectedClass;
-    document.getElementById('formStatus').value='New Student';
-    openStudentModal();
-});
+
+}
+
+
+/* =========================================================
+   ADD STUDENT
+========================================================= */
+
+addStudentButton.addEventListener(
+    "click",
+    function() {
+
+        if (currentRole !== "admin") {
+            return;
+        }
+
+
+        editingStudent =
+            null;
+
+
+        studentModalTitle.textContent =
+            "Add Student";
+
+
+        studentForm.reset();
+
+
+        const selectedClass =
+            classFilter.value;
+
+
+        if (
+            selectedClass !== "all"
+        ) {
+
+            document
+                .getElementById(
+                    "formClass"
+                )
+                .value =
+                selectedClass;
+
+        }
+
+
+        document
+            .getElementById(
+                "formStatus"
+            )
+            .value =
+            "New Student";
+
+
+        openStudentModal();
+
+    }
+);
+
 
 /* =========================================================
    EDIT STUDENT
