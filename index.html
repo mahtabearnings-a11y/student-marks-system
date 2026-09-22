@@ -41,42 +41,130 @@ button {
 ========================= */
 
 #loginPage {
-    min-height: 0;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    background: linear-gradient(135deg, #eef4ff, #f8fafc);
+    padding: 28px;
+    background: linear-gradient(135deg, #eef6ff, #f8fbff 55%, #eaf3ff);
+}
+
+.login-shell {
+    width: min(1180px, 100%);
+    min-height: 650px;
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    background: #fff;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 22px 70px rgba(18,59,115,.18);
+    border: 1px solid rgba(18,59,115,.08);
+}
+
+.login-brand {
+    position: relative;
+    min-height: 650px;
+    padding: 48px 42px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #fff;
+    background-image: linear-gradient(180deg, rgba(10,77,158,.88) 0%, rgba(10,95,190,.58) 38%, rgba(8,43,91,.76) 100%), url('school-building.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.login-brand::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(8,62,125,.18), transparent 40%, rgba(0,0,0,.18));
+    pointer-events: none;
+}
+
+.login-brand-content,
+.login-brand-footer {
+    position: relative;
+    z-index: 1;
+}
+
+.login-brand-content {
+    max-width: 620px;
+}
+
+.login-brand h1 {
+    margin: 0 0 8px;
+    font-size: clamp(30px, 3.3vw, 46px);
+    line-height: 1.08;
+    letter-spacing: .2px;
+    color: #fff;
+}
+
+.login-brand .brand-subtitle {
+    font-size: 17px;
+    opacity: .94;
+    margin-bottom: 28px;
+}
+
+.login-brand .brand-location {
+    display: inline-flex;
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.28);
+    backdrop-filter: blur(5px);
+    font-size: 14px;
+}
+
+.login-brand-footer {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 12px;
+}
+
+.brand-feature {
+    padding: 13px 10px;
+    border-radius: 12px;
+    background: rgba(0,0,0,.22);
+    border: 1px solid rgba(255,255,255,.18);
+    text-align: center;
+    font-size: 12px;
+    backdrop-filter: blur(5px);
+}
+
+.login-panel {
+    padding: 52px 58px 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
 }
 
 .login-card {
     width: 100%;
-    max-width: 430px;
+    max-width: 440px;
     background: #fff;
-    border-radius: 16px;
-    padding: 35px;
-    box-shadow: 0 12px 40px rgba(0,0,0,.10);
 }
 
-.school-logo {
-    width: 76px;
-    height: 76px;
+.login-user-icon {
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
-    margin: 0 auto 18px;
-    background: #e8f0ff;
+    margin: 0 auto 20px;
+    background: #e8f2ff;
+    color: #155eef;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #155eef;
     font-size: 30px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .login-card h1 {
     text-align: center;
-    font-size: 22px;
+    font-size: 30px;
     color: #123b73;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 .location {
@@ -87,38 +175,39 @@ button {
 }
 
 .login-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 18px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 28px;
 }
 
-label {
+.login-card form label {
     display: block;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 7px;
-    color: #374151;
-}
-
-input,
-select {
-    width: 100%;
-    padding: 11px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 14px;
-    outline: none;
-    background: white;
-}
-
-input:focus,
-select:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+    color: #29466f;
 }
 
 .login-card input {
-    margin-bottom: 16px;
+    margin-bottom: 18px;
+}
+
+.login-card .login-input-wrap {
+    position: relative;
+}
+
+.login-card .login-input-wrap input {
+    padding-left: 44px;
+}
+
+.login-card .input-icon {
+    position: absolute;
+    left: 14px;
+    top: 11px;
+    color: #71829b;
+    font-size: 17px;
 }
 
 .login-btn {
@@ -126,10 +215,12 @@ select:focus {
     border: none;
     background: #155eef;
     color: white;
-    padding: 13px;
+    padding: 14px;
     border-radius: 8px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
+    margin-top: 2px;
+    box-shadow: 0 7px 18px rgba(21,94,239,.20);
 }
 
 .login-btn:hover {
@@ -151,11 +242,29 @@ select:focus {
 }
 
 .login-note {
-    margin-top: 20px;
-    text-align: center;
-    color: #6b7280;
-    font-size: 12px;
+    margin-top: 22px;
+    padding: 14px 16px;
+    text-align: left;
+    color: #355277;
+    background: #eff7ff;
+    border-radius: 10px;
+    border: 1px solid #d8eaff;
+    font-size: 13px;
     line-height: 1.5;
+}
+
+.login-page-credit {
+    margin-top: 26px;
+    text-align: center;
+    color: #1553a0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.login-page-credit strong {
+    display: block;
+    font-size: 15px;
+    color: #0f4fa1;
 }
 
 /* =========================
@@ -314,6 +423,11 @@ select:focus {
 .dashboard-card .label {
     color: #6b7280;
     font-size: 13px;
+}
+
+.dashboard-session-number {
+    font-size: 24px !important;
+    white-space: nowrap;
 }
 
 .context-card {
@@ -860,6 +974,50 @@ tbody tr:hover {
     .attendance-month-picker { grid-template-columns:repeat(3,minmax(0,1fr)); }
 }
 
+@media (max-width: 800px) {
+    #loginPage {
+        min-height: 100vh;
+        padding: 16px;
+        align-items: center;
+    }
+    .login-shell {
+        grid-template-columns: 1fr;
+        min-height: 0;
+    }
+    .login-brand {
+        min-height: 240px;
+        padding: 28px;
+        align-items: flex-end;
+        background-position: center 42%;
+    }
+    .login-brand h2 { font-size: 30px; }
+    .login-brand p { font-size: 13px; }
+    .login-card { padding: 34px 28px; }
+}
+
+/* =========================
+   LOGIN RESPONSIVE
+========================= */
+@media (max-width: 850px) {
+    #loginPage { padding: 14px; }
+    .login-shell { grid-template-columns: 1fr; min-height: auto; }
+    .login-brand { min-height: 330px; padding: 32px 28px 24px; }
+    .login-brand h1 { font-size: 32px; }
+    .login-panel { padding: 36px 28px 32px; }
+}
+
+@media (max-width: 520px) {
+    #loginPage { padding: 0; align-items: stretch; }
+    .login-shell { min-height: 100vh; border-radius: 0; border: 0; }
+    .login-brand { min-height: 300px; padding: 28px 20px 20px; }
+    .login-brand h1 { font-size: 28px; }
+    .login-brand .brand-subtitle { font-size: 15px; margin-bottom: 18px; }
+    .login-brand-footer { gap: 7px; }
+    .brand-feature { padding: 10px 5px; font-size: 11px; }
+    .login-panel { padding: 30px 20px 26px; }
+    .login-card h1 { font-size: 27px; }
+}
+
 /* =========================
    RESPONSIVE
 ========================= */
@@ -875,6 +1033,8 @@ tbody tr:hover {
 }
 
 @media (max-width: 700px) {
+
+    .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
     .topbar {
         flex-direction: column;
@@ -941,7 +1101,7 @@ tbody tr:hover {
 /* =========================
    DASHBOARD / BRANDING / ATTENDANCE FIXES
 ========================= */
-.login-page-credit{margin-top:16px;text-align:center;color:#9ca3af;font-size:12px}
+.login-page-credit{margin-top:16px;text-align:left;color:#9ca3af;font-size:12px}
 .topbar-credit{font-size:11px;color:#9ca3af;margin-top:3px}
 .dashboard-overview{margin-top:18px}
 .dashboard-overview h3{margin:0 0 12px;color:#123b73}
@@ -969,66 +1129,49 @@ tbody tr:hover {
 ========================================================= -->
 
 <div id="loginPage">
-
-    <div class="login-card">
-
-        <div class="school-logo">U</div>
-
-        <h1>U.M.S SASAULI URDU</h1>
-
-        <div class="location">
-            Muzaffarpur, Bihar
+    <div class="login-shell">
+        <div class="login-brand">
+            <div class="login-brand-content">
+                <h1>U.M.S SASAULI URDU</h1>
+                <div class="brand-subtitle">Student Marks Management System</div>
+                <div class="brand-location">Muzaffarpur, Bihar &nbsp;|&nbsp; Aurai Block</div>
+            </div>
+            <div class="login-brand-footer">
+                <div class="brand-feature">Better Education</div>
+                <div class="brand-feature">Brighter Future</div>
+                <div class="brand-feature">Stronger Community</div>
+            </div>
         </div>
 
-        <div class="login-title">
-            Sign in to Student Marks System
+        <div class="login-panel">
+            <div class="login-card">
+                <div class="login-user-icon">●</div>
+                <h1>Welcome Back</h1>
+                <div class="login-title">Login to access the Student Marks Management System</div>
+
+                <div id="loginError" class="error-message hidden"></div>
+
+                <form id="loginForm">
+                    <label for="loginEmail">Email</label>
+                    <div class="login-input-wrap">
+                        <span class="input-icon">✉</span>
+                        <input type="email" id="loginEmail" placeholder="Enter your email" autocomplete="username" required>
+                    </div>
+
+                    <label for="loginPassword">Password</label>
+                    <div class="login-input-wrap">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" required>
+                    </div>
+
+                    <button type="submit" id="loginButton" class="login-btn">Sign In</button>
+                </form>
+
+                <div class="login-note"><strong>Authorized Access Only</strong><br>Your access level is determined by your school account.</div>
+                <div class="login-page-credit">Created by<strong>ABU MAHTAB RAUSHAN</strong></div>
+            </div>
         </div>
-
-        <div id="loginError"
-             class="error-message hidden"></div>
-
-        <form id="loginForm">
-
-            <label for="loginEmail">Email</label>
-
-            <input
-                type="email"
-                id="loginEmail"
-                placeholder="Enter your email"
-                autocomplete="username"
-                required
-            >
-
-            <label for="loginPassword">Password</label>
-
-            <input
-                type="password"
-                id="loginPassword"
-                placeholder="Enter your password"
-                autocomplete="current-password"
-                required
-            >
-
-            <button
-                type="submit"
-                id="loginButton"
-                class="login-btn">
-
-                Sign In
-
-            </button>
-
-        </form>
-
-        <div class="login-note">
-            Authorized school users only.<br>
-            Your access level is determined by your account.
-        </div>
-
-        <div class="login-page-credit">Created by ABU MAHTAB RAUSHAN</div>
-
     </div>
-
 </div>
 
 
@@ -1158,10 +1301,10 @@ tbody tr:hover {
 
 
             <div class="dashboard-grid">
-                <div class="dashboard-card"><div id="dashboardTotalStudents" class="number">—</div><div class="label">Total Students</div></div>
                 <div class="dashboard-card"><div id="dashboardMaleStudents" class="number">—</div><div class="label">Male Students</div></div>
                 <div class="dashboard-card"><div id="dashboardFemaleStudents" class="number">—</div><div class="label">Female Students</div></div>
-                <div class="dashboard-card"><div id="dashboardClasses" class="number">8</div><div class="label">Classes</div></div>
+                <div class="dashboard-card"><div id="dashboardTotalStudents" class="number">—</div><div class="label">Total Students</div></div>
+                <div class="dashboard-card"><div id="dashboardAcademicSession" class="number dashboard-session-number">—</div><div class="label">Academic Session</div></div>
             </div>
 
             <div class="card dashboard-overview">
@@ -1460,6 +1603,17 @@ tbody tr:hover {
                             <option value="Half-Yearly">Half-Yearly</option>
                             <option value="Annual">Annual</option>
                             <option value="Final">Final</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label for="marksSort">Sort Students By</label>
+                        <select id="marksSort">
+                            <option value="roll_asc">Roll Number — Low to High</option>
+                            <option value="roll_desc">Roll Number — High to Low</option>
+                            <option value="name_asc">Name — A to Z</option>
+                            <option value="name_desc">Name — Z to A</option>
+                            <option value="marks_desc">Marks — Highest to Lowest</option>
+                            <option value="marks_asc">Marks — Lowest to Highest</option>
                         </select>
                     </div>
                 </div>
@@ -3218,6 +3372,7 @@ async function updateDashboardCounts() {
     const totalCard = document.getElementById("dashboardTotalStudents");
     const maleCard = document.getElementById("dashboardMaleStudents");
     const femaleCard = document.getElementById("dashboardFemaleStudents");
+    const sessionCard = document.getElementById("dashboardAcademicSession");
     const session = sessions.find(x => x.is_active);
     if (!session) return;
     const { data: records, error } = await supabaseClient.from("academic_records")
@@ -3233,6 +3388,8 @@ async function updateDashboardCounts() {
     if(totalEl) totalEl.textContent=totals.total; if(maleEl) maleEl.textContent=totals.male; if(femaleEl) femaleEl.textContent=totals.female;
     if(totalCard) totalCard.textContent=totals.total; if(maleCard) maleCard.textContent=totals.male; if(femaleCard) femaleCard.textContent=totals.female;
     if(totalEl) totalEl.textContent=totals.total; if(maleEl) maleEl.textContent=totals.male; if(femaleEl) femaleEl.textContent=totals.female;
+    if(femaleCard) femaleCard.textContent=totals.female;
+    if(sessionCard) sessionCard.textContent=session.session_name;
     if(document.getElementById("dashboardSession")) document.getElementById("dashboardSession").textContent=session.session_name;
     if(totalEl) document.getElementById("dashboardOverviewTotal").textContent=totals.total;
     if(maleEl) document.getElementById("dashboardOverviewMale").textContent=totals.male;
@@ -3247,6 +3404,7 @@ async function updateDashboardCounts() {
 const marksSession = document.getElementById("marksSession");
 const marksClass = document.getElementById("marksClass");
 const marksExam = document.getElementById("marksExam");
+const marksSort = document.getElementById("marksSort");
 const marksTableContainer = document.getElementById("marksTableContainer");
 const marksRecordCount = document.getElementById("marksRecordCount");
 const saveMarksButton = document.getElementById("saveMarksButton");
@@ -3377,6 +3535,26 @@ function calculateRow(recordId) {
     return { total, pct, grade: entered ? gradeFromPercentage(pct) : "", max };
 }
 
+function getMarksSortedRecords() {
+    const list = [...marksRecords];
+    const mode = marksSort?.value || "roll_asc";
+    return list.sort((a, b) => {
+        const rollA = Number(a.roll_no ?? 999999);
+        const rollB = Number(b.roll_no ?? 999999);
+        const nameA = String(a.students?.student_name || "");
+        const nameB = String(b.students?.student_name || "");
+        if (mode === "roll_desc") return rollB - rollA || nameA.localeCompare(nameB, undefined, {sensitivity:"base"});
+        if (mode === "name_asc") return nameA.localeCompare(nameB, undefined, {sensitivity:"base"}) || rollA - rollB;
+        if (mode === "name_desc") return nameB.localeCompare(nameA, undefined, {sensitivity:"base"}) || rollA - rollB;
+        if (mode === "marks_desc" || mode === "marks_asc") {
+            const totalA = calculateRow(a.id).total;
+            const totalB = calculateRow(b.id).total;
+            return mode === "marks_desc" ? (totalB - totalA || rollA - rollB) : (totalA - totalB || rollA - rollB);
+        }
+        return rollA - rollB || nameA.localeCompare(nameB, undefined, {sensitivity:"base"});
+    });
+}
+
 function renderMarksGrid() {
     if (!marksRecords.length) {
         marksRecordCount.textContent = "0 students";
@@ -3392,10 +3570,11 @@ function renderMarksGrid() {
 
     const finalExam = marksExam.value === "Final";
     const maxPerSubject = finalExam ? 100 : 50;
-    marksRecordCount.textContent = `${marksRecords.length} students • ${marksSubjects.length} subjects • ${marksExam.value}`;
+    marksRecordCount.textContent = `${marksRecords.length} students • ${marksSubjects.length} subjects • ${marksExam.value} • ${marksSort?.selectedOptions[0]?.text || "Roll Number — Low to High"}`;
 
     const head = marksSubjects.map(s => `<th>${escapeHtml(s.subject_name)}<br><small>/ ${maxPerSubject}</small></th>`).join("");
-    const rows = marksRecords.map((record, index) => {
+    const sortedMarksRecords = getMarksSortedRecords();
+    const rows = sortedMarksRecords.map((record, index) => {
         const calc = calculateRow(record.id);
         const cells = marksSubjects.map(subject => {
             if (finalExam) {
@@ -3491,6 +3670,7 @@ async function saveMarks() {
 if (marksSession) marksSession.addEventListener("change", loadMarksGrid);
 if (marksClass) marksClass.addEventListener("change", loadMarksGrid);
 if (marksExam) marksExam.addEventListener("change", loadMarksGrid);
+if (marksSort) marksSort.addEventListener("change", renderMarksGrid);
 if (saveMarksButton) saveMarksButton.addEventListener("click", saveMarks);
 
 /* =========================================================
@@ -3598,7 +3778,7 @@ function updateAttendanceTotalsRow(recordId) {
     document.querySelector(`[data-att-total-wd="${recordId}"]`)?.replaceChildren(document.createTextNode(String(t.working)));
     document.querySelector(`[data-att-total-p="${recordId}"]`)?.replaceChildren(document.createTextNode(String(t.present)));
     document.querySelector(`[data-att-total-a="${recordId}"]`)?.replaceChildren(document.createTextNode(String(t.absent)));
-    document.querySelector(`[data-att-pct="${recordId}"]`)?.replaceChildren(document.createTextNode(`${t.pct.toFixed(2)}%`));
+    document.querySelector(`[data-att-pct="${recordId}"]`)?.replaceChildren(document.createTextNode(t.pct === null ? "" : `${t.pct.toFixed(2)}%`));
 }
 
 function renderAttendanceTable() {
@@ -3781,6 +3961,7 @@ function resetMarksState(){
     if(marksSession){ const active=sessions.find(s=>s.is_active); marksSession.value=active?String(active.id):""; }
     if(marksClass) marksClass.value="1";
     if(marksExam) marksExam.value="Half-Yearly";
+    if(marksSort) marksSort.value="roll_asc";
 }
 function resetPrintState(){
     if(printStudentSearch) printStudentSearch.value="";
