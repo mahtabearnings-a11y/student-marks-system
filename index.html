@@ -2318,6 +2318,33 @@ async function deleteAcademicSession(id){
 <script>
 
 /* =========================================================
+   EARLY NAVIGATION HANDLER
+   Keep tab switching independent of module initialization/errors.
+========================================================= */
+document.addEventListener("click", function(event) {
+    const button = event.target.closest(".nav-btn[data-section]");
+    if (!button) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const section = button.dataset.section;
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b === button));
+    document.querySelectorAll(".app-section").forEach(item => item.classList.add("hidden"));
+    const target = document.getElementById(section + "Section");
+    if (target) target.classList.remove("hidden");
+    try {
+        if (typeof resetModuleState === "function") resetModuleState(section);
+        if (section === "students" && typeof loadStudents === "function") loadStudents();
+        if (section === "marks" && typeof populateMarksSessions === "function" && typeof loadMarksGrid === "function") { populateMarksSessions(); loadMarksGrid(); }
+        if (section === "reports" && typeof loadPrintData === "function") loadPrintData();
+        if (section === "attendance" && typeof populateAttendanceSessions === "function" && typeof renderAttendanceMonthButtons === "function") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
+        if (section === "promotion" && typeof populatePromotionSessions === "function" && typeof loadPromotionStudents === "function" && typeof loadPromotionHistory === "function") { populatePromotionSessions(); loadPromotionStudents(); loadPromotionHistory(); }
+        if (section === "sessions" && typeof refreshAcademicSessions === "function") refreshAcademicSessions();
+    } catch (error) {
+        console.error("Section error:", section, error);
+    }
+}, true);
+
+/* =========================================================
    SUPABASE
 ========================================================= */
 
@@ -4127,9 +4154,9 @@ if (attendanceClass) attendanceClass.addEventListener("change", resetAttendanceG
 ========================================================= */
 function resetStudentsState(){
     if(sessionFilter){ const active=sessions.find(s=>s.is_active); sessionFilter.value=active?String(active.id):""; }
-    if(classFilter) classFilter.value="all";
+    if(classFilter) classFilter.value="";
     if(studentSearch) studentSearch.value="";
-    if(studentSort) studentSort.value="roll_asc";
+    if(studentSort) studentSort.value="rollAsc";
 }
 function resetMarksState(){
     if(marksSession){ const active=sessions.find(s=>s.is_active); marksSession.value=active?String(active.id):""; }
@@ -4587,14 +4614,6 @@ function showSection(section) {
    NAVIGATION
 ========================================================= */
 
-// Delegated navigation handler: attached once and independent of module data loading.
-document.addEventListener("click", function(event) {
-    const button = event.target.closest(".nav-btn[data-section]");
-    if (!button) return;
-    event.preventDefault();
-    showSection(button.dataset.section);
-});
-
 
 if (printSession) printSession.addEventListener("change", loadPrintData);
 if (printClass) printClass.addEventListener("change", loadPrintData);
@@ -4609,23 +4628,46 @@ if (printClassFolioButton) printClassFolioButton.addEventListener("click", print
    FILTER EVENTS
 ========================================================= */
 
-sessionFilter.addEventListener("change", async function() {
-    await loadStudents();
-});
+sessionFilter.addEventListener(
+    "change",
+    async function() {
 
-// Students filters: use the actual control values and re-render only the
-// already-loaded student data. No database data is changed by filtering/sorting.
-classFilter.addEventListener("change", function() {
-    renderStudents();
-});
+        await loadStudents();
 
-studentSearch.addEventListener("input", function() {
-    renderStudents();
-});
+    }
+);
 
-studentSort.addEventListener("change", function() {
-    renderStudents();
-});
+
+classFilter.addEventListener(
+    "change",
+    function() {
+
+        renderStudents();
+
+        updateDashboardCounts();
+
+    }
+);
+
+
+studentSearch.addEventListener(
+    "input",
+    function() {
+
+        renderStudents();
+
+    }
+);
+
+
+studentSort.addEventListener(
+    "change",
+    function() {
+
+        renderStudents();
+
+    }
+);
 
 
 refreshStudentsButton.addEventListener(
