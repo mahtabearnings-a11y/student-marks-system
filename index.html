@@ -4130,51 +4130,6 @@ if (attendanceSession) attendanceSession.addEventListener("change", resetAttenda
 if (attendanceClass) attendanceClass.addEventListener("change", resetAttendanceGridForSelectionChange);
 
 /* =========================================================
-   SECTION NAVIGATION
-========================================================= */
-function resetStudentsState(){
-    if(sessionFilter){ const active=sessions.find(s=>s.is_active); sessionFilter.value=active?String(active.id):""; }
-    if(classFilter) classFilter.value="";
-    if(studentSearch) studentSearch.value="";
-    if(studentSort) studentSort.value="rollAsc";
-}
-function resetMarksState(){
-    if(marksSession){ const active=sessions.find(s=>s.is_active); marksSession.value=active?String(active.id):""; }
-    if(marksClass) marksClass.value="1";
-    if(marksExam) marksExam.value="Half-Yearly";
-    if(marksSort) marksSort.value="roll_asc";
-}
-function resetPrintState(){
-    if(printStudentSearch) printStudentSearch.value="";
-    if(printStudentInfo) printStudentInfo.textContent="No student selected.";
-    if(printStudentSelect) printStudentSelect.innerHTML=`<option value="">Select student</option>`;
-    if(printClass) printClass.value="1";
-    if(printExam) printExam.value="Half-Yearly";
-    if(printSession){ const active=sessions.find(s=>s.is_active); if(active) printSession.value=String(active.id); }
-    printStudents=[]; printSubjects=[]; printMarks={};
-    if(printClassInfo) printClassInfo.textContent="Select session, class and examination.";
-}
-function resetModuleState(section){
-    if(section==="students") resetStudentsState();
-    if(section==="marks") resetMarksState();
-    if(section==="reports") resetPrintState();
-    if(section==="attendance") resetAttendanceState();
-    if(section==="promotion") resetPromotionState();
-}
-function showSection(section) {
-    resetModuleState(section);
-    document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.section === section));
-    document.querySelectorAll(".app-section").forEach(item => item.classList.add("hidden"));
-    const target = document.getElementById(section + "Section");
-    if (target) target.classList.remove("hidden");
-    if (section === "students") loadStudents();
-    if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
-    if (section === "reports") loadPrintData();
-    if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
-}
-
-
-/* =========================================================
    PRINT MODULE
 ========================================================= */
 function populatePrintSessions() {
