@@ -816,7 +816,7 @@ tbody tr:hover {
     font-family:Arial,Helvetica,sans-serif;
     color:#111;
   }
-  @page { size:A4 portrait; margin:12mm; }
+  @page { size:A4 portrait; margin:10mm; }
   .result-page {
     page-break-after:auto !important;
     break-after:auto !important;
@@ -826,19 +826,22 @@ tbody tr:hover {
     height:auto !important;
     min-height:0 !important;
     margin:0 !important;
+    box-sizing:border-box;
   }
   .result-page + .result-page { page-break-before:always; break-before:page; }
-  .result-header { width:100%; box-sizing:border-box; display:block; text-align:center !important; line-height:1.4; margin:0 auto 18px; }
-  .result-header h1 { font-size:16pt; font-weight:700; margin:0 0 4px; text-align:center !important;}
+  .result-header { width:100%; box-sizing:border-box; display:block; text-align:center !important; line-height:1.25; margin:0 auto 10px; }
+  .result-header h1 { font-size:16pt; font-weight:700; margin:0 0 3px; text-align:center !important;}
   .result-header h2 { font-size:16pt; font-weight:700; margin:2px 0; text-align:center !important;}
   .result-header .small { font-size:14pt; margin:1px 0; text-align:center !important;}
-  .result-info { display:grid; grid-template-columns:1fr 1fr; gap:4px 18px; font-size:14pt; margin-bottom:8px;}
+  .result-info { display:grid; grid-template-columns:1fr 1fr; gap:2px 18px; font-size:14pt; line-height:1.2; margin-bottom:7px;}
   .result-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:14pt;}
-  .result-table th,.result-table td { border:1px solid #222; padding:5px 4px; text-align:center; vertical-align:middle; word-wrap:break-word;}
+  .result-table th,.result-table td { border:1px solid #222; padding:4px 4px; text-align:center; vertical-align:middle; word-wrap:break-word; line-height:1.15;}
   .result-table th { background:#f3f4f6; font-size:14pt;}
   .result-table td.subject { text-align:left; }
-  .result-summary { margin-top:8px; font-size:14pt;}
-  .page-number { text-align:right; font-size:8pt; margin-top:4px;}
+  .result-summary-row th { text-align:left; font-weight:700; }
+  .result-summary-row td { font-weight:700; }
+  .result-summary { margin-top:7px; font-size:14pt; line-height:1.2;}
+  .page-number { text-align:right; font-size:14pt; margin-top:5px;}
   .folio-print .result-table {
     width:100% !important;
     min-width:0 !important;
@@ -4460,7 +4463,9 @@ function resultHtml(record,pageNo,totalPages){
         const v=getPrintMark(record.id,sub.id,printExam.value);
         return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${v??""}</td><td>50</td></tr>`;
     }).join("");
-    return `<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Student Result</h2><div class="small">Muzaffarpur, Bihar • Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")}</div><div class="small">${escapeHtml(printExam.value)} Examination</div></div><div class="result-info"><div><b>Student ID:</b> ${escapeHtml(s.student_id||"")}</div><div><b>Class:</b> ${escapeHtml(printClassName(record.class_no))}</div><div><b>Name:</b> ${escapeHtml(s.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(record.roll_no??"")}</div><div><b>Father's Name:</b> ${escapeHtml(s.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(s.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(s.date_of_birth||"")}</div></div><table class="result-table"><thead><tr><th>Subject</th>${markHeader}</tr></thead><tbody>${rows}</tbody></table><div class="result-summary"><b>Total:</b> ${c.total} / ${c.max} &nbsp;&nbsp; <b>Percentage:</b> ${c.pct.toFixed(2)}% &nbsp;&nbsp; <b>Rank:</b> ${calcRank(record)} </div><div class="page-number">Page ${pageNo} of ${totalPages}</div></div>`;
+    const summaryColspan = isFinal ? 4 : 2;
+    const summaryRows = `<tr class="result-summary-row"><th>Percentage</th><td colspan="${summaryColspan}">${c.pct.toFixed(2)}%</td></tr><tr class="result-summary-row"><th>Grade</th><td colspan="${summaryColspan}">${escapeHtml(c.grade || "—")}</td></tr>`;
+    return `<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Student Result</h2><div class="small">Muzaffarpur, Bihar • Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")}</div><div class="small">${escapeHtml(printExam.value)} Examination</div></div><div class="result-info"><div><b>Student ID:</b> ${escapeHtml(s.student_id||"")}</div><div><b>Class:</b> ${escapeHtml(printClassName(record.class_no))}</div><div><b>Name:</b> ${escapeHtml(s.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(record.roll_no??"")}</div><div><b>Father's Name:</b> ${escapeHtml(s.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(s.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(s.date_of_birth||"")}</div></div><table class="result-table"><thead><tr><th>Subject</th>${markHeader}</tr></thead><tbody>${rows}${summaryRows}</tbody></table><div class="result-summary"><b>Total:</b> ${c.total} / ${c.max} &nbsp;&nbsp; <b>Rank:</b> ${calcRank(record)} </div><div class="page-number">Page ${pageNo} of ${totalPages}</div></div>`;
 }
 function calcRank(record){ const ranked=printStudents.map(r=>({r,c:calcPrintRecord(r)})).sort((a,b)=>b.c.total-a.c.total||b.c.pct-a.c.pct||Number(a.r.roll_no??999999)-Number(b.r.roll_no??999999)); return ranked.findIndex(x=>x.r.id===record.id)+1; }
 let printTitleBeforeJob="";
