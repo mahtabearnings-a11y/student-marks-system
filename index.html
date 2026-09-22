@@ -1135,7 +1135,7 @@ tbody tr:hover {
 /* =========================================================
    PROMOTION MODULE
 ========================================================= */
-.promotion-controls{grid-template-columns:1fr 1fr 180px}
+.promotion-controls{grid-template-columns:1fr 1fr 1fr}
 .promotion-action-wrap .btn{width:100%}
 .promotion-message{margin-top:12px;padding:10px 12px;border-radius:8px;background:#f5f8fc;color:#5b6575;font-size:13px}
 .promotion-table{min-width:1080px;border-collapse:separate;border-spacing:0}
@@ -1754,12 +1754,22 @@ tbody tr:hover {
                             <option value="7">Class VII</option><option value="8">Class VIII</option>
                         </select>
                     </div>
-                    <div class="filter-item promotion-action-wrap">
-                        <label>&nbsp;</label>
-                        <button id="loadPromotionButton" class="btn btn-primary">Load Students</button>
+                    <div class="filter-item">
+                        <label for="promotionSort">Sort Students By</label>
+                        <select id="promotionSort">
+                            <option value="roll_asc">Roll Number — Low to High</option>
+                            <option value="roll_desc">Roll Number — High to Low</option>
+                            <option value="name_asc">Name — A to Z</option>
+                            <option value="name_desc">Name — Z to A</option>
+                            <option value="marks_desc">Marks — Highest to Lowest</option>
+                            <option value="marks_asc">Marks — Lowest to Highest</option>
+                            <option value="percentage_desc">Percentage — Highest to Lowest</option>
+                            <option value="percentage_asc">Percentage — Lowest to Highest</option>
+                            <option value="rank_asc">Rank — Low to High</option>
+                        </select>
                     </div>
                 </div>
-                <div id="promotionMessage" class="promotion-message">Select a session and class, then load the students.</div>
+                <div id="promotionMessage" class="promotion-message">Select a session and class. Students will appear automatically.</div>
             </div>
 
             <div id="promotionListCard" class="card hidden">
@@ -3448,33 +3458,34 @@ async function updateDashboardCounts() {
         return;
     }
 
-    const groups = [
-        { label: "Classes I–V", classes: [1,2,3,4,5], total: 0, male: 0, female: 0 },
-        { label: "Classes VI–VIII", classes: [6,7,8], total: 0, male: 0, female: 0 }
-    ];
+    const classNames = ["Class I","Class II","Class III","Class IV","Class V","Class VI","Class VII","Class VIII"];
+    const classStats = Array.from({length:8}, (_,i) => ({classNo:i+1,label:classNames[i],total:0,male:0,female:0}));
     (records || []).forEach(r => {
-        const group = groups.find(g => g.classes.includes(Number(r.class_no)));
-        if (!group) return;
-        group.total++;
+        const stat = classStats[Number(r.class_no)-1];
+        if (!stat) return;
+        stat.total++;
         const gender = String(r.students?.gender || "").trim().toLowerCase();
-        if (gender === "male" || gender === "m") group.male++;
-        else if (gender === "female" || gender === "f") group.female++;
+        if (gender === "male" || gender === "m") stat.male++;
+        else if (gender === "female" || gender === "f") stat.female++;
     });
 
-    if (body) body.innerHTML = groups.map(g =>
-        `<tr><td><strong>${g.label}</strong></td><td>${g.total}</td><td>${g.male}</td><td>${g.female}</td></tr>`
-    ).join("");
+    const groupItoV = classStats.slice(0,5).reduce((a,g)=>({total:a.total+g.total,male:a.male+g.male,female:a.female+g.female}),{total:0,male:0,female:0});
+    const groupVItoVIII = classStats.slice(5).reduce((a,g)=>({total:a.total+g.total,male:a.male+g.male,female:a.female+g.female}),{total:0,male:0,female:0});
 
-    const totals = groups.reduce((a,g) => ({
+    if (body) {
+        const classRows = classStats.map(g => `<tr><td><strong>${g.label}</strong></td><td>${g.total}</td><td>${g.male}</td><td>${g.female}</td></tr>`).join("");
+        const groupRows = `<tr class="dashboard-group-row"><td><strong>Classes I–V</strong></td><td>${groupItoV.total}</td><td>${groupItoV.male}</td><td>${groupItoV.female}</td></tr><tr class="dashboard-group-row"><td><strong>Classes VI–VIII</strong></td><td>${groupVItoVIII.total}</td><td>${groupVItoVIII.male}</td><td>${groupVItoVIII.female}</td></tr>`;
+        body.innerHTML = classRows + groupRows;
+    }
+
+    const totals = classStats.reduce((a,g) => ({
         total: a.total + g.total, male: a.male + g.male, female: a.female + g.female
     }), {total:0,male:0,female:0});
-    if (totalCard) totalCard.textContent = totals.total;
-    if (maleCard) maleCard.textContent = totals.male;
-    if (femaleCard) femaleCard.textContent = totals.female;
-    if (sessionCard) sessionCard.textContent = session.session_name;
+    if(totalCard) totalCard.textContent = totals.total;
+    if(maleCard) maleCard.textContent = totals.male;
+    if(femaleCard) femaleCard.textContent = totals.female;
+    if(sessionCard) sessionCard.textContent = session.session_name;
 }
-
-
 
 /* =========================================================
    MARKS MODULE
@@ -4210,7 +4221,7 @@ async function printClassFolio(){
 ========================================================= */
 const promotionSession = document.getElementById("promotionSession");
 const promotionClass = document.getElementById("promotionClass");
-const loadPromotionButton = document.getElementById("loadPromotionButton");
+const promotionSort = document.getElementById("promotionSort");
 const promoteStudentsButton = document.getElementById("promoteStudentsButton");
 const promotionBackButton = document.getElementById("promotionBackButton");
 const confirmPromotionButton = document.getElementById("confirmPromotionButton");
@@ -4290,9 +4301,26 @@ async function loadPromotionStudents(){
         : "Select the students you want to process, then choose Promote Students to review the proposed next class and roll numbers.";
 }
 
+function getSortedPromotionStudents(){
+    const list=[...promotionStudents];
+    const mode=promotionSort?.value || "roll_asc";
+    return list.sort((a,b)=>{
+        if(mode==="roll_asc") return Number(a.roll_no??999999)-Number(b.roll_no??999999) || String(a.students?.student_name||"").localeCompare(String(b.students?.student_name||""));
+        if(mode==="roll_desc") return Number(b.roll_no??-1)-Number(a.roll_no??-1) || String(a.students?.student_name||"").localeCompare(String(b.students?.student_name||""));
+        if(mode==="name_asc") return String(a.students?.student_name||"").localeCompare(String(b.students?.student_name||""),undefined,{sensitivity:"base"}) || Number(a.roll_no??999999)-Number(b.roll_no??999999);
+        if(mode==="name_desc") return String(b.students?.student_name||"").localeCompare(String(a.students?.student_name||""),undefined,{sensitivity:"base"}) || Number(a.roll_no??999999)-Number(b.roll_no??999999);
+        if(mode==="marks_desc") return b.calc.total-a.calc.total || Number(a.roll_no??999999)-Number(b.roll_no??999999);
+        if(mode==="marks_asc") return a.calc.total-b.calc.total || Number(a.roll_no??999999)-Number(b.roll_no??999999);
+        if(mode==="percentage_desc") return b.calc.pct-a.calc.pct || Number(a.roll_no??999999)-Number(b.roll_no??999999);
+        if(mode==="percentage_asc") return a.calc.pct-b.calc.pct || Number(a.roll_no??999999)-Number(b.roll_no??999999);
+        if(mode==="rank_asc") return Number(a.rank??999999)-Number(b.rank??999999) || Number(a.roll_no??999999)-Number(b.roll_no??999999);
+        return Number(a.roll_no??999999)-Number(b.roll_no??999999);
+    });
+}
+
 function renderPromotionStudents(){
     if(!promotionTableContainer)return;
-    const rows=promotionStudents.map(r=>`<tr>
+    const rows=getSortedPromotionStudents().map(r=>`<tr>
         <td><input type="checkbox" class="promotion-select" data-record-id="${r.id}" checked></td>
         <td>${escapeHtml(r.roll_no??"")}</td>
         <td>${escapeHtml(r.students?.student_name||"")}</td>
@@ -4405,7 +4433,9 @@ async function confirmPromotion(){
     }finally{confirmPromotionButton.disabled=false;}
 }
 
-if(loadPromotionButton)loadPromotionButton.addEventListener("click",loadPromotionStudents);
+if(promotionSession)promotionSession.addEventListener("change",loadPromotionStudents);
+if(promotionClass)promotionClass.addEventListener("change",loadPromotionStudents);
+if(promotionSort)promotionSort.addEventListener("change",renderPromotionStudents);
 if(promoteStudentsButton)promoteStudentsButton.addEventListener("click",openPromotionReview);
 if(promotionBackButton)promotionBackButton.addEventListener("click",()=>{promotionReviewCard.classList.add("hidden");promotionListCard.classList.remove("hidden");});
 if(confirmPromotionButton)confirmPromotionButton.addEventListener("click",confirmPromotion);
@@ -4417,11 +4447,12 @@ function resetPromotionState(){
     const active = sessions.find(s => s.is_active);
     if (promotionSession) promotionSession.value = active ? String(active.id) : "";
     if (promotionClass) promotionClass.value = "1";
+    if (promotionSort) promotionSort.value = "roll_asc";
     promotionStudents = [];
     promotionReviewRows = [];
     if (promotionListCard) promotionListCard.classList.add("hidden");
     if (promotionReviewCard) promotionReviewCard.classList.add("hidden");
-    if (promotionMessage) promotionMessage.textContent = "Select a session and class, then load the students.";
+    if (promotionMessage) promotionMessage.textContent = "Select a session and class. Students will appear automatically.";
     if (promotionTableContainer) promotionTableContainer.innerHTML = "";
     if (promotionReviewContainer) promotionReviewContainer.innerHTML = "";
 }
@@ -4436,7 +4467,7 @@ function showSection(section) {
     if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
     if (section === "reports") loadPrintData();
     if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
-    if (section === "promotion") populatePromotionSessions();
+    if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); }
 }
 
 
