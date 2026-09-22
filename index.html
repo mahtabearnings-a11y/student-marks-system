@@ -3727,7 +3727,8 @@ function printAttendanceSummary() {
     const periodLabel = monthNames.join(" & ");
     const rows = sorted.map((record, index) => {
         const t = getAttendanceStudentTotals(record.id);
-        return `<tr><td>${index + 1}</td><td>${escapeHtml(String(record.roll_no ?? ""))}</td><td class="subject">${escapeHtml(record.students?.student_name || "")}</td><td>${t.working}</td><td>${t.present}</td><td>${t.absent}</td><td>${t.pct.toFixed(2)}%</td></tr>`;
+        const pctText = t.pct === null ? "" : `${t.pct.toFixed(2)}%`;
+        return `<tr><td>${index + 1}</td><td>${escapeHtml(String(record.roll_no ?? ""))}</td><td class="subject">${escapeHtml(record.students?.student_name || "")}</td><td>${t.working}</td><td>${t.present}</td><td>${t.absent}</td><td>${pctText}</td></tr>`;
     }).join("");
     const totals = sorted.reduce((acc, record) => { const t = getAttendanceStudentTotals(record.id); acc.working += t.working; acc.present += t.present; return acc; }, {working:0,present:0});
     const overallPct = totals.working ? (totals.present / totals.working) * 100 : 0;
