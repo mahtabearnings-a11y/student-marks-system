@@ -2345,6 +2345,37 @@ document.addEventListener("click", function(event) {
 }, true);
 
 /* =========================================================
+   EARLY ADD-STUDENT HANDLER
+   Keeps Add Student responsive even if a later module initializer
+   encounters an unrelated runtime error.
+========================================================= */
+document.addEventListener("click", function(event) {
+    const button = event.target.closest("#addStudentButton");
+    if (!button) return;
+    event.preventDefault();
+
+    if (typeof currentRole !== "undefined" && currentRole !== "admin") return;
+
+    const modal = document.getElementById("studentModal");
+    const title = document.getElementById("studentModalTitle");
+    const form = document.getElementById("studentForm");
+    const formClass = document.getElementById("formClass");
+    const formStatus = document.getElementById("formStatus");
+    const classFilterEl = document.getElementById("classFilter");
+
+    if (!modal || !form) return;
+
+    editingStudent = null;
+    if (title) title.textContent = "Add Student";
+    form.reset();
+    if (formClass && classFilterEl && classFilterEl.value !== "all") {
+        formClass.value = classFilterEl.value;
+    }
+    if (formStatus) formStatus.value = "New Student";
+    modal.classList.remove("hidden");
+}, true);
+
+/* =========================================================
    SUPABASE
 ========================================================= */
 
