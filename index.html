@@ -652,7 +652,7 @@ tbody tr:hover {
 
 .modal {
     width: 100%;
-    max-width: 720px;
+    max-width: 1000px;
     max-height: 90vh;
     overflow-y: auto;
     background: white;
@@ -670,6 +670,7 @@ tbody tr:hover {
 
 .modal-header h3 {
     color: #123b73;
+    font-size: 24px;
 }
 
 .modal-close {
@@ -680,7 +681,7 @@ tbody tr:hover {
 }
 
 .modal-body {
-    padding: 20px;
+    padding: 26px 28px;
 }
 
 .modal-footer {
@@ -694,7 +695,7 @@ tbody tr:hover {
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2,1fr);
-    gap: 14px;
+    gap: 18px;
 }
 
 .form-group.full {
@@ -702,11 +703,15 @@ tbody tr:hover {
 }
 
 .form-group label {
-    margin-bottom: 5px;
+    display: block;
+    margin-bottom: 7px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #374151;
 }
 
 .form-help {
-    font-size: 11px;
+    font-size: 13px;
     color: #6b7280;
     margin-top: 4px;
 }
@@ -1958,12 +1963,8 @@ tbody tr:hover {
                         <input
                             type="text"
                             id="formApaarId"
-                            placeholder="Enter APAAR ID manually"
+                            placeholder="Enter APAAR ID"
                         >
-
-                        <div class="form-help">
-                            APAAR ID can be entered or edited manually.
-                        </div>
 
                     </div>
 
@@ -3206,6 +3207,8 @@ function renderStudents() {
 
                     <th>Student ID</th>
 
+                    <th>APAAR ID</th>
+
                     <th>Student Name</th>
 
                     <th>Father's Name</th>
@@ -3247,6 +3250,15 @@ function renderStudents() {
                         ${student.studentId
                             ? escapeHtml(
                                 student.studentId
+                              )
+                            : "<span style='color:#9ca3af'>Blank</span>"
+                        }
+                    </td>
+
+                    <td>
+                        ${student.apaarId
+                            ? escapeHtml(
+                                student.apaarId
                               )
                             : "<span style='color:#9ca3af'>Blank</span>"
                         }
@@ -4190,7 +4202,7 @@ function filterPrintStudents(){
 function renderSelectedPrintStudent(){
     const r=printStudents.find(x=>String(x.id)===String(printStudentSelect.value));
     if(!r){ printStudentInfo.textContent="No student selected."; return; }
-    printStudentInfo.innerHTML=`<strong>${escapeHtml(r.students?.student_name||"")}</strong><br>Roll: ${escapeHtml(r.roll_no??"")} ${r.students?.student_id?`| PEN / Student ID: ${escapeHtml(r.students.student_id)}`:""} ${r.students?.apaar_id?`| APAAR ID: ${escapeHtml(r.students.apaar_id)}`:""}`;
+    printStudentInfo.innerHTML=`<strong>${escapeHtml(r.students?.student_name||"")}</strong><br>Roll: ${escapeHtml(r.roll_no??"")} ${r.students?.student_id?`| PEN: ${escapeHtml(r.students.student_id)}`:""} ${r.students?.apaar_id?`| APAAR ID: ${escapeHtml(r.students.apaar_id)}`:""}`;
 }
 function renderPrintClassInfo(){ printClassInfo.textContent=`${printStudents.length} students • ${printSubjects.length} subjects • ${printExam.value}`; }
 function resultHtml(record,pageNo,totalPages){
