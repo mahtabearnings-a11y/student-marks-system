@@ -818,6 +818,7 @@ tbody tr:hover {
     font-size:14pt !important;
   }
   @page { size:A4 portrait; margin:10mm; }
+  @page folio { size:A4 landscape; margin:10mm; }
   .result-page {
     page-break-after:auto !important;
     break-after:auto !important;
@@ -867,74 +868,89 @@ tbody tr:hover {
     font-size:18pt !important;
     font-weight:800;
   }
-  .folio-print .result-table {
+  /* Class Marks Folio: A4 landscape, with a clear 14pt table. */
+  .folio-print {
+    page:folio;
     width:100% !important;
-    min-width:0 !important;
-    table-layout:fixed;
-    font-size:9pt;
+    break-inside:auto !important;
+    page-break-inside:auto !important;
   }
-  .folio-print .result-table th,
-  .folio-print .result-table td {
-    padding:4px 3px;
-    line-height:1.1;
+  .folio-print .result-header {
+    margin-bottom:8px;
   }
-  /* Folio: let the table fit the printable A4 width without pushing data off-page. */
+  .folio-print .result-header h1,
+  .folio-print .result-header h2 {
+    font-size:16pt !important;
+  }
+  .folio-print .result-header .small {
+    font-size:14pt !important;
+  }
   .folio-print .result-table {
     width:100% !important;
     min-width:0 !important;
     max-width:100% !important;
     table-layout:fixed !important;
-    font-size:9pt;
+    border-collapse:collapse;
+    font-size:14pt !important;
+  }
+  .folio-print .result-table thead {
+    display:table-header-group;
+  }
+  .folio-print .result-table tr {
+    break-inside:avoid;
+    page-break-inside:avoid;
   }
   .folio-print .result-table th,
   .folio-print .result-table td {
     box-sizing:border-box;
     overflow:hidden;
+    padding:5px 4px !important;
+    line-height:1.05 !important;
+    font-size:14pt !important;
+    white-space:normal;
+    vertical-align:middle;
   }
   .folio-print .result-table th.folio-subject-head {
-    height:42px;
-    padding:4px 2px;
-    vertical-align:middle;
-    overflow:hidden;
+    height:auto;
+    padding:5px 3px !important;
     text-align:center;
     white-space:normal;
-    line-height:1.05;
-    font-size:8pt !important;
+    line-height:1.05 !important;
+    font-size:14pt !important;
   }
   .folio-print .result-table th.folio-subject-head > span {
     display:block;
     white-space:normal;
-    overflow-wrap:anywhere;
+    overflow-wrap:break-word;
     word-break:normal;
   }
   .folio-print .result-table th.folio-subject-head small {
     display:block;
-    font-size:7pt;
+    font-size:14pt !important;
     margin-top:2px;
     font-weight:400;
   }
-  .folio-print .result-table th:nth-child(1) { width:30px; }
-  .folio-print .result-table th:nth-child(2) { width:38px; }
-  .folio-print .result-table th:nth-child(3) { width:92px; }
-  .folio-print .result-table th:nth-last-child(3) { width:46px; }
-  .folio-print .result-table th:nth-last-child(2) { width:46px; }
-  .folio-print .result-table th:last-child { width:46px; }
+  .folio-print .result-table th:nth-child(1) { width:5%; }
+  .folio-print .result-table th:nth-child(2) { width:6%; }
+  .folio-print .result-table th:nth-child(3) { width:18%; }
+  .folio-print .result-table th:nth-last-child(3) { width:8%; }
+  .folio-print .result-table th:nth-last-child(2) { width:9%; }
+  .folio-print .result-table th:last-child { width:8%; }
   .folio-print .result-table td.name {
     text-align:left;
     white-space:normal;
-    overflow-wrap:anywhere;
+    overflow-wrap:break-word;
     word-break:normal;
   }
-  /* Keep the non-subject headings readable and contained. */
   .folio-print .result-table thead th:not(.folio-subject-head) {
     white-space:normal;
-    line-height:1.05;
-    padding:4px 2px;
+    line-height:1.05 !important;
+    padding:5px 3px !important;
+    font-size:14pt !important;
   }
-  .folio-print .result-table td.name {
-    text-align:left;
-    white-space:normal;
-    overflow-wrap:anywhere;
+  .folio-print .page-number {
+    font-size:14pt !important;
+    margin-top:5px;
   }
   .attendance-print-table {
     width:100% !important;
@@ -4542,7 +4558,8 @@ function resultHtml(record,pageNo,totalPages){
 function calcRank(record){ const ranked=printStudents.map(r=>({r,c:calcPrintRecord(r)})).sort((a,b)=>b.c.total-a.c.total||b.c.pct-a.c.pct||Number(a.r.roll_no??999999)-Number(b.r.roll_no??999999)); return ranked.findIndex(x=>x.r.id===record.id)+1; }
 let printTitleBeforeJob="";
 function openPrint(html, suggestedFileName="Student Marks Result"){
-    printDocumentHost.innerHTML=`<div class="print-document">${html}</div>`;
+    const isFolio=html.includes("folio-print");
+    printDocumentHost.innerHTML=`<div class="print-document ${isFolio ? "folio-print-mode" : ""}">${html}</div>`;
     printTitleBeforeJob=document.title;
     document.title=suggestedFileName;
     window.print();
