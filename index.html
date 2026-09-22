@@ -724,28 +724,62 @@ tbody tr:hover {
     padding:4px 3px;
     line-height:1.1;
   }
-  .folio-print .result-table th.folio-subject-head {
-    height:78px;
-    padding:3px 1px;
-    vertical-align:middle;
+  /* Folio: let the table fit the printable A4 width without pushing data off-page. */
+  .folio-print .result-table {
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    table-layout:fixed !important;
+    font-size:9pt;
+  }
+  .folio-print .result-table th,
+  .folio-print .result-table td {
+    box-sizing:border-box;
     overflow:hidden;
   }
+  .folio-print .result-table th.folio-subject-head {
+    height:76px;
+    padding:2px 1px;
+    vertical-align:middle;
+    overflow:hidden;
+    text-align:center;
+  }
+  /* Vertical writing avoids the clipping/overlap caused by CSS transform on Android Chrome. */
   .folio-print .result-table th.folio-subject-head > span {
-    display:inline-block;
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
     white-space:nowrap;
-    transform:rotate(-90deg);
-    transform-origin:center center;
+    writing-mode:vertical-rl;
+    transform:rotate(180deg);
     line-height:1;
+    height:68px;
+    max-width:100%;
   }
   .folio-print .result-table th.folio-subject-head small {
-    font-size:8pt;
+    display:block;
+    font-size:7pt;
+    margin-top:2px;
   }
-  .folio-print .result-table th:nth-child(1) { width:32px; }
-  .folio-print .result-table th:nth-child(2) { width:38px; }
-  .folio-print .result-table th:nth-child(3) { width:90px; }
-  .folio-print .result-table th:nth-last-child(3) { width:48px; }
-  .folio-print .result-table th:nth-last-child(2) { width:48px; }
-  .folio-print .result-table th:last-child { width:48px; }
+  .folio-print .result-table th:nth-child(1) { width:30px; }
+  .folio-print .result-table th:nth-child(2) { width:36px; }
+  .folio-print .result-table th:nth-child(3) { width:86px; }
+  .folio-print .result-table th:nth-last-child(3) { width:46px; }
+  .folio-print .result-table th:nth-last-child(2) { width:46px; }
+  .folio-print .result-table th:last-child { width:46px; }
+  .folio-print .result-table td.name {
+    text-align:left;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:normal;
+  }
+  /* Keep the non-subject headings readable and contained. */
+  .folio-print .result-table thead th:not(.folio-subject-head) {
+    white-space:normal;
+    line-height:1.05;
+    padding:4px 2px;
+  }
   .folio-print .result-table td.name {
     text-align:left;
     white-space:normal;
