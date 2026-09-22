@@ -932,6 +932,33 @@ tbody tr:hover {
     white-space:normal;
     overflow-wrap:anywhere;
   }
+  /* Class Marks Folio: A4 landscape with completely upright subject headings. */
+  .folio-print {
+    page: folio !important;
+    width:100% !important;
+  }
+  .folio-print .result-table th.folio-subject-head,
+  .folio-print .result-table th.folio-subject-head > span,
+  .folio-print .result-table th.folio-subject-head small {
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+    transform: rotate(0deg) !important;
+    -webkit-transform: rotate(0deg) !important;
+    direction: ltr !important;
+  }
+  .folio-print .result-table th.folio-subject-head > span {
+    display:block !important;
+    width:100% !important;
+    height:auto !important;
+    white-space:normal !important;
+    line-height:1.05 !important;
+  }
+  .folio-print .result-table th.folio-subject-head {
+    height:auto !important;
+    min-height:38px !important;
+    vertical-align:middle !important;
+  }
+
   .attendance-print-table {
     width:100% !important;
     min-width:0 !important;
@@ -1217,7 +1244,7 @@ tbody tr:hover {
                 </form>
 
                 <div class="login-note"><strong>Authorized Access Only</strong><br>Your access level is determined by your school account.</div>
-                <div class="login-page-credit">Created by<strong>ABU MAHTAB RAUSHAN</strong></div>
+                
             </div>
         </div>
     </div>
@@ -1240,7 +1267,7 @@ tbody tr:hover {
             <div class="school-subtitle">
                 Student Marks Management System
             </div>
-            <div class="topbar-credit">Created by ABU MAHTAB RAUSHAN</div>
+            
         </div>
 
         <div class="user-area">
@@ -1341,9 +1368,6 @@ tbody tr:hover {
                 <div>
                     <h2>Dashboard</h2>
 
-                    <div class="creator-credit">
-                        Created by ABU MAHTAB RAUSHAN
-                    </div>
                 </div>
 
             </div>
@@ -1425,9 +1449,6 @@ tbody tr:hover {
 
                     <h2>Students</h2>
 
-                    <div class="creator-credit">
-                        Created by ABU MAHTAB RAUSHAN
-                    </div>
 
                 </div>
 
