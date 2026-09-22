@@ -869,8 +869,12 @@ tbody tr:hover {
     font-weight:800;
   }
   /* Class Marks Folio: A4 landscape, with a clear 14pt table. */
+  .folio-print-mode,
+  .folio-print-mode .folio-print {
+    page:folio !important;
+  }
   .folio-print {
-    page:folio;
+    page:folio !important;
     width:100% !important;
     break-inside:auto !important;
     page-break-inside:auto !important;
@@ -4587,8 +4591,7 @@ async function printClassFolio(){
         const c=calcPrintRecord(r);
         return `<tr><td>${i+1}</td><td>${escapeHtml(r.roll_no??"")}</td><td class="name">${escapeHtml(r.students?.student_name||"")}</td>${printSubjects.map(s=>{let v;if(printExam.value==="Final"){v=(getPrintMark(r.id,s.id,"Half-Yearly")||0)+(getPrintMark(r.id,s.id,"Annual")||0);}else v=getPrintMark(r.id,s.id,printExam.value);return `<td>${v??""}</td>`}).join("")}<td>${c.total}</td><td>${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;
     }).join("");
-    const sortLabel=printSort?.selectedOptions?.[0]?.text || "Roll Number — Low to High";
-    openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th>Percentage</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table><div class="page-number">Students: ${printStudents.length} • Sorted: ${escapeHtml(sortLabel)}</div></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
+    openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th>Percentage</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
 }
 
 /* =========================================================
