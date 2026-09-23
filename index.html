@@ -1242,6 +1242,19 @@ tbody tr:hover {
 }
 @page folio { size:A4 portrait; margin:8mm; }
 </style>
+
+<style id="zebra-row-striping">
+/* Subtle zebra striping for on-screen student/marks tables only */
+#studentsTableContainer table tbody tr:nth-child(odd) td,
+#marksTableContainer table tbody tr:nth-child(odd) td {
+    background-color: #ffffff;
+}
+#studentsTableContainer table tbody tr:nth-child(even) td,
+#marksTableContainer table tbody tr:nth-child(even) td {
+    background-color: #f3f8fc;
+}
+</style>
+
 </head>
 
 <body>
