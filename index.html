@@ -883,8 +883,8 @@ tbody tr:hover {
 
   /* Marks Folio subject headers: rotate the whole subject name, keep 50 horizontal below it. */
   .folio-print .result-table th.folio-subject-head {
-    height:104px;
-    min-height:104px;
+    height:138px;
+    min-height:138px;
     padding:3px 2px;
     overflow:hidden;
     text-align:center;
@@ -892,7 +892,7 @@ tbody tr:hover {
     white-space:nowrap;
   }
   .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap {
-    height:76px;
+    height:112px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -915,7 +915,7 @@ tbody tr:hover {
   }
   .folio-print .result-table th.folio-subject-head small {
     display:block;
-    height:20px;
+    height:22px;
     font-size:16pt;
     line-height:1;
     margin:2px auto 0;
@@ -964,7 +964,7 @@ tbody tr:hover {
   .folio-print .result-table th:nth-child(10),
   .folio-print .result-table td:nth-child(10) { min-width:14mm; width:14mm; }
   .folio-print .result-table th:last-child,
-  .folio-print .result-table td:last-child { min-width:13mm; width:13mm; }
+  .folio-print .result-table td:last-child { min-width:16mm; width:16mm; }
   .folio-print {
     page:folio !important;
     width:100% !important;
@@ -4344,7 +4344,7 @@ async function autoFitFolioTable(table){
     }
     if(c===2) weights[c]=Math.max(18,Math.min(maxLen+2,30));
     else if(c===cols-2) weights[c]=12;
-    else if(c===cols-1) weights[c]=9;
+    else if(c===cols-1) weights[c]=12;
     else if(c===cols-3) weights[c]=10;
     else if(c<3) weights[c]=c===0?5:c===1?6:20;
     else weights[c]=Math.max(5,Math.min(maxLen+2,8));
