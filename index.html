@@ -2415,6 +2415,65 @@ tbody tr:hover {
 <div id="printDocumentHost"></div>
 
 
+<!-- =========================================================
+     RECYCLE BIN PASSWORD MODAL
+========================================================= -->
+
+<div
+    id="recycleBinPasswordModal"
+    class="modal-overlay hidden">
+
+    <div class="modal recycle-bin-password-box">
+
+        <div class="modal-header">
+            <h3>Permanently Delete</h3>
+
+            <button
+                id="closeRecycleBinPasswordModal"
+                class="modal-close">
+                ×
+            </button>
+        </div>
+
+        <div class="modal-body">
+
+            <p style="color:#4b5563;line-height:1.5;margin-bottom:14px;">
+                Enter the permanent deletion password to permanently remove the selected students.
+                This action cannot be undone.
+            </p>
+
+            <label for="recycleBinDeletePassword">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="recycleBinDeletePassword"
+                autocomplete="off"
+                placeholder="Enter password">
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                id="cancelRecycleBinPasswordButton"
+                class="btn btn-secondary">
+                Cancel
+            </button>
+
+            <button
+                id="confirmRecycleBinPasswordButton"
+                class="btn btn-danger">
+                OK
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
 <script>
 
 /* =========================================================
@@ -5873,8 +5932,6 @@ async function checkRecycleBinRestoreConflicts(selectedItems) {
                     type: "Class + Roll",
                     item,
                     existingName: existing.students?.student_name || "Unknown",
-                    classText: className(record.class_no),
-                    rollText: String(record.roll_no),
                     detail: `Class ${record.class_no}, Roll ${record.roll_no}`
                 });
                 break;
@@ -5885,48 +5942,8 @@ async function checkRecycleBinRestoreConflicts(selectedItems) {
     return conflicts;
 }
 
-function showRecycleBinConflictDialog(conflict) {
-    const existingName = escapeHtml(conflict.existingName || "Unknown");
-    const classText = escapeHtml(conflict.classText || "-");
-    const rollText = escapeHtml(conflict.rollText || "-");
-
-    const overlay = document.createElement("div");
-    overlay.className = "modal-overlay";
-    overlay.style.zIndex = "1200";
-
-    overlay.innerHTML = `
-        <div class="modal" style="max-width:460px;">
-            <div class="modal-header">
-                <h3>Cannot Restore Student</h3>
-                <button type="button" class="modal-close" aria-label="Close">&times;</button>
-            </div>
-
-            <div class="modal-body">
-                <p style="margin-bottom:18px;color:#374151;line-height:1.55;">
-                    This student cannot be restored because the same class and roll number is already assigned to another student.
-                </p>
-
-                <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:16px;line-height:1.8;">
-                    <div><strong>Name:</strong> ${existingName}</div>
-                    <div><strong>Class:</strong> ${classText}</div>
-                    <div><strong>Roll:</strong> ${rollText}</div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary recycle-conflict-close">OK</button>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    const close = () => overlay.remove();
-    overlay.querySelector(".modal-close").addEventListener("click", close);
-    overlay.querySelector(".recycle-conflict-close").addEventListener("click", close);
-    overlay.addEventListener("click", event => {
-        if (event.target === overlay) close();
-    });
+function formatRecycleBinConflict(conflict) {
+    return `This student cannot be restored because ${conflict.detail} is already assigned to another student.\n\nExisting student: ${conflict.existingName}\nDeleted student: ${conflict.item.student_name}`;
 }
 
 async function restoreSelectedRecycleBin() {
@@ -5965,7 +5982,10 @@ async function restoreSelectedRecycleBin() {
         const conflicts = await checkRecycleBinRestoreConflicts(selectedItems);
 
         if (conflicts.length) {
-            showRecycleBinConflictDialog(conflicts[0]);
+            showToast(
+                formatRecycleBinConflict(conflicts[0]),
+                "error"
+            );
             return;
         }
 
@@ -6533,64 +6553,7 @@ initializeApplication();
 
 
 
-<!-- =========================================================
-     RECYCLE BIN PASSWORD MODAL
-========================================================= -->
 
-<div
-    id="recycleBinPasswordModal"
-    class="modal-overlay hidden">
-
-    <div class="modal recycle-bin-password-box">
-
-        <div class="modal-header">
-            <h3>Permanently Delete</h3>
-
-            <button
-                id="closeRecycleBinPasswordModal"
-                class="modal-close">
-                ×
-            </button>
-        </div>
-
-        <div class="modal-body">
-
-            <p style="color:#4b5563;line-height:1.5;margin-bottom:14px;">
-                Enter the permanent deletion password to permanently remove the selected students.
-                This action cannot be undone.
-            </p>
-
-            <label for="recycleBinDeletePassword">
-                Password
-            </label>
-
-            <input
-                type="password"
-                id="recycleBinDeletePassword"
-                autocomplete="off"
-                placeholder="Enter password">
-
-        </div>
-
-        <div class="modal-footer">
-
-            <button
-                id="cancelRecycleBinPasswordButton"
-                class="btn btn-secondary">
-                Cancel
-            </button>
-
-            <button
-                id="confirmRecycleBinPasswordButton"
-                class="btn btn-danger">
-                Permanently Delete
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
 
 </body>
 </html>
