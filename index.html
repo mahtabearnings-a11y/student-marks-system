@@ -1721,16 +1721,6 @@ tbody tr:hover {
                 </div>
             </div>
 
-            <div class="card">
-                <div class="table-top">
-                    <div id="marksRecordCount" class="record-count">Select a session and class.</div>
-                    <button id="saveMarksButton" class="btn btn-primary">Save All Marks</button>
-                </div>
-                <div id="marksTableContainer" class="marks-grid-wrapper">
-                    <div class="empty-state">Select a session and class to load marks.</div>
-                </div>
-            </div>
-
             <div class="card" style="margin-top:15px">
                 <h3 style="color:#123b73;margin-bottom:12px">Individual Student Result</h3>
                 <div class="print-controls" style="grid-template-columns:1fr 1fr 1.4fr">
@@ -1758,6 +1748,16 @@ tbody tr:hover {
                 <p id="printClassInfo" class="record-count">Select session, class and examination.</p>
                 <div class="print-actions">
                     <button id="printClassFolioButton" class="btn btn-primary">Print Class Marks Folio</button>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:15px">
+                <div class="table-top">
+                    <div id="marksRecordCount" class="record-count">Select a session and class.</div>
+                    <button id="saveMarksButton" class="btn btn-primary">Save All Marks</button>
+                </div>
+                <div id="marksTableContainer" class="marks-grid-wrapper">
+                    <div class="empty-state">Select a session and class to load marks.</div>
                 </div>
             </div>
 
@@ -4607,9 +4607,6 @@ document
     );
 
 
-if (printSession) printSession.addEventListener("change", loadPrintData);
-if (printClass) printClass.addEventListener("change", loadPrintData);
-if (printExam) printExam.addEventListener("change", loadPrintData);
 if (printStudentSearch) printStudentSearch.addEventListener("input", filterPrintStudents);
 if (printStudentSelect) printStudentSelect.addEventListener("change", renderSelectedPrintStudent);
 if (printStudentButton) printStudentButton.addEventListener("click", printOneStudent);
