@@ -1376,14 +1376,6 @@ tbody tr:hover {
 
         <button
             class="nav-btn"
-            data-section="reports">
-
-            Print
-
-        </button>
-
-        <button
-            class="nav-btn"
             data-section="backup">
 
             Backup
@@ -1681,9 +1673,9 @@ tbody tr:hover {
 
             <div class="page-header">
                 <div>
-                    <h2>Marks Entry</h2>
+                    <h2>Marks</h2>
                     <div class="creator-credit">
-                        Enter and save examination marks
+                        Enter, view, arrange and print examination marks
                     </div>
                 </div>
             </div>
@@ -1716,14 +1708,14 @@ tbody tr:hover {
                         </select>
                     </div>
                     <div class="filter-item">
-                        <label for="marksSort">Sort Students By</label>
+                        <label for="marksSort">Arrange</label>
                         <select id="marksSort">
                             <option value="roll_asc">Roll Number — Low to High</option>
                             <option value="roll_desc">Roll Number — High to Low</option>
                             <option value="name_asc">Name — A to Z</option>
                             <option value="name_desc">Name — Z to A</option>
-                            <option value="marks_desc">Marks — Highest to Lowest</option>
-                            <option value="marks_asc">Marks — Lowest to Highest</option>
+                            <option value="marks_desc">Total Marks — High to Low</option>
+                            <option value="marks_asc">Total Marks — Low to High</option>
                         </select>
                     </div>
                 </div>
@@ -1736,6 +1728,36 @@ tbody tr:hover {
                 </div>
                 <div id="marksTableContainer" class="marks-grid-wrapper">
                     <div class="empty-state">Select a session and class to load marks.</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:15px">
+                <h3 style="color:#123b73;margin-bottom:12px">Individual Student Result</h3>
+                <div class="print-controls" style="grid-template-columns:1fr 1fr 1.4fr">
+                    <div class="filter-item">
+                        <label for="printStudentSearch">Search Student</label>
+                        <input id="printStudentSearch" type="text" placeholder="Student ID / Name / Roll">
+                    </div>
+                    <div class="filter-item">
+                        <label for="printStudentSelect">Select Student</label>
+                        <select id="printStudentSelect"><option value="">Search and select a student</option></select>
+                    </div>
+                    <div class="filter-item">
+                        <label>Selected Student</label>
+                        <div id="printStudentInfo" class="print-student-preview">No student selected.</div>
+                    </div>
+                </div>
+                <div class="print-actions">
+                    <button id="printStudentButton" class="btn btn-primary">Print Student Result</button>
+                    <button id="printAllStudentsButton" class="btn btn-secondary">Print All Students Individually</button>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:15px">
+                <h3 style="color:#123b73;margin-bottom:12px">Class Marks Folio</h3>
+                <p id="printClassInfo" class="record-count">Select session, class and examination.</p>
+                <div class="print-actions">
+                    <button id="printClassFolioButton" class="btn btn-primary">Print Class Marks Folio</button>
                 </div>
             </div>
 
@@ -1882,76 +1904,6 @@ tbody tr:hover {
                     <strong>Important:</strong> Confirming promotion creates new academic records for the selected students. Previous session records, marks and attendance are not changed or deleted.
                 </div>
             </div>
-        </section>
-
-
-        <section
-            id="reportsSection"
-            class="app-section hidden">
-
-            <div class="page-header">
-                <div>
-                    <h2>Print</h2>
-                    <div class="creator-credit">Student result and class marks printing</div>
-                </div>
-            </div>
-
-            <div class="card filter-card">
-                <div class="print-controls">
-                    <div class="filter-item">
-                        <label for="printSession">Academic Session</label>
-                        <select id="printSession"></select>
-                    </div>
-                    <div class="filter-item">
-                        <label for="printClass">Class</label>
-                        <select id="printClass">
-                            <option value="1">Class I</option><option value="2">Class II</option>
-                            <option value="3">Class III</option><option value="4">Class IV</option>
-                            <option value="5">Class V</option><option value="6">Class VI</option>
-                            <option value="7">Class VII</option><option value="8">Class VIII</option>
-                        </select>
-                    </div>
-                    <div class="filter-item">
-                        <label for="printExam">Examination</label>
-                        <select id="printExam">
-                            <option value="Half-Yearly">Half-Yearly</option>
-                            <option value="Annual">Annual</option>
-                            <option value="Final">Final</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3 style="color:#123b73;margin-bottom:12px">Individual Student Result</h3>
-                <div class="print-controls" style="grid-template-columns:1fr 1fr 1.4fr">
-                    <div class="filter-item">
-                        <label for="printStudentSearch">Search Student</label>
-                        <input id="printStudentSearch" type="text" placeholder="Student ID / Name / Roll">
-                    </div>
-                    <div class="filter-item">
-                        <label for="printStudentSelect">Select Student</label>
-                        <select id="printStudentSelect"><option value="">Search and select a student</option></select>
-                    </div>
-                    <div class="filter-item">
-                        <label>Selected Student</label>
-                        <div id="printStudentInfo" class="print-student-preview">No student selected.</div>
-                    </div>
-                </div>
-                <div class="print-actions">
-                    <button id="printStudentButton" class="btn btn-primary">Print Student Result</button>
-                    <button id="printAllStudentsButton" class="btn btn-secondary">Print All Students Individually</button>
-                </div>
-            </div>
-
-            <div class="card" style="margin-top:15px">
-                <h3 style="color:#123b73;margin-bottom:12px">Class Marks Folio</h3>
-                <p id="printClassInfo" class="record-count">Select session, class and examination.</p>
-                <div class="print-actions">
-                    <button id="printClassFolioButton" class="btn btn-primary">Print Class Marks Folio</button>
-                </div>
-            </div>
-
         </section>
 
         <section
@@ -2486,9 +2438,9 @@ const closeHistoryButton =
 const toast =
     document.getElementById("toast");
 
-const printSession = document.getElementById("printSession");
-const printClass = document.getElementById("printClass");
-const printExam = document.getElementById("printExam");
+const printSession = marksSession;
+const printClass = marksClass;
+const printExam = marksExam;
 const printStudentSearch = document.getElementById("printStudentSearch");
 const printStudentSelect = document.getElementById("printStudentSelect");
 const printStudentInfo = document.getElementById("printStudentInfo");
@@ -3664,7 +3616,7 @@ async function loadMarksGrid() {
         .from("academic_records")
         .select(`
             id, session_id, student_profile_id, class_no, roll_no, status,
-            students ( id, student_id, student_name )
+            students ( id, student_id, apaar_id, student_name, father_name, mother_name, date_of_birth, gender )
         `)
         .eq("session_id", sessionId)
         .eq("class_no", classNo)
@@ -3698,6 +3650,7 @@ async function loadMarksGrid() {
         });
     }
 
+    syncPrintDataFromMarks();
     renderMarksGrid();
     marksLoading = false;
 }
@@ -3873,7 +3826,7 @@ async function saveMarks() {
 if (marksSession) marksSession.addEventListener("change", loadMarksGrid);
 if (marksClass) marksClass.addEventListener("change", loadMarksGrid);
 if (marksExam) marksExam.addEventListener("change", loadMarksGrid);
-if (marksSort) marksSort.addEventListener("change", renderMarksGrid);
+if (marksSort) marksSort.addEventListener("change", () => { renderMarksGrid(); filterPrintStudents(); });
 if (saveMarksButton) saveMarksButton.addEventListener("click", saveMarks);
 
 /* =========================================================
@@ -4191,7 +4144,6 @@ function showSection(section) {
     if (target) target.classList.remove("hidden");
     if (section === "students") loadStudents();
     if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
-    if (section === "reports") loadPrintData();
     if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
 }
 
@@ -4210,30 +4162,23 @@ function printClassName(n){ return className(Number(n)); }
 
 function printGrade(p){ return gradeFromPercentage(p); }
 
-async function loadPrintData() {
-    if (!printSession || !printClass || !printExam) return;
-    populatePrintSessions();
-    const sessionId = Number(printSession.value);
-    const classNo = Number(printClass.value);
-    if (!sessionId || !classNo) return;
-    const {data: subjects, error: se} = await supabaseClient.from("subjects").select("id,subject_name,display_order").eq("class_no",classNo).order("display_order",{ascending:true});
-    if (se) { showToast("Unable to load subjects: " + se.message,"error"); return; }
-    printSubjects = subjects || [];
-    const {data: records,error:re} = await supabaseClient.from("academic_records").select("id,student_profile_id,class_no,roll_no,status,students(id,student_id,apaar_id,student_name,father_name,mother_name,date_of_birth,gender)").eq("session_id",sessionId).eq("class_no",classNo).order("roll_no",{ascending:true});
-    if (re) { showToast("Unable to load students: " + re.message,"error"); return; }
-    printStudents = records || [];
-    const ids = printStudents.map(r=>r.id);
+function syncPrintDataFromMarks(){
+    if(!printSession || !printClass || !printExam) return;
+    printSubjects = marksSubjects || [];
+    printStudents = marksRecords || [];
     printMarks = {};
-    if (ids.length && printSubjects.length) {
-        const {data: rows,error:me} = await supabaseClient.from("exam_marks").select("academic_record_id,subject_id,examination,marks,full_marks").in("academic_record_id",ids).in("subject_id",printSubjects.map(s=>s.id));
-        if (me) { showToast("Unable to load marks: " + me.message,"error"); return; }
-        (rows||[]).forEach(m=> printMarks[`${m.academic_record_id}_${m.subject_id}_${m.examination}`]=m.marks);
-    }
+    Object.keys(marksValues || {}).forEach(key => { printMarks[key] = marksValues[key]; });
     filterPrintStudents();
     renderPrintClassInfo();
 }
 
-function getPrintMark(recordId,subjectId,exam){ const v=printMarks[`${recordId}_${subjectId}_${exam}`]; return v===null||v===undefined?null:Number(v); }
+function getPrintMark(recordId,subjectId,exam){
+    const key=`${recordId}_${subjectId}_${exam}`;
+    const live=marksValues?.[key];
+    if(live!==undefined) return live===null||live===""?null:Number(live);
+    const v=printMarks[key];
+    return v===null||v===undefined?null:Number(v);
+}
 function calcPrintRecord(record){
     let total=0, entered=0;
     printSubjects.forEach(s=>{
@@ -4250,7 +4195,7 @@ function calcPrintRecord(record){
 function filterPrintStudents(){
     if(!printStudentSelect) return;
     const q=(printStudentSearch.value||"").trim().toLowerCase();
-    const list=printStudents.filter(r=>{
+    const list=getPrintSortedStudents().filter(r=>{
         const s=r.students||{};
         return !q ||
             String(s.student_id||"").toLowerCase().includes(q) ||
@@ -4319,6 +4264,23 @@ function openPrint(html, suggestedFileName="Student Marks Result"){
     window.print();
 }
 window.addEventListener("afterprint",()=>{ if(printTitleBeforeJob!==""){ document.title=printTitleBeforeJob; printTitleBeforeJob=""; } });
+function getPrintSortedStudents(){
+    const list=[...(printStudents||[])];
+    const mode=marksSort?.value||"roll_asc";
+    return list.sort((a,b)=>{
+        const rollA=Number(a.roll_no??999999), rollB=Number(b.roll_no??999999);
+        const nameA=String(a.students?.student_name||""), nameB=String(b.students?.student_name||"");
+        if(mode==="roll_desc") return rollB-rollA || nameA.localeCompare(nameB,undefined,{sensitivity:"base"});
+        if(mode==="name_asc") return nameA.localeCompare(nameB,undefined,{sensitivity:"base"}) || rollA-rollB;
+        if(mode==="name_desc") return nameB.localeCompare(nameA,undefined,{sensitivity:"base"}) || rollA-rollB;
+        if(mode==="marks_desc" || mode==="marks_asc"){
+            const totalA=calcPrintRecord(a).total, totalB=calcPrintRecord(b).total;
+            return mode==="marks_desc" ? (totalB-totalA || rollA-rollB) : (totalA-totalB || rollA-rollB);
+        }
+        return rollA-rollB || nameA.localeCompare(nameB,undefined,{sensitivity:"base"});
+    });
+}
+
 function printOneStudent(){
     const r=printStudents.find(x=>String(x.id)===String(printStudentSelect.value));
     if(!r){showToast("Please select a student.","error");return;}
@@ -4327,9 +4289,10 @@ function printOneStudent(){
 }
 function printAllStudents(){
     if(!printStudents.length){showToast("No students found.","error");return;}
-    const total=printStudents.length;
+    const ordered=getPrintSortedStudents();
+    const total=ordered.length;
     const classLabel=printClassName(Number(printClass.value));
-    openPrint(printStudents.map((r,i)=>resultHtml(r,i+1,total)).join(""), `${classLabel} ${printExam.value} Results`);
+    openPrint(ordered.map((r,i)=>resultHtml(r,i+1,total)).join(""), `${classLabel} ${printExam.value} Results`);
 }
 async function autoFitFolioTable(table){
   if(!table) return;
@@ -4362,7 +4325,7 @@ async function autoFitFolioTable(table){
 
 function printClassFolio(){
     if(!printStudents.length){showToast("No students found.","error");return;}
-    const ranked=[...printStudents].sort((a,b)=>Number(a.roll_no??999999)-Number(b.roll_no??999999));
+    const ranked=getPrintSortedStudents();
     const heads=printSubjects.map(s=>`<th class="folio-subject-head"><div class="folio-subject-name-wrap"><span class="folio-subject-name">${escapeHtml(s.subject_name)}</span></div><small>${printExam.value==="Final"?100:50}</small></th>`).join("");
     const rows=ranked.map((r,i)=>{const c=calcPrintRecord(r);return `<tr><td>${i+1}</td><td>${escapeHtml(r.roll_no??"")}</td><td class="name">${escapeHtml(r.students?.student_name||"")}</td>${printSubjects.map(s=>{let v;if(printExam.value==="Final"){v=(getPrintMark(r.id,s.id,"Half-Yearly")||0)+(getPrintMark(r.id,s.id,"Annual")||0);}else v=getPrintMark(r.id,s.id,printExam.value);return `<td>${v??""}</td>`}).join("")}<td>${c.total}</td><td class="percentage-cell">${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;}).join("");
     openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th class="percentage-head">%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
@@ -4617,7 +4580,6 @@ function showSection(section) {
     if (target) target.classList.remove("hidden");
     if (section === "students") loadStudents();
     if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
-    if (section === "reports") loadPrintData();
     if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
     if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); }
 }
