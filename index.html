@@ -866,7 +866,7 @@ tbody tr:hover {
     width:100% !important;
     min-width:0 !important;
     max-width:100% !important;
-    table-layout:fixed !important;
+    table-layout:auto !important;
     font-size:14pt;
   }
   .folio-print .result-table th,
@@ -880,31 +880,42 @@ tbody tr:hover {
   }
   .folio-print .result-table th { font-size:16pt; }
   .folio-print .result-table td { font-size:14pt; }
+
+  /* Marks Folio subject headers: rotate the whole subject name, keep 50 horizontal below it. */
   .folio-print .result-table th.folio-subject-head {
-    height:92px;
-    min-height:92px;
+    height:104px;
+    min-height:104px;
     padding:3px 2px;
     overflow:hidden;
     text-align:center;
-    vertical-align:bottom;
+    vertical-align:middle;
+    white-space:nowrap;
   }
-  .folio-print .result-table th.folio-subject-head > .folio-subject-name {
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap {
+    height:76px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:visible;
+  }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap > .folio-subject-name {
     display:inline-block;
+    width:max-content;
+    height:auto;
     white-space:nowrap;
     writing-mode:horizontal-tb;
     transform:rotate(-90deg);
     -webkit-transform:rotate(-90deg);
     transform-origin:center center;
     line-height:1;
-    width:78px;
-    height:24px;
-    margin:0 auto 2px;
+    margin:0;
     text-align:center;
     font-size:16pt;
     font-weight:700;
   }
   .folio-print .result-table th.folio-subject-head small {
     display:block;
+    height:20px;
     font-size:16pt;
     line-height:1;
     margin:2px auto 0;
@@ -923,6 +934,7 @@ tbody tr:hover {
     white-space:normal;
     overflow-wrap:anywhere;
     word-break:normal;
+    min-width:42mm;
   }
   .folio-print .result-table th.percentage-head,
   .folio-print .result-table td.percentage-cell {
@@ -931,6 +943,28 @@ tbody tr:hover {
     white-space:nowrap;
     overflow-wrap:normal;
   }
+  .folio-print .result-table th:nth-child(1),
+  .folio-print .result-table td:nth-child(1) { min-width:9mm; width:9mm; }
+  .folio-print .result-table th:nth-child(2),
+  .folio-print .result-table td:nth-child(2) { min-width:11mm; width:11mm; }
+  .folio-print .result-table th:nth-child(4),
+  .folio-print .result-table th:nth-child(5),
+  .folio-print .result-table th:nth-child(6),
+  .folio-print .result-table th:nth-child(7),
+  .folio-print .result-table th:nth-child(8),
+  .folio-print .result-table th:nth-child(9),
+  .folio-print .result-table td:nth-child(4),
+  .folio-print .result-table td:nth-child(5),
+  .folio-print .result-table td:nth-child(6),
+  .folio-print .result-table td:nth-child(7),
+  .folio-print .result-table td:nth-child(8),
+  .folio-print .result-table td:nth-child(9) {
+    min-width:9mm;
+  }
+  .folio-print .result-table th:nth-child(10),
+  .folio-print .result-table td:nth-child(10) { min-width:14mm; width:14mm; }
+  .folio-print .result-table th:last-child,
+  .folio-print .result-table td:last-child { min-width:13mm; width:13mm; }
   .folio-print {
     page:folio !important;
     width:100% !important;
@@ -1193,16 +1227,17 @@ tbody tr:hover {
   .rank-box span { display:block; font-size:12pt; font-weight:700; letter-spacing:.5px; }
   .rank-box strong { display:block; font-size:18pt; }
   .folio-print { page:folio !important; }
-  .folio-print .result-table { width:100% !important; max-width:100% !important; table-layout:fixed !important; font-size:14pt !important; }
+  .folio-print .result-table { width:100% !important; max-width:100% !important; table-layout:auto !important; font-size:14pt !important; }
   .folio-print .result-table th { font-size:16pt !important; }
   .folio-print .result-table td { font-size:14pt !important; }
-  .folio-print .result-table th.folio-subject-head > .folio-subject-name { display:inline-block !important; white-space:nowrap !important; writing-mode:horizontal-tb !important; transform:rotate(-90deg) !important; -webkit-transform:rotate(-90deg) !important; }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap { display:flex !important; align-items:center !important; justify-content:center !important; height:76px !important; }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap > .folio-subject-name { display:inline-block !important; width:max-content !important; height:auto !important; white-space:nowrap !important; writing-mode:horizontal-tb !important; transform:rotate(-90deg) !important; -webkit-transform:rotate(-90deg) !important; }
   .folio-print .result-table th.folio-subject-head small { writing-mode:horizontal-tb !important; transform:none !important; -webkit-transform:none !important; white-space:nowrap !important; }
   .folio-print .result-table th, .folio-print .result-table td { overflow-wrap:anywhere; word-break:normal; }
-  .folio-print .result-table th.percentage-head, .folio-print .result-table td.percentage-cell { white-space:nowrap !important; overflow-wrap:normal !important; }
+  .folio-print .result-table th.percentage-head, .folio-print .result-table td.percentage-cell { white-space:nowrap !important; overflow-wrap:normal !important; min-width:20mm !important; width:20mm !important; }
   .folio-print .page-number { display:none !important; }
 }
-@page folio { size:A4 landscape; margin:8mm; }
+@page folio { size:A4 portrait; margin:8mm; }
 </style>
 </head>
 
@@ -4325,7 +4360,7 @@ async function autoFitFolioTable(table){
 function printClassFolio(){
     if(!printStudents.length){showToast("No students found.","error");return;}
     const ranked=[...printStudents].sort((a,b)=>Number(a.roll_no??999999)-Number(b.roll_no??999999));
-    const heads=printSubjects.map(s=>`<th class="folio-subject-head"><span class="folio-subject-name">${escapeHtml(s.subject_name)}</span><small>${printExam.value==="Final"?100:50}</small></th>`).join("");
+    const heads=printSubjects.map(s=>`<th class="folio-subject-head"><div class="folio-subject-name-wrap"><span class="folio-subject-name">${escapeHtml(s.subject_name)}</span></div><small>${printExam.value==="Final"?100:50}</small></th>`).join("");
     const rows=ranked.map((r,i)=>{const c=calcPrintRecord(r);return `<tr><td>${i+1}</td><td>${escapeHtml(r.roll_no??"")}</td><td class="name">${escapeHtml(r.students?.student_name||"")}</td>${printSubjects.map(s=>{let v;if(printExam.value==="Final"){v=(getPrintMark(r.id,s.id,"Half-Yearly")||0)+(getPrintMark(r.id,s.id,"Annual")||0);}else v=getPrintMark(r.id,s.id,printExam.value);return `<td>${v??""}</td>`}).join("")}<td>${c.total}</td><td class="percentage-cell">${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;}).join("");
     openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th class="percentage-head">%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
 }
