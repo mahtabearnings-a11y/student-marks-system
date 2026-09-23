@@ -822,7 +822,7 @@ tbody tr:hover {
     color:#111;
   }
   @page { size:A4 portrait; margin:12mm; }
-  @page folio { size:A4 landscape; margin:10mm; }
+  @page folio { size:A4 portrait; margin:8mm; }
   .result-page {
     page-break-after:auto !important;
     break-after:auto !important;
@@ -865,63 +865,54 @@ tbody tr:hover {
   .folio-print .result-table {
     width:100% !important;
     min-width:0 !important;
-    table-layout:fixed;
-    font-size:9pt;
-  }
-  .folio-print .result-table th,
-  .folio-print .result-table td {
-    padding:4px 3px;
-    line-height:1.1;
-  }
-  /* Folio: let the table fit the printable A4 width without pushing data off-page. */
-  .folio-print .result-table {
-    width:100% !important;
-    min-width:0 !important;
     max-width:100% !important;
     table-layout:fixed !important;
-    font-size:9pt;
+    font-size:14pt;
   }
   .folio-print .result-table th,
   .folio-print .result-table td {
     box-sizing:border-box;
-    overflow:hidden;
-  }
-  .folio-print .result-table th.folio-subject-head {
-    height:38px;
-    padding:4px 2px;
+    padding:4px 3px;
+    line-height:1.12;
+    overflow-wrap:anywhere;
+    word-break:normal;
     vertical-align:middle;
+  }
+  .folio-print .result-table th { font-size:16pt; }
+  .folio-print .result-table td { font-size:14pt; }
+  .folio-print .result-table th.folio-subject-head {
+    height:92px;
+    min-height:92px;
+    padding:3px 2px;
     overflow:hidden;
     text-align:center;
+    vertical-align:bottom;
   }
-  /* Folio subject headings stay horizontal and upright (rotation 0). */
-  .folio-print .result-table th.folio-subject-head > span {
-    display:block;
-    white-space:normal;
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name {
+    display:inline-block;
+    white-space:nowrap;
     writing-mode:horizontal-tb;
-    transform:none;
-    line-height:1.05;
-    height:auto;
-    max-width:100%;
+    transform:rotate(-90deg);
+    -webkit-transform:rotate(-90deg);
+    transform-origin:center center;
+    line-height:1;
+    width:78px;
+    height:24px;
+    margin:0 auto 2px;
     text-align:center;
+    font-size:16pt;
+    font-weight:700;
   }
   .folio-print .result-table th.folio-subject-head small {
     display:block;
     font-size:16pt;
-    margin-top:2px;
+    line-height:1;
+    margin:2px auto 0;
+    white-space:nowrap;
+    writing-mode:horizontal-tb;
+    transform:none;
+    -webkit-transform:none;
   }
-  .folio-print .result-table th:nth-child(1) { width:30px; }
-  .folio-print .result-table th:nth-child(2) { width:36px; }
-  .folio-print .result-table th:nth-child(3) { width:86px; }
-  .folio-print .result-table th:nth-last-child(3) { width:46px; }
-  .folio-print .result-table th:nth-last-child(2) { width:46px; }
-  .folio-print .result-table th:last-child { width:46px; }
-  .folio-print .result-table td.name {
-    text-align:left;
-    white-space:normal;
-    overflow-wrap:anywhere;
-    word-break:normal;
-  }
-  /* Keep the non-subject headings readable and contained. */
   .folio-print .result-table thead th:not(.folio-subject-head) {
     white-space:normal;
     line-height:1.05;
@@ -931,32 +922,18 @@ tbody tr:hover {
     text-align:left;
     white-space:normal;
     overflow-wrap:anywhere;
+    word-break:normal;
   }
-  /* Class Marks Folio: A4 landscape with completely upright subject headings. */
+  .folio-print .result-table th.percentage-head,
+  .folio-print .result-table td.percentage-cell {
+    min-width:20mm;
+    width:20mm;
+    white-space:nowrap;
+    overflow-wrap:normal;
+  }
   .folio-print {
-    page: folio !important;
+    page:folio !important;
     width:100% !important;
-  }
-  .folio-print .result-table th.folio-subject-head,
-  .folio-print .result-table th.folio-subject-head > span,
-  .folio-print .result-table th.folio-subject-head small {
-    writing-mode: horizontal-tb !important;
-    text-orientation: mixed !important;
-    transform: rotate(0deg) !important;
-    -webkit-transform: rotate(0deg) !important;
-    direction: ltr !important;
-  }
-  .folio-print .result-table th.folio-subject-head > span {
-    display:block !important;
-    width:100% !important;
-    height:auto !important;
-    white-space:normal !important;
-    line-height:1.05 !important;
-  }
-  .folio-print .result-table th.folio-subject-head {
-    height:auto !important;
-    min-height:38px !important;
-    vertical-align:middle !important;
   }
 
   .attendance-print-table {
@@ -1216,14 +1193,13 @@ tbody tr:hover {
   .rank-box span { display:block; font-size:12pt; font-weight:700; letter-spacing:.5px; }
   .rank-box strong { display:block; font-size:18pt; }
   .folio-print { page:folio !important; }
-  .folio-print .result-table { width:100% !important; max-width:100% !important; table-layout:auto !important; font-size:14pt !important; }
+  .folio-print .result-table { width:100% !important; max-width:100% !important; table-layout:fixed !important; font-size:14pt !important; }
   .folio-print .result-table th { font-size:16pt !important; }
   .folio-print .result-table td { font-size:14pt !important; }
-  .folio-print .result-table th.folio-subject-head > span,
-  .folio-print .result-table th.folio-subject-head,
-  .folio-print .result-table th.folio-subject-head small { writing-mode:horizontal-tb !important; transform:rotate(0deg) !important; -webkit-transform:rotate(0deg) !important; }
-  .folio-print .result-table th.folio-subject-head > span { display:block !important; white-space:normal !important; height:auto !important; font-size:16pt !important; }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name { display:inline-block !important; white-space:nowrap !important; writing-mode:horizontal-tb !important; transform:rotate(-90deg) !important; -webkit-transform:rotate(-90deg) !important; }
+  .folio-print .result-table th.folio-subject-head small { writing-mode:horizontal-tb !important; transform:none !important; -webkit-transform:none !important; white-space:nowrap !important; }
   .folio-print .result-table th, .folio-print .result-table td { overflow-wrap:anywhere; word-break:normal; }
+  .folio-print .result-table th.percentage-head, .folio-print .result-table td.percentage-cell { white-space:nowrap !important; overflow-wrap:normal !important; }
   .folio-print .page-number { display:none !important; }
 }
 @page folio { size:A4 landscape; margin:8mm; }
@@ -4272,26 +4248,27 @@ function renderPrintClassInfo(){ printClassInfo.textContent=`${printStudents.len
 function resultHtml(record,pageNo,totalPages){
     const s=record.students||{}, c=calcPrintRecord(record);
     const isFinal=printExam.value==="Final";
-    const markHeader=isFinal
-        ? `<th>Half-Yearly / 50</th><th>Annual / 50</th><th>Final / 100</th><th>Full Marks</th>`
-        : `<th>${escapeHtml(printExam.value)} / 50</th><th>Full Marks</th>`;
+    if(!isFinal){
+        const rows=printSubjects.map(sub=>{
+            const v=getPrintMark(record.id,sub.id,printExam.value);
+            return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${v??""}</td><td>50</td></tr>`;
+        }).join("");
+        const summaryRows=`
+          <tr class="result-total-row"><th style="text-align:left;">Total</th><td>${c.total}</td><td>${c.max}</td></tr>
+          <tr class="result-total-row"><th style="text-align:left;">Percentage</th><td colspan="2">${c.pct.toFixed(2)}%</td></tr>
+          <tr class="result-total-row"><th style="text-align:left;">Grade</th><td colspan="2">${escapeHtml(c.grade)}</td></tr>`;
+        const tableHeader=`<tr><th>Subject</th><th>${escapeHtml(printExam.value)} / 50</th><th>Full Marks</th></tr>`;
+        return `<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Student Result</h2><div class="small">Muzaffarpur, Bihar • Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")}</div><div class="small">${escapeHtml(printExam.value)} Examination</div></div><div class="result-info"><div><b>PEN / Student ID:</b> ${escapeHtml(s.student_id||"")}</div><div><b>APAAR ID:</b> ${escapeHtml(s.apaar_id||"")}</div><div><b>Class:</b> ${escapeHtml(printClassName(record.class_no))}</div><div><b>Name:</b> ${escapeHtml(s.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(record.roll_no??"")}</div><div><b>Father's Name:</b> ${escapeHtml(s.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(s.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(s.date_of_birth||"")}</div></div><table class="result-table"><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table><div class="result-rank"><span class="rank-label">Class Rank</span><span class="rank-value">#${calcRank(record)}</span></div></div>`;
+    }
+    const markHeader=`<th>Half-Yearly / 50</th><th>Annual / 50</th><th>Final / 100</th><th>Full Marks</th>`;
     const rows=printSubjects.map(sub=>{
-        if(isFinal){
-            const hv=getPrintMark(record.id,sub.id,"Half-Yearly"), av=getPrintMark(record.id,sub.id,"Annual");
-            const finalMark=(hv===null && av===null) ? "" : (hv||0)+(av||0);
-            return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${hv??""}</td><td>${av??""}</td><td>${finalMark}</td><td>100</td><td></td><td></td><td></td></tr>`;
-        }
-        const v=getPrintMark(record.id,sub.id,printExam.value);
-        return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${v??""}</td><td>50</td><td></td><td></td><td></td></tr>`;
+        const hv=getPrintMark(record.id,sub.id,"Half-Yearly"), av=getPrintMark(record.id,sub.id,"Annual");
+        const finalMark=(hv===null && av===null) ? "" : (hv||0)+(av||0);
+        return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${hv??""}</td><td>${av??""}</td><td>${finalMark}</td><td>100</td><td></td><td></td><td></td></tr>`;
     }).join("");
-    const summaryRow=isFinal
-        ? `<tr class="result-total-row"><th colspan="4" style="text-align:right;">Total Marks</th><td>${c.total} / ${c.max}</td><td>${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`
-        : `<tr class="result-total-row"><th colspan="3" style="text-align:right;">Total Marks</th><td>${c.total} / ${c.max}</td><td>${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;
-    const tableHeader = isFinal
-        ? `<tr><th>Subject</th>${markHeader}<th>Total</th><th>Percentage</th><th>Grade</th></tr>`
-        : `<tr><th>Subject</th>${markHeader}<th>Total</th><th>Percentage</th><th>Grade</th></tr>`;
-    const adjustedRows = rows;
-    return `<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Student Result</h2><div class="small">Muzaffarpur, Bihar • Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")}</div><div class="small">${escapeHtml(printExam.value)} Examination</div></div><div class="result-info"><div><b>PEN / Student ID:</b> ${escapeHtml(s.student_id||"")}</div><div><b>APAAR ID:</b> ${escapeHtml(s.apaar_id||"")}</div><div><b>Class:</b> ${escapeHtml(printClassName(record.class_no))}</div><div><b>Name:</b> ${escapeHtml(s.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(record.roll_no??"")}</div><div><b>Father's Name:</b> ${escapeHtml(s.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(s.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(s.date_of_birth||"")}</div></div><table class="result-table"><thead>${tableHeader}</thead><tbody>${adjustedRows}${summaryRow}</tbody></table><div class="result-rank"><span class="rank-label">Class Rank</span><span class="rank-value">#${calcRank(record)}</span></div></div>`;
+    const summaryRow=`<tr class="result-total-row"><th colspan="4" style="text-align:right;">Total Marks</th><td>${c.total} / ${c.max}</td><td>${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;
+    const tableHeader=`<tr><th>Subject</th>${markHeader}<th>Total</th><th>Percentage</th><th>Grade</th></tr>`;
+    return `<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Student Result</h2><div class="small">Muzaffarpur, Bihar • Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")}</div><div class="small">Final Examination</div></div><div class="result-info"><div><b>PEN / Student ID:</b> ${escapeHtml(s.student_id||"")}</div><div><b>APAAR ID:</b> ${escapeHtml(s.apaar_id||"")}</div><div><b>Class:</b> ${escapeHtml(printClassName(record.class_no))}</div><div><b>Name:</b> ${escapeHtml(s.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(record.roll_no??"")}</div><div><b>Father's Name:</b> ${escapeHtml(s.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(s.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(s.date_of_birth||"")}</div></div><table class="result-table"><thead>${tableHeader}</thead><tbody>${rows}${summaryRow}</tbody></table><div class="result-rank"><span class="rank-label">Class Rank</span><span class="rank-value">#${calcRank(record)}</span></div></div>`;
 }
 function calcRank(record){ const ranked=printStudents.map(r=>({r,c:calcPrintRecord(r)})).sort((a,b)=>b.c.total-a.c.total||b.c.pct-a.c.pct||Number(a.r.roll_no??999999)-Number(b.r.roll_no??999999)); return ranked.findIndex(x=>x.r.id===record.id)+1; }
 let printTitleBeforeJob="";
@@ -4320,26 +4297,37 @@ async function autoFitFolioTable(table){
   if(!table) return;
   const rows=[...table.rows];
   if(!rows.length) return;
-  const cols=table.rows[0].cells.length;
+  const cols=rows[0].cells.length;
   const weights=new Array(cols).fill(1);
   for(let c=0;c<cols;c++){
     let maxLen=0;
-    for(const row of rows){ const cell=row.cells[c]; if(cell) maxLen=Math.max(maxLen,(cell.textContent||'').trim().length); }
-    weights[c]=Math.max(1,Math.min(maxLen,28));
+    for(const row of rows){
+      const cell=row.cells[c];
+      if(!cell) continue;
+      const text=(cell.textContent||"").replace(/\s+/g," ").trim();
+      maxLen=Math.max(maxLen,text.length);
+    }
+    if(c===2) weights[c]=Math.max(18,Math.min(maxLen+2,30));
+    else if(c===cols-2) weights[c]=12;
+    else if(c===cols-1) weights[c]=9;
+    else if(c===cols-3) weights[c]=10;
+    else if(c<3) weights[c]=c===0?5:c===1?6:20;
+    else weights[c]=Math.max(5,Math.min(maxLen+2,8));
   }
-  // Keep fixed minimums for narrow numeric columns and give long text more room.
-  const fixedMin={0:5,1:6,2:14};
-  for(let c=0;c<cols;c++) if(fixedMin[c]) weights[c]=Math.max(weights[c],fixedMin[c]);
+  const minPct=11;
+  weights[cols-2]=Math.max(weights[cols-2],minPct);
   const total=weights.reduce((a,b)=>a+b,0);
-  [...table.rows].forEach(row=>[...row.cells].forEach((cell,c)=>{ cell.style.width=((weights[c]/total)*100).toFixed(3)+'%'; }));
+  [...table.rows].forEach(row=>[...row.cells].forEach((cell,c)=>{
+    cell.style.width=((weights[c]/total)*100).toFixed(3)+"%";
+  }));
 }
 
 function printClassFolio(){
     if(!printStudents.length){showToast("No students found.","error");return;}
     const ranked=[...printStudents].sort((a,b)=>Number(a.roll_no??999999)-Number(b.roll_no??999999));
-    const heads=printSubjects.map(s=>`<th class="folio-subject-head"><span>${escapeHtml(s.subject_name)}<br><small>${printExam.value==="Final"?100:50}</small></span></th>`).join("");
-    const rows=ranked.map((r,i)=>{const c=calcPrintRecord(r);return `<tr><td>${i+1}</td><td>${escapeHtml(r.roll_no??"")}</td><td class="name">${escapeHtml(r.students?.student_name||"")}</td>${printSubjects.map(s=>{let v;if(printExam.value==="Final"){v=(getPrintMark(r.id,s.id,"Half-Yearly")||0)+(getPrintMark(r.id,s.id,"Annual")||0);}else v=getPrintMark(r.id,s.id,printExam.value);return `<td>${v??""}</td>`}).join("")}<td>${c.total}</td><td>${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;}).join("");
-    openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th>%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
+    const heads=printSubjects.map(s=>`<th class="folio-subject-head"><span class="folio-subject-name">${escapeHtml(s.subject_name)}</span><small>${printExam.value==="Final"?100:50}</small></th>`).join("");
+    const rows=ranked.map((r,i)=>{const c=calcPrintRecord(r);return `<tr><td>${i+1}</td><td>${escapeHtml(r.roll_no??"")}</td><td class="name">${escapeHtml(r.students?.student_name||"")}</td>${printSubjects.map(s=>{let v;if(printExam.value==="Final"){v=(getPrintMark(r.id,s.id,"Half-Yearly")||0)+(getPrintMark(r.id,s.id,"Annual")||0);}else v=getPrintMark(r.id,s.id,printExam.value);return `<td>${v??""}</td>`}).join("")}<td>${c.total}</td><td class="percentage-cell">${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;}).join("");
+    openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th class="percentage-head">%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
 }
 
 /* =========================================================
