@@ -5799,6 +5799,94 @@ async function loadRecycleBin() {
     }
 }
 
+async function checkRecycleBinRestoreConflicts(selectedItems) {
+    const conflicts = [];
+
+    for (const item of selectedItems) {
+        const snapshot = item.snapshot || {};
+        const student = snapshot.students || {};
+        const records = Array.isArray(snapshot.academic_records)
+            ? snapshot.academic_records
+            : [];
+
+        // 1. School Student ID conflict
+        if (student.student_id) {
+            const { data, error } = await supabaseClient
+                .from("students")
+                .select("id, student_name")
+                .eq("student_id", student.student_id)
+                .limit(1);
+
+            if (error) throw error;
+
+            if (data && data.length) {
+                conflicts.push({
+                    type: "Student ID",
+                    item,
+                    existingName: data[0].student_name || "Unknown",
+                    detail: student.student_id
+                });
+                continue;
+            }
+        }
+
+        // 2. APAAR ID conflict (only when the deleted student has one)
+        if (student.apaar_id) {
+            const { data, error } = await supabaseClient
+                .from("students")
+                .select("id, student_name")
+                .eq("apaar_id", student.apaar_id)
+                .limit(1);
+
+            if (error) throw error;
+
+            if (data && data.length) {
+                conflicts.push({
+                    type: "APAAR ID",
+                    item,
+                    existingName: data[0].student_name || "Unknown",
+                    detail: student.apaar_id
+                });
+                continue;
+            }
+        }
+
+        // 3. Class + Roll conflict in the same academic session
+        for (const record of records) {
+            if (record.roll_no === null || record.roll_no === undefined || record.roll_no === "") {
+                continue;
+            }
+
+            const { data, error } = await supabaseClient
+                .from("academic_records")
+                .select("id, student_profile_id, class_no, roll_no, students(student_name)")
+                .eq("session_id", record.session_id)
+                .eq("class_no", record.class_no)
+                .eq("roll_no", record.roll_no)
+                .limit(1);
+
+            if (error) throw error;
+
+            if (data && data.length) {
+                const existing = data[0];
+                conflicts.push({
+                    type: "Class + Roll",
+                    item,
+                    existingName: existing.students?.student_name || "Unknown",
+                    detail: `Class ${record.class_no}, Roll ${record.roll_no}`
+                });
+                break;
+            }
+        }
+    }
+
+    return conflicts;
+}
+
+function formatRecycleBinConflict(conflict) {
+    return `This student cannot be restored because ${conflict.detail} is already assigned to another student.\n\nExisting student: ${conflict.existingName}\nDeleted student: ${conflict.item.student_name}`;
+}
+
 async function restoreSelectedRecycleBin() {
     if (currentRole !== "admin") return;
 
@@ -5829,6 +5917,19 @@ async function restoreSelectedRecycleBin() {
     restoreRecycleBinButton.disabled = true;
 
     try {
+        // Preflight visible school-level identifiers before any restore occurs.
+        // If one selected student conflicts, stop the restore so the operation
+        // does not partially restore a multi-selection.
+        const conflicts = await checkRecycleBinRestoreConflicts(selectedItems);
+
+        if (conflicts.length) {
+            showToast(
+                formatRecycleBinConflict(conflicts[0]),
+                "error"
+            );
+            return;
+        }
+
         let restoredCount = 0;
 
         for (const id of ids) {
