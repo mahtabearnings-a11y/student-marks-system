@@ -1245,6 +1245,51 @@ tbody tr:hover {
 @page folio { size:A4 portrait; margin:8mm; }
 </style>
 
+<style id="recycle-bin-styles">
+.recycle-bin-actions {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+}
+.recycle-bin-select {
+    width:18px !important;
+    height:18px;
+    padding:0 !important;
+    accent-color:#2563eb;
+}
+.recycle-bin-table {
+    min-width:850px;
+}
+.recycle-bin-table th,
+.recycle-bin-table td {
+    vertical-align:middle;
+}
+.recycle-bin-status {
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:20px;
+    font-size:11px;
+    background:#f3f4f6;
+    color:#4b5563;
+}
+.recycle-bin-note {
+    margin-top:14px;
+    padding:12px 14px;
+    background:#fff7ed;
+    border-left:4px solid #f59e0b;
+    color:#6b4a12;
+    font-size:13px;
+    line-height:1.5;
+}
+.recycle-bin-password-box {
+    max-width:460px;
+}
+.recycle-bin-password-box input {
+    margin-top:7px;
+}
+</style>
+
 <style id="zebra-row-striping">
 /* Subtle zebra striping for on-screen student/marks tables only */
 #studentTableContainer table tbody tr:nth-child(odd) td,
@@ -1362,6 +1407,15 @@ tbody tr:hover {
             data-section="students">
 
             Students
+
+        </button>
+
+        <button
+            id="recycleBinNavButton"
+            class="nav-btn hidden"
+            data-section="recycleBin">
+
+            Recycle Bin
 
         </button>
 
@@ -1673,6 +1727,78 @@ tbody tr:hover {
 
                 </div>
 
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             RECYCLE BIN
+        ================================================== -->
+
+        <section
+            id="recycleBinSection"
+            class="app-section hidden">
+
+            <div class="page-header">
+                <div>
+                    <h2>Recycle Bin</h2>
+                    <div class="creator-credit">
+                        Restore deleted students or permanently remove them
+                    </div>
+                </div>
+
+                <div class="recycle-bin-actions">
+                    <button
+                        id="refreshRecycleBinButton"
+                        class="btn btn-secondary btn-small">
+                        Refresh
+                    </button>
+
+                    <button
+                        id="restoreRecycleBinButton"
+                        class="btn btn-primary btn-small">
+                        Restore Selected
+                    </button>
+
+                    <button
+                        id="permanentDeleteRecycleBinButton"
+                        class="btn btn-danger btn-small">
+                        Permanently Delete Selected
+                    </button>
+                </div>
+            </div>
+
+            <div class="card table-card">
+                <div class="table-top">
+                    <div
+                        id="recycleBinRecordCount"
+                        class="record-count">
+                        Loading Recycle Bin...
+                    </div>
+
+                    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#374151;">
+                        <input
+                            type="checkbox"
+                            id="selectAllRecycleBin"
+                            class="recycle-bin-select">
+                        Select All
+                    </label>
+                </div>
+
+                <div
+                    id="recycleBinTableContainer"
+                    class="table-wrapper">
+                    <div class="loading">
+                        Loading Recycle Bin...
+                    </div>
+                </div>
+            </div>
+
+            <div class="recycle-bin-note">
+                <strong>Recycle Bin:</strong>
+                Deleted students are kept here until they are restored or permanently deleted.
+                Permanent deletion cannot be undone.
             </div>
 
         </section>
@@ -2420,6 +2546,46 @@ const addStudentButton =
 const refreshStudentsButton =
     document.getElementById("refreshStudentsButton");
 
+
+const recycleBinNavButton =
+    document.getElementById("recycleBinNavButton");
+
+const recycleBinTableContainer =
+    document.getElementById("recycleBinTableContainer");
+
+const recycleBinRecordCount =
+    document.getElementById("recycleBinRecordCount");
+
+const selectAllRecycleBin =
+    document.getElementById("selectAllRecycleBin");
+
+const refreshRecycleBinButton =
+    document.getElementById("refreshRecycleBinButton");
+
+const restoreRecycleBinButton =
+    document.getElementById("restoreRecycleBinButton");
+
+const permanentDeleteRecycleBinButton =
+    document.getElementById("permanentDeleteRecycleBinButton");
+
+const recycleBinPasswordModal =
+    document.getElementById("recycleBinPasswordModal");
+
+const recycleBinDeletePassword =
+    document.getElementById("recycleBinDeletePassword");
+
+const closeRecycleBinPasswordModal =
+    document.getElementById("closeRecycleBinPasswordModal");
+
+const cancelRecycleBinPasswordButton =
+    document.getElementById("cancelRecycleBinPasswordButton");
+
+const confirmRecycleBinPasswordButton =
+    document.getElementById("confirmRecycleBinPasswordButton");
+
+let recycleBinData = [];
+let pendingPermanentDeleteIds = [];
+
 const studentModal =
     document.getElementById("studentModal");
 
@@ -2592,6 +2758,13 @@ async function showApplication(user) {
             "hidden",
             role !== "admin"
         );
+
+        if (recycleBinNavButton) {
+            recycleBinNavButton.classList.toggle(
+                "hidden",
+                role !== "admin"
+            );
+        }
 
         showSection("dashboard");
 
@@ -4160,6 +4333,7 @@ function showSection(section) {
     if (section === "students") loadStudents();
     if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
     if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
+    if (section === "recycleBin") loadRecycleBin();
 }
 
 
@@ -4621,6 +4795,68 @@ document
         }
     );
 
+
+if (selectAllRecycleBin) {
+    selectAllRecycleBin.addEventListener("change", function() {
+        document
+            .querySelectorAll(".recycle-bin-checkbox")
+            .forEach(cb => {
+                cb.checked = this.checked;
+            });
+
+        updateRecycleBinSelectionState();
+    });
+}
+
+if (refreshRecycleBinButton) {
+    refreshRecycleBinButton.addEventListener(
+        "click",
+        loadRecycleBin
+    );
+}
+
+if (restoreRecycleBinButton) {
+    restoreRecycleBinButton.addEventListener(
+        "click",
+        restoreSelectedRecycleBin
+    );
+}
+
+if (permanentDeleteRecycleBinButton) {
+    permanentDeleteRecycleBinButton.addEventListener(
+        "click",
+        permanentlyDeleteSelectedRecycleBin
+    );
+}
+
+if (closeRecycleBinPasswordModal) {
+    closeRecycleBinPasswordModal.addEventListener(
+        "click",
+        closeRecycleBinPasswordDialog
+    );
+}
+
+if (cancelRecycleBinPasswordButton) {
+    cancelRecycleBinPasswordButton.addEventListener(
+        "click",
+        closeRecycleBinPasswordDialog
+    );
+}
+
+if (confirmRecycleBinPasswordButton) {
+    confirmRecycleBinPasswordButton.addEventListener(
+        "click",
+        confirmPermanentDelete
+    );
+}
+
+if (recycleBinPasswordModal) {
+    recycleBinPasswordModal.addEventListener("click", function(event) {
+        if (event.target === recycleBinPasswordModal) {
+            closeRecycleBinPasswordDialog();
+        }
+    });
+}
 
 if (printStudentSearch) printStudentSearch.addEventListener("input", filterPrintStudents);
 if (printStudentSelect) printStudentSelect.addEventListener("change", renderSelectedPrintStudent);
@@ -5371,6 +5607,378 @@ window.markLeft =
 
 
 /* =========================================================
+   RECYCLE BIN
+========================================================= */
+
+function formatRecycleBinDate(value) {
+    if (!value) return "-";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return escapeHtml(value);
+    return date.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+function getSelectedRecycleBinIds() {
+    return Array.from(
+        document.querySelectorAll(
+            '.recycle-bin-checkbox:checked'
+        )
+    )
+    .map(input => Number(input.value))
+    .filter(Number.isFinite);
+}
+
+function updateRecycleBinSelectionState() {
+    const checkboxes = Array.from(
+        document.querySelectorAll('.recycle-bin-checkbox')
+    );
+
+    const selectedCount = checkboxes.filter(cb => cb.checked).length;
+
+    if (restoreRecycleBinButton) {
+        restoreRecycleBinButton.disabled = selectedCount === 0;
+    }
+
+    if (permanentDeleteRecycleBinButton) {
+        permanentDeleteRecycleBinButton.disabled = selectedCount === 0;
+    }
+
+    if (selectAllRecycleBin) {
+        selectAllRecycleBin.checked =
+            checkboxes.length > 0 &&
+            selectedCount === checkboxes.length;
+
+        selectAllRecycleBin.indeterminate =
+            selectedCount > 0 &&
+            selectedCount < checkboxes.length;
+    }
+}
+
+function renderRecycleBin() {
+    if (!recycleBinTableContainer) return;
+
+    recycleBinRecordCount.textContent =
+        `${recycleBinData.length} item${recycleBinData.length === 1 ? "" : "s"}`;
+
+    if (!recycleBinData.length) {
+        recycleBinTableContainer.innerHTML = `
+            <div class="empty-state">
+                Recycle Bin is empty.
+            </div>
+        `;
+        updateRecycleBinSelectionState();
+        return;
+    }
+
+    const rows = recycleBinData.map(item => {
+        const snapshot = item.snapshot || {};
+        const student = snapshot.students || {};
+        const academicRecords = Array.isArray(snapshot.academic_records)
+            ? snapshot.academic_records
+            : [];
+
+        const currentRecord =
+            academicRecords.find(record => record.session_id === activeSessionId()) ||
+            academicRecords[0] ||
+            {};
+
+        return `
+            <tr>
+                <td style="text-align:center;">
+                    <input
+                        type="checkbox"
+                        class="recycle-bin-select recycle-bin-checkbox"
+                        value="${Number(item.id)}">
+                </td>
+
+                <td>
+                    <strong>${escapeHtml(item.student_name || student.student_name || "")}</strong>
+                </td>
+
+                <td>
+                    ${className(currentRecord.class_no)}
+                </td>
+
+                <td>
+                    ${currentRecord.roll_no ?? "Not Assigned"}
+                </td>
+
+                <td>
+                    ${escapeHtml(student.student_id || "") || "<span style='color:#9ca3af'>Blank</span>"}
+                </td>
+
+                <td>
+                    ${formatRecycleBinDate(item.deleted_at)}
+                </td>
+
+                <td>
+                    <span class="recycle-bin-status">Deleted</span>
+                </td>
+            </tr>
+        `;
+    }).join("");
+
+    recycleBinTableContainer.innerHTML = `
+        <table class="recycle-bin-table">
+            <thead>
+                <tr>
+                    <th style="width:48px;text-align:center;">Select</th>
+                    <th>Student Name</th>
+                    <th>Class</th>
+                    <th>Roll No.</th>
+                    <th>Student ID</th>
+                    <th>Deleted On</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>
+    `;
+
+    document
+        .querySelectorAll('.recycle-bin-checkbox')
+        .forEach(cb => {
+            cb.addEventListener("change", updateRecycleBinSelectionState);
+        });
+
+    updateRecycleBinSelectionState();
+}
+
+function activeSessionId() {
+    const active = sessions.find(session => session.is_active);
+    return active ? active.id : null;
+}
+
+async function loadRecycleBin() {
+    if (currentRole !== "admin") return;
+
+    if (recycleBinTableContainer) {
+        recycleBinTableContainer.innerHTML =
+            `<div class="loading">Loading Recycle Bin...</div>`;
+    }
+
+    const { data, error } = await supabaseClient
+        .from("recycle_bin")
+        .select("id, original_student_id, student_name, deleted_at, restored_at, snapshot")
+        .is("restored_at", null)
+        .order("deleted_at", { ascending: false });
+
+    if (error) {
+        console.error(error);
+        recycleBinData = [];
+        if (recycleBinTableContainer) {
+            recycleBinTableContainer.innerHTML = `
+                <div class="empty-state">
+                    Unable to load Recycle Bin.
+                    <br><br>
+                    ${escapeHtml(error.message)}
+                </div>
+            `;
+        }
+        return;
+    }
+
+    recycleBinData = data || [];
+    renderRecycleBin();
+}
+
+async function restoreSelectedRecycleBin() {
+    if (currentRole !== "admin") return;
+
+    const ids = getSelectedRecycleBinIds();
+
+    if (!ids.length) {
+        showToast("Please select at least one student.", "error");
+        return;
+    }
+
+    const selectedItems = recycleBinData.filter(
+        item => ids.includes(Number(item.id))
+    );
+
+    const names = selectedItems
+        .map(item => item.student_name)
+        .filter(Boolean);
+
+    const confirmed = confirm(
+        `Restore ${ids.length} selected student${ids.length === 1 ? "" : "s"}?` +
+        (names.length
+            ? `\n\n${names.join("\n")}`
+            : "")
+    );
+
+    if (!confirmed) return;
+
+    restoreRecycleBinButton.disabled = true;
+
+    try {
+        let restoredCount = 0;
+
+        for (const id of ids) {
+            const { error } = await supabaseClient.rpc(
+                "restore_student_from_recycle_bin",
+                {
+                    p_recycle_bin_id: id
+                }
+            );
+
+            if (error) {
+                throw error;
+            }
+
+            restoredCount++;
+        }
+
+        await loadRecycleBin();
+        await loadStudents();
+        await updateDashboardCounts();
+
+        showToast(
+            `${restoredCount} student${restoredCount === 1 ? "" : "s"} restored successfully.`,
+            "success"
+        );
+
+    } catch (error) {
+        console.error(error);
+
+        await loadRecycleBin();
+        await loadStudents();
+        await updateDashboardCounts();
+
+        showToast(
+            error.message || "Restore failed.",
+            "error"
+        );
+
+    } finally {
+        updateRecycleBinSelectionState();
+    }
+}
+
+function closeRecycleBinPasswordDialog() {
+    pendingPermanentDeleteIds = [];
+
+    if (recycleBinDeletePassword) {
+        recycleBinDeletePassword.value = "";
+    }
+
+    if (recycleBinPasswordModal) {
+        recycleBinPasswordModal.classList.add("hidden");
+    }
+}
+
+function openRecycleBinPasswordDialog(ids) {
+    pendingPermanentDeleteIds = [...ids];
+
+    if (recycleBinDeletePassword) {
+        recycleBinDeletePassword.value = "";
+    }
+
+    if (recycleBinPasswordModal) {
+        recycleBinPasswordModal.classList.remove("hidden");
+    }
+
+    setTimeout(() => {
+        if (recycleBinDeletePassword) {
+            recycleBinDeletePassword.focus();
+        }
+    }, 50);
+}
+
+async function permanentlyDeleteSelectedRecycleBin() {
+    if (currentRole !== "admin") return;
+
+    const ids = getSelectedRecycleBinIds();
+
+    if (!ids.length) {
+        showToast("Please select at least one student.", "error");
+        return;
+    }
+
+    const selectedItems = recycleBinData.filter(
+        item => ids.includes(Number(item.id))
+    );
+
+    const names = selectedItems
+        .map(item => item.student_name)
+        .filter(Boolean);
+
+    const confirmed = confirm(
+        `Permanently delete ${ids.length} selected student${ids.length === 1 ? "" : "s"}?` +
+        (names.length
+            ? `\n\n${names.join("\n")}`
+            : "") +
+        `\n\nThis action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    openRecycleBinPasswordDialog(ids);
+}
+
+async function confirmPermanentDelete() {
+    if (currentRole !== "admin") return;
+
+    const ids = [...pendingPermanentDeleteIds];
+    const password = recycleBinDeletePassword
+        ? recycleBinDeletePassword.value
+        : "";
+
+    if (!ids.length) {
+        closeRecycleBinPasswordDialog();
+        return;
+    }
+
+    if (!password) {
+        showToast("Please enter the password.", "error");
+        return;
+    }
+
+    confirmRecycleBinPasswordButton.disabled = true;
+
+    try {
+        const { data, error } = await supabaseClient.rpc(
+            "permanently_delete_recycle_bin",
+            {
+                p_recycle_bin_ids: ids,
+                p_password: password
+            }
+        );
+
+        if (error) {
+            throw error;
+        }
+
+        closeRecycleBinPasswordDialog();
+
+        await loadRecycleBin();
+
+        showToast(
+            `${Number(data) || ids.length} student${ids.length === 1 ? "" : "s"} permanently deleted.`,
+            "success"
+        );
+
+    } catch (error) {
+        console.error(error);
+
+        showToast(
+            error.message || "Permanent deletion failed.",
+            "error"
+        );
+
+    } finally {
+        if (confirmRecycleBinPasswordButton) {
+            confirmRecycleBinPasswordButton.disabled = false;
+        }
+    }
+}
+
+/* =========================================================
    DELETE STUDENT
 ========================================================= */
 
@@ -5381,7 +5989,6 @@ window.deleteStudent =
             return;
         }
 
-
         const student =
             studentsData.find(
                 item =>
@@ -5389,136 +5996,48 @@ window.deleteStudent =
                     academicRecordId
             );
 
-
         if (!student) {
             return;
         }
 
-
-        const firstConfirm =
+        const confirmed =
             confirm(
-                `Are you sure you want to delete "${student.studentName}"?\n\nThis action cannot be undone.`
+                `Are you sure you want to move "${student.studentName}" to the Recycle Bin?\n\nThe student's records will be safely kept in the Recycle Bin and can be restored later.`
             );
 
-
-        if (!firstConfirm) {
+        if (!confirmed) {
             return;
         }
 
-
-        // A single confirmation is sufficient for this permanent action.
-
-
         try {
 
-            /*
-              First delete marks belonging
-              to this academic record.
-            */
-
-            const {
-                error: marksError
-            } =
-                await supabaseClient
-                    .from("exam_marks")
-                    .delete()
-                    .eq(
-                        "academic_record_id",
-                        academicRecordId
-                    );
-
-
-            if (marksError) {
-                throw marksError;
-            }
-
-
-            /*
-              Delete the academic record.
-            */
-
-            const {
-                error: recordError
-            } =
-                await supabaseClient
-                    .from("academic_records")
-                    .delete()
-                    .eq(
-                        "id",
-                        academicRecordId
-                    );
-
-
-            if (recordError) {
-                throw recordError;
-            }
-
-
-            /*
-              Check whether the student has
-              any other academic records.
-
-              If no records remain, the permanent
-              student profile can be removed.
-            */
-
-            const {
-                data: remainingRecords,
-                error: remainingError
-            } =
-                await supabaseClient
-                    .from("academic_records")
-                    .select("id")
-                    .eq(
-                        "student_profile_id",
-                        student.studentProfileId
-                    );
-
-
-            if (remainingError) {
-                throw remainingError;
-            }
-
-
-            if (
-                !remainingRecords ||
-                remainingRecords.length === 0
-            ) {
-
-                const {
-                    error: profileError
-                } =
-                    await supabaseClient
-                        .from("students")
-                        .delete()
-                        .eq(
-                            "id",
+            const { error } =
+                await supabaseClient.rpc(
+                    "move_student_to_recycle_bin",
+                    {
+                        p_student_id:
                             student.studentProfileId
-                        );
+                    }
+                );
 
-
-                if (profileError) {
-                    throw profileError;
-                }
-
+            if (error) {
+                throw error;
             }
-
 
             await loadStudents();
-
+            await updateDashboardCounts();
 
             showToast(
-                "Student deleted successfully.",
+                "Student moved to Recycle Bin.",
                 "success"
             );
-
 
         } catch (error) {
 
             console.error(error);
 
             showToast(
-                "Deletion failed: " +
+                "Unable to move student to Recycle Bin: " +
                 error.message,
                 "error"
             );
@@ -5859,6 +6378,67 @@ async function initializeApplication() {
 initializeApplication();
 
 </script>
+
+
+
+<!-- =========================================================
+     RECYCLE BIN PASSWORD MODAL
+========================================================= -->
+
+<div
+    id="recycleBinPasswordModal"
+    class="modal-overlay hidden">
+
+    <div class="modal recycle-bin-password-box">
+
+        <div class="modal-header">
+            <h3>Permanently Delete</h3>
+
+            <button
+                id="closeRecycleBinPasswordModal"
+                class="modal-close">
+                ×
+            </button>
+        </div>
+
+        <div class="modal-body">
+
+            <p style="color:#4b5563;line-height:1.5;margin-bottom:14px;">
+                Enter the permanent deletion password to permanently remove the selected students.
+                This action cannot be undone.
+            </p>
+
+            <label for="recycleBinDeletePassword">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="recycleBinDeletePassword"
+                autocomplete="off"
+                placeholder="Enter password">
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                id="cancelRecycleBinPasswordButton"
+                class="btn btn-secondary">
+                Cancel
+            </button>
+
+            <button
+                id="confirmRecycleBinPasswordButton"
+                class="btn btn-danger">
+                Permanently Delete
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 
 </body>
 </html>
