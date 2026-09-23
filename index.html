@@ -624,9 +624,11 @@ tbody tr:hover {
 }
 
 .actions {
-    display: flex;
+    display: grid;
+    grid-template-columns: max-content max-content;
     gap: 5px;
-    flex-wrap: wrap;
+    align-items: center;
+    justify-content: start;
 }
 
 .empty-state {
@@ -5629,12 +5631,21 @@ window.viewHistory =
                             )}
                         </h3>
 
-                        <p style="font-size:13px;color:#6b7280">
+                        <p style="font-size:13px;color:#6b7280;line-height:1.7">
                             Student ID:
                             ${
                                 student.studentId
                                     ? escapeHtml(
                                         student.studentId
+                                      )
+                                    : "Blank"
+                            }
+                            <br>
+                            APAAR ID:
+                            ${
+                                student.apaarId
+                                    ? escapeHtml(
+                                        student.apaarId
                                       )
                                     : "Blank"
                             }
