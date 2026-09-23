@@ -5755,36 +5755,47 @@ function activeSessionId() {
 }
 
 async function loadRecycleBin() {
-    if (currentRole !== "admin") return;
+    if (!recycleBinTableContainer) return;
 
-    if (recycleBinTableContainer) {
-        recycleBinTableContainer.innerHTML =
-            `<div class="loading">Loading Recycle Bin...</div>`;
-    }
+    recycleBinTableContainer.innerHTML =
+        `<div class="loading">Loading Recycle Bin...</div>`;
 
-    const { data, error } = await supabaseClient
-        .from("recycle_bin")
-        .select("id, original_student_id, student_name, deleted_at, restored_at, snapshot")
-        .is("restored_at", null)
-        .order("deleted_at", { ascending: false });
-
-    if (error) {
-        console.error(error);
-        recycleBinData = [];
-        if (recycleBinTableContainer) {
-            recycleBinTableContainer.innerHTML = `
-                <div class="empty-state">
-                    Unable to load Recycle Bin.
-                    <br><br>
-                    ${escapeHtml(error.message)}
-                </div>
-            `;
-        }
+    if (currentRole !== "admin") {
+        recycleBinTableContainer.innerHTML = `
+            <div class="empty-state">
+                Only an Admin can access the Recycle Bin.
+            </div>
+        `;
         return;
     }
 
-    recycleBinData = data || [];
-    renderRecycleBin();
+    try {
+        const { data, error } = await supabaseClient
+            .from("recycle_bin")
+            .select("id, original_student_id, student_name, deleted_at, restored_at, snapshot")
+            .is("restored_at", null)
+            .order("deleted_at", { ascending: false });
+
+        if (error) {
+            throw error;
+        }
+
+        recycleBinData = data || [];
+        renderRecycleBin();
+
+    } catch (error) {
+        console.error("Recycle Bin load failed:", error);
+        recycleBinData = [];
+        recycleBinTableContainer.innerHTML = `
+            <div class="empty-state">
+                Unable to load Recycle Bin.
+                <br><br>
+                <strong>${escapeHtml(error.message || "Unknown error")}</strong>
+                <br><br>
+                Please refresh the page and try again.
+            </div>
+        `;
+    }
 }
 
 async function restoreSelectedRecycleBin() {
