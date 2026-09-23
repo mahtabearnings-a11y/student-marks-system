@@ -883,8 +883,8 @@ tbody tr:hover {
 
   /* Marks Folio subject headers: rotate the whole subject name, keep 50 horizontal below it. */
   .folio-print .result-table th.folio-subject-head {
-    height:138px;
-    min-height:138px;
+    height:178px;
+    min-height:178px;
     padding:3px 2px;
     overflow:hidden;
     text-align:center;
@@ -892,11 +892,12 @@ tbody tr:hover {
     white-space:nowrap;
   }
   .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap {
-    height:112px;
+    height:145px;
     display:flex;
     align-items:center;
     justify-content:center;
     overflow:visible;
+    position:relative;
   }
   .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap > .folio-subject-name {
     display:inline-block;
@@ -915,10 +916,10 @@ tbody tr:hover {
   }
   .folio-print .result-table th.folio-subject-head small {
     display:block;
-    height:22px;
+    height:24px;
     font-size:16pt;
     line-height:1;
-    margin:2px auto 0;
+    margin:4px auto 0;
     white-space:nowrap;
     writing-mode:horizontal-tb;
     transform:none;
@@ -964,7 +965,7 @@ tbody tr:hover {
   .folio-print .result-table th:nth-child(10),
   .folio-print .result-table td:nth-child(10) { min-width:14mm; width:14mm; }
   .folio-print .result-table th:last-child,
-  .folio-print .result-table td:last-child { min-width:16mm; width:16mm; }
+  .folio-print .result-table td:last-child { min-width:18mm; width:18mm; }
   .folio-print {
     page:folio !important;
     width:100% !important;
@@ -1230,9 +1231,11 @@ tbody tr:hover {
   .folio-print .result-table { width:100% !important; max-width:100% !important; table-layout:auto !important; font-size:14pt !important; }
   .folio-print .result-table th { font-size:16pt !important; }
   .folio-print .result-table td { font-size:14pt !important; }
-  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap { display:flex !important; align-items:center !important; justify-content:center !important; height:76px !important; }
+  .folio-print .result-table th.folio-subject-head { height:178px !important; min-height:178px !important; padding:3px 2px !important; }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap { display:flex !important; align-items:center !important; justify-content:center !important; height:145px !important; overflow:visible !important; position:relative !important; }
   .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap > .folio-subject-name { display:inline-block !important; width:max-content !important; height:auto !important; white-space:nowrap !important; writing-mode:horizontal-tb !important; transform:rotate(-90deg) !important; -webkit-transform:rotate(-90deg) !important; }
-  .folio-print .result-table th.folio-subject-head small { writing-mode:horizontal-tb !important; transform:none !important; -webkit-transform:none !important; white-space:nowrap !important; }
+  .folio-print .result-table th.folio-subject-head small { display:block !important; height:24px !important; margin:4px auto 0 !important; font-size:16pt !important; line-height:1 !important; writing-mode:horizontal-tb !important; transform:none !important; -webkit-transform:none !important; white-space:nowrap !important; }
+  .folio-print .result-table th:last-child, .folio-print .result-table td:last-child { min-width:18mm !important; width:18mm !important; }
   .folio-print .result-table th, .folio-print .result-table td { overflow-wrap:anywhere; word-break:normal; }
   .folio-print .result-table th.percentage-head, .folio-print .result-table td.percentage-cell { white-space:nowrap !important; overflow-wrap:normal !important; min-width:20mm !important; width:20mm !important; }
   .folio-print .page-number { display:none !important; }
