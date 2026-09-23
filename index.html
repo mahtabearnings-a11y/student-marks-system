@@ -2415,6 +2415,67 @@ tbody tr:hover {
 <div id="printDocumentHost"></div>
 
 
+
+
+</body>
+</html><!-- =========================================================
+     RECYCLE BIN PASSWORD MODAL
+========================================================= -->
+
+<div
+    id="recycleBinPasswordModal"
+    class="modal-overlay hidden">
+
+    <div class="modal recycle-bin-password-box">
+
+        <div class="modal-header">
+            <h3>Permanently Delete</h3>
+
+            <button
+                id="closeRecycleBinPasswordModal"
+                class="modal-close">
+                ×
+            </button>
+        </div>
+
+        <div class="modal-body">
+
+            <p style="color:#4b5563;line-height:1.5;margin-bottom:14px;text-align:justify;">
+                Enter the permanent deletion password to permanently remove the selected students. This action cannot be undone.
+            </p>
+
+            <label for="recycleBinDeletePassword">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="recycleBinDeletePassword"
+                autocomplete="off"
+                placeholder="Enter password">
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                id="cancelRecycleBinPasswordButton"
+                class="btn btn-secondary">
+                Cancel
+            </button>
+
+            <button
+                id="confirmRecycleBinPasswordButton"
+                class="btn btn-danger">
+                OK
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
 <script>
 
 /* =========================================================
@@ -6494,63 +6555,8 @@ initializeApplication();
 
 
 
-<!-- =========================================================
-     RECYCLE BIN PASSWORD MODAL
-========================================================= -->
 
-<div
-    id="recycleBinPasswordModal"
-    class="modal-overlay hidden">
 
-    <div class="modal recycle-bin-password-box">
 
-        <div class="modal-header">
-            <h3>Permanently Delete</h3>
 
-            <button
-                id="closeRecycleBinPasswordModal"
-                class="modal-close">
-                ×
-            </button>
-        </div>
 
-        <div class="modal-body">
-
-            <p style="color:#4b5563;line-height:1.5;margin-bottom:14px;text-align:justify;">
-                Enter the permanent deletion password to permanently remove the selected students. This action cannot be undone.
-            </p>
-
-            <label for="recycleBinDeletePassword">
-                Password
-            </label>
-
-            <input
-                type="password"
-                id="recycleBinDeletePassword"
-                autocomplete="off"
-                placeholder="Enter password">
-
-        </div>
-
-        <div class="modal-footer">
-
-            <button
-                id="cancelRecycleBinPasswordButton"
-                class="btn btn-secondary">
-                Cancel
-            </button>
-
-            <button
-                id="confirmRecycleBinPasswordButton"
-                class="btn btn-danger">
-                Permanently Delete
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-</body>
-</html>
