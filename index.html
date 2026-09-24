@@ -1161,6 +1161,55 @@ body:not(.auth-ready) #appPage {
 
 
 <!-- =========================================================
+     UNSAVED CHANGES DIALOG
+========================================================= -->
+
+<div
+    id="unsavedChangesModal"
+    class="modal-overlay hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="unsavedChangesTitle">
+
+    <div class="modal unsaved-changes-modal">
+
+        <div class="modal-header">
+            <h3 id="unsavedChangesTitle">Unsaved Changes</h3>
+        </div>
+
+        <div class="modal-body unsaved-changes-message">
+            <p>You have unsaved changes. What would you like to do?</p>
+        </div>
+
+        <div class="modal-footer unsaved-changes-footer">
+            <button
+                id="unsavedChangesCancelButton"
+                class="btn btn-secondary"
+                type="button">
+                Cancel
+            </button>
+
+            <button
+                id="unsavedChangesLeaveButton"
+                class="btn btn-danger"
+                type="button">
+                Leave Without Saving
+            </button>
+
+            <button
+                id="unsavedChangesSaveButton"
+                class="btn btn-primary"
+                type="button">
+                Save &amp; Leave
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
      TOAST
 ========================================================= -->
 
