@@ -1403,3 +1403,42 @@ tbody tr:hover {
 #marksTableContainer .marks-table th.sticky-name {
     top: auto !important;
 }
+
+/* =========================
+   HISTORY REFINEMENTS
+========================= */
+
+.history-details,
+.history-student-header p,
+.history-current-badge span,
+.history-current-badge small,
+.history-year-meta,
+.history-current-pill,
+.history-section-label,
+.history-muted,
+.history-exam-header,
+.history-mini-table,
+.history-attendance-summary,
+.history-promotion-item {
+    font-size: 12pt;
+}
+
+.history-mini-table.history-marks-table {
+    table-layout: fixed;
+}
+
+.history-mini-table.history-marks-table th:first-child,
+.history-mini-table.history-marks-table td:first-child {
+    width: 150px;
+    max-width: 150px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+    .history-mini-table.history-marks-table th:first-child,
+    .history-mini-table.history-marks-table td:first-child {
+        width: 120px;
+        max-width: 120px;
+    }
+}
