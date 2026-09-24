@@ -535,7 +535,7 @@ select:focus {
 
 .table-card {
     padding: 0;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .table-top {
@@ -555,6 +555,7 @@ select:focus {
 .table-wrapper {
     width: 100%;
     overflow-x: auto;
+    overflow-y: clip;
 }
 
 table {
@@ -566,7 +567,7 @@ table {
 th {
     background: #f8fafc;
     color: #374151;
-    font-size: 12px;
+    font-size: 13px;
     text-align: left;
     padding: 12px 10px;
     border-bottom: 1px solid #d1d5db;
@@ -924,12 +925,12 @@ tbody tr:hover {
     }
 }
 
-.marks-grid-wrapper{display:block;width:100%;max-width:100%;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;border:1px solid #dbe3ee;border-radius:10px;background:#fff}
+.marks-grid-wrapper{display:block;width:100%;max-width:100%;overflow-x:auto;overflow-y:clip;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;border:1px solid #dbe3ee;border-radius:10px;background:#fff}
 .marks-table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;font-size:13px;background:#fff}
 .marks-table th,.marks-table td{border-right:1px solid #dbe3ee;border-bottom:1px solid #dbe3ee;padding:7px 8px;text-align:center;white-space:nowrap}
 .marks-table th:first-child,.marks-table td:first-child{border-left:0}
 .marks-table tr:first-child th{border-top:0}
-.marks-table th{background:#eef4fb;color:#123b73;position:sticky;top:0;z-index:2}
+.marks-table th{background:#eef4fb;color:#123b73;position:sticky;top:0;z-index:10;font-size:14px}
 .marks-table th.sticky-roll,.marks-table td.sticky-roll{position:sticky;left:0;z-index:3;background:#fff;min-width:60px;width:60px;box-sizing:border-box}
 .marks-table th.sticky-name,.marks-table td.sticky-name{position:sticky;left:60px;z-index:3;background:#fff;text-align:left;min-width:170px;width:170px;box-sizing:border-box;box-shadow:2px 0 3px rgba(0,0,0,.05)}
 .marks-table th.sticky-roll,.marks-table th.sticky-name{background:#eef4fb;z-index:4}
@@ -1051,7 +1052,7 @@ tbody tr:hover {
 }
 #studentTableContainer table tbody tr:nth-child(even) td,
 #marksTableContainer table tbody tr:nth-child(even) td {
-    background-color: #e8f0f6;
+    background-color: #f3f8fc;
 }
 
 
@@ -1066,24 +1067,4 @@ tbody tr:hover {
 }
 .student-conflict-message strong {
     color: #123b73;
-}
-
-/* =========================
-   STUDENTS / MARKS TABLE HEADER FIX
-========================= */
-#studentTableContainer table th {
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    background: #f8fafc;
-    font-size: 13px;
-}
-
-.marks-table th {
-    font-size: 13px;
-}
-
-.marks-table th.sticky-roll,
-.marks-table th.sticky-name {
-    z-index: 6;
 }
