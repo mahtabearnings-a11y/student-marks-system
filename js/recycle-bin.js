@@ -329,13 +329,10 @@ async function checkRecycleBinRestoreConflicts(selectedItems) {
 
 function formatRecycleBinConflict(conflict) {
     const existing = conflict.existingStudent || {};
-    const conflictType = escapeHtml(conflict.type || "Duplicate data");
-    const conflictValue = escapeHtml(conflict.detail || "");
 
     return `
         <div style="margin-bottom:12px;">
-            The student cannot be restored because <strong>${conflictType}</strong>
-            is already in use.
+            The student cannot be restored because the required information is already assigned to another student.
         </div>
         <div style="margin-bottom:8px;font-weight:700;">Existing Student</div>
         <div style="display:grid;grid-template-columns:120px 1fr;gap:6px 10px;text-align:left;">
@@ -344,9 +341,6 @@ function formatRecycleBinConflict(conflict) {
             <div><strong>APAAR ID</strong></div><div>${escapeHtml(existing.apaarId || "Not Available")}</div>
             <div><strong>Class</strong></div><div>${escapeHtml(String(existing.classNo ?? "Not Available"))}</div>
             <div><strong>Roll No.</strong></div><div>${escapeHtml(String(existing.rollNo ?? "Not Assigned"))}</div>
-        </div>
-        <div style="margin-top:12px;font-size:0.9em;color:#6b7280;">
-            Conflicting value: <strong>${conflictValue}</strong>
         </div>
     `;
 }
