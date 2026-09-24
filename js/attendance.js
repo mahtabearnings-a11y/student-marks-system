@@ -81,22 +81,80 @@ function getAttendanceStudentTotals(recordId) {
 
 function attendanceMaxDays(monthNo) {
     const sessionName = attendanceSession?.options[attendanceSession.selectedIndex]?.text || "2026–27";
-    const m = String(sessionName).match(/(\d{4})/); const startYear = m ? Number(m[1]) : new Date().getFullYear();
+    const m = String(sessionName).match(/(\d{4})/);
+    const startYear = m ? Number(m[1]) : new Date().getFullYear();
+    // Attendance session runs April–March. Convert the academic month number
+    // to the real calendar month and calculate its exact number of days.
     const calendarMonth = monthNo <= 9 ? monthNo + 3 : monthNo - 9;
     const year = monthNo <= 9 ? startYear : startYear + 1;
     return new Date(year, calendarMonth, 0).getDate();
 }
 
+function setAttendanceInputLimits() {
+    attendanceTableContainer?.querySelectorAll('input[data-att-rec][data-att-field="working"]').forEach(input => {
+        const monthNo = Number(input.dataset.attMonth);
+        input.max = String(attendanceMaxDays(monthNo));
+        input.title = `Maximum ${attendanceMaxDays(monthNo)} working days for ${attendanceMonthNames[monthNo - 1]}.`;
+    });
+    attendanceTableContainer?.querySelectorAll('input[data-att-rec][data-att-field="present"]').forEach(input => {
+        const monthNo = Number(input.dataset.attMonth);
+        const rec = Number(input.dataset.attRec);
+        const working = attendanceData[`${rec}_${monthNo}`]?.working_days;
+        input.max = working === undefined ? "0" : String(working);
+        input.title = working === undefined
+            ? "Enter Working Days first."
+            : `Present Days cannot exceed ${working} working days.`;
+    });
+}
+
 function updateAttendanceCell(recordId, monthNo, field, value) {
-    const key=`${recordId}_${monthNo}`; if(!attendanceData[key]) attendanceData[key]={};
-    const inputValue=String(value??"").trim();
-    if(inputValue==="") { delete attendanceData[key][field==="working"?"working_days":"present_days"]; updateAttendanceTotalsRow(recordId); return; }
-    const n=Number(inputValue);
-    const max=field==="working" ? attendanceMaxDays(monthNo) : Number(attendanceData[key].working_days);
-    if(!Number.isFinite(n)||!Number.isInteger(n)||n<0||n>max||(field==="present"&&(!Number.isFinite(max)||n>max))) {
-        delete attendanceData[key][field==="working"?"working_days":"present_days"]; updateAttendanceTotalsRow(recordId); return;
+    const key = `${recordId}_${monthNo}`;
+    if (!attendanceData[key]) attendanceData[key] = {};
+
+    const inputValue = String(value ?? "").trim();
+    const dataField = field === "working" ? "working_days" : "present_days";
+
+    if (inputValue === "") {
+        delete attendanceData[key][dataField];
+        updateAttendanceTotalsRow(recordId);
+        setAttendanceInputLimits();
+        return;
     }
-    attendanceData[key][field==="working"?"working_days":"present_days"]=n; updateAttendanceTotalsRow(recordId);
+
+    const n = Number(inputValue);
+    const workingLimit = attendanceMaxDays(monthNo);
+    const max = field === "working"
+        ? workingLimit
+        : Number(attendanceData[key].working_days);
+
+    const invalid =
+        !Number.isFinite(n) ||
+        !Number.isInteger(n) ||
+        n < 0 ||
+        n > max ||
+        (field === "present" && !Number.isFinite(max));
+
+    if (invalid) {
+        // Invalid attendance input is immediately cleared and is not kept in
+        // the in-memory data, so it cannot be saved to Supabase.
+        delete attendanceData[key][dataField];
+        updateAttendanceTotalsRow(recordId);
+        setAttendanceInputLimits();
+        return;
+    }
+
+    attendanceData[key][dataField] = n;
+
+    if (field === "working" && attendanceData[key].present_days !== undefined && attendanceData[key].present_days > n) {
+        delete attendanceData[key].present_days;
+        const presentInput = attendanceTableContainer?.querySelector(
+            `input[data-att-rec="${recordId}"][data-att-month="${monthNo}"][data-att-field="present"]`
+        );
+        if (presentInput) presentInput.value = "";
+    }
+
+    updateAttendanceTotalsRow(recordId);
+    setAttendanceInputLimits();
 }
 function updateAttendanceTotalsRow(recordId) {
     const t = getAttendanceStudentTotals(recordId);
@@ -144,6 +202,7 @@ function renderAttendanceTable() {
         });
     });
     if (attendanceRecordCount) attendanceRecordCount.textContent = `${attendanceStudents.length} students • ${selected.map(n => attendanceMonthNames[n - 1]).join(", ")} • ${attendanceSort?.selectedOptions[0]?.text || "Roll Number — Low to High"}`;
+    setAttendanceInputLimits();
 }
 
 async function loadAttendanceGrid() {

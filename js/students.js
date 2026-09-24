@@ -851,6 +851,80 @@ window.editStudent =
 
 
 /* =========================================================
+   STUDENT DATA VALIDATION & NORMALIZATION
+========================================================= */
+
+function normalizeStudentText(value) {
+    return String(value ?? "").trim().toUpperCase();
+}
+
+function normalizeStudentFormFields() {
+    const ids = [
+        "formStudentId",
+        "formApaarId",
+        "formStudentName",
+        "formFatherName",
+        "formMotherName"
+    ];
+    ids.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) input.value = normalizeStudentText(input.value);
+    });
+    const gender = document.getElementById("formGender");
+    if (gender && gender.value) gender.value = normalizeStudentText(gender.value);
+}
+
+async function validateStudentUniqueFields({studentId, apaarId, classNo, rollNo, sessionId}) {
+    const editingProfileId = editingStudent?.studentProfileId || null;
+    const editingRecordId = editingStudent?.academicRecordId || null;
+
+    if (studentId) {
+        let query = supabaseClient
+            .from("students")
+            .select("id, student_name, student_id")
+            .eq("student_id", studentId)
+            .limit(1);
+        if (editingProfileId) query = query.neq("id", editingProfileId);
+        const { data, error } = await query;
+        if (error) throw error;
+        if (data?.length) {
+            throw new Error(`Student ID ${studentId} is already used by another student.`);
+        }
+    }
+
+    if (apaarId) {
+        let query = supabaseClient
+            .from("students")
+            .select("id, student_name, apaar_id")
+            .eq("apaar_id", apaarId)
+            .limit(1);
+        if (editingProfileId) query = query.neq("id", editingProfileId);
+        const { data, error } = await query;
+        if (error) throw error;
+        if (data?.length) {
+            throw new Error(`APAAR ID ${apaarId} is already used by another student.`);
+        }
+    }
+
+    if (rollNo !== null && Number.isInteger(rollNo) && rollNo > 0) {
+        let query = supabaseClient
+            .from("academic_records")
+            .select("id, class_no, roll_no, students ( student_name )")
+            .eq("session_id", sessionId)
+            .eq("class_no", classNo)
+            .eq("roll_no", rollNo)
+            .limit(1);
+        if (editingRecordId) query = query.neq("id", editingRecordId);
+        const { data, error } = await query;
+        if (error) throw error;
+        if (data?.length) {
+            const existingName = data[0]?.students?.student_name || "another student";
+            throw new Error(`Roll No. ${rollNo} is already used by ${existingName} in ${className(classNo)} for this academic session.`);
+        }
+    }
+}
+
+/* =========================================================
    SAVE STUDENT
 ========================================================= */
 
@@ -870,13 +944,12 @@ saveStudentButton.addEventListener(
         }
 
 
+        normalizeStudentFormFields();
+
         const studentName =
-            document
-                .getElementById(
-                    "formStudentName"
-                )
-                .value
-                .trim();
+            normalizeStudentText(
+                document.getElementById("formStudentName").value
+            );
 
 
         if (!studentName) {
@@ -892,43 +965,30 @@ saveStudentButton.addEventListener(
 
 
         const studentIdRaw =
-            document
-                .getElementById(
-                    "formStudentId"
-                )
-                .value
-                .trim();
-
+            normalizeStudentText(
+                document.getElementById("formStudentId").value
+            );
 
         const studentId =
             studentIdRaw || null;
 
 
         const apaarId =
-            document
-                .getElementById(
-                    "formApaarId"
-                )
-                .value
-                .trim() || null;
+            normalizeStudentText(
+                document.getElementById("formApaarId").value
+            ) || null;
 
 
         const fatherName =
-            document
-                .getElementById(
-                    "formFatherName"
-                )
-                .value
-                .trim() || null;
+            normalizeStudentText(
+                document.getElementById("formFatherName").value
+            ) || null;
 
 
         const motherName =
-            document
-                .getElementById(
-                    "formMotherName"
-                )
-                .value
-                .trim() || null;
+            normalizeStudentText(
+                document.getElementById("formMotherName").value
+            ) || null;
 
 
         const dob =
@@ -940,11 +1000,9 @@ saveStudentButton.addEventListener(
 
 
         const gender =
-            document
-                .getElementById(
-                    "formGender"
-                )
-                .value || null;
+            normalizeStudentText(
+                document.getElementById("formGender").value
+            ) || null;
 
 
         const classNo =
@@ -978,6 +1036,21 @@ saveStudentButton.addEventListener(
                 )
                 .value;
 
+        if (!Number.isInteger(classNo) || classNo < 1 || classNo > 8) {
+            showToast("Please select a valid class.", "error");
+            return;
+        }
+
+        if (rollNo !== null && (!Number.isInteger(rollNo) || rollNo <= 0)) {
+            showToast("Roll Number must be a positive whole number.", "error");
+            return;
+        }
+
+        const sessionId = Number(sessionFilter.value);
+        if (!Number.isInteger(sessionId) || sessionId <= 0) {
+            showToast("Please select a valid academic session.", "error");
+            return;
+        }
 
         saveStudentButton.disabled =
             true;
@@ -987,6 +1060,14 @@ saveStudentButton.addEventListener(
 
 
         try {
+
+            await validateStudentUniqueFields({
+                studentId,
+                apaarId,
+                classNo,
+                rollNo,
+                sessionId
+            });
 
             if (editingStudent) {
 
@@ -1527,6 +1608,28 @@ window.viewHistory =
 
     };
 
+
+/* =========================================================
+   LIVE UPPERCASE INPUTS
+========================================================= */
+
+[
+    "formStudentId",
+    "formApaarId",
+    "formStudentName",
+    "formFatherName",
+    "formMotherName"
+].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+        input.addEventListener("input", () => {
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            input.value = normalizeStudentText(input.value);
+            try { input.setSelectionRange(start, end); } catch (_) {}
+        });
+    }
+});
 
 /* =========================================================
    MODAL EVENTS

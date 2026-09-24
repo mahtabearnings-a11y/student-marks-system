@@ -159,33 +159,63 @@ function printAllStudents(){
     const classLabel=printClassName(Number(printClass.value));
     openPrint(ordered.map((r,i)=>resultHtml(r,i+1,total)).join(""), `${classLabel} ${printExam.value} Results`);
 }
-async function autoFitFolioTable(table){
-  if(!table) return;
-  const rows=[...table.rows];
-  if(!rows.length) return;
-  const cols=rows[0].cells.length;
-  const weights=new Array(cols).fill(1);
-  for(let c=0;c<cols;c++){
-    let maxLen=0;
-    for(const row of rows){
-      const cell=row.cells[c];
-      if(!cell) continue;
-      const text=(cell.textContent||"").replace(/\s+/g," ").trim();
-      maxLen=Math.max(maxLen,text.length);
-    }
-    if(c===2) weights[c]=Math.max(18,Math.min(maxLen+2,30));
-    else if(c===cols-2) weights[c]=12;
-    else if(c===cols-1) weights[c]=12;
-    else if(c===cols-3) weights[c]=10;
-    else if(c<3) weights[c]=c===0?5:c===1?6:20;
-    else weights[c]=Math.max(5,Math.min(maxLen+2,8));
-  }
-  const minPct=11;
-  weights[cols-2]=Math.max(weights[cols-2],minPct);
-  const total=weights.reduce((a,b)=>a+b,0);
-  [...table.rows].forEach(row=>[...row.cells].forEach((cell,c)=>{
-    cell.style.width=((weights[c]/total)*100).toFixed(3)+"%";
-  }));
+function autoFitFolioTable(table){
+    if(!table) return;
+
+    const rows = [...table.rows];
+    if(!rows.length) return;
+
+    const cols = rows[0].cells.length;
+    if(!cols) return;
+
+    // A4 portrait printable width with the folio page margins used below.
+    // This behaves like Word's "AutoFit to Window": the table fills the
+    // printable width, while the student-name and result columns get more
+    // space and the narrow mark columns share the remaining width.
+    const subjectCount = Math.max(0, cols - 6);
+    const fixed = {
+        serial: 8,
+        roll: 11,
+        name: 40,
+        total: 14,
+        percentage: 18,
+        grade: 16
+    };
+
+    const printableWidth = 194;
+    const fixedWidth = fixed.serial + fixed.roll + fixed.name + fixed.total + fixed.percentage + fixed.grade;
+    const remaining = Math.max(0, printableWidth - fixedWidth);
+    const subjectWidth = subjectCount ? Math.max(7, remaining / subjectCount) : 0;
+
+    const widths = [];
+    widths.push(fixed.serial, fixed.roll, fixed.name);
+    for(let i=0;i<subjectCount;i++) widths.push(subjectWidth);
+    widths.push(fixed.total, fixed.percentage, fixed.grade);
+
+    table.style.width = "100%";
+    table.style.maxWidth = "100%";
+    table.style.minWidth = "0";
+    table.style.tableLayout = "auto";
+
+    // Remove any previous auto-fit colgroup.
+    table.querySelector("colgroup[data-folio-autofit]")?.remove();
+
+    const colgroup = document.createElement("colgroup");
+    colgroup.dataset.folioAutofit = "true";
+    widths.forEach(width => {
+        const col = document.createElement("col");
+        col.style.width = `${width.toFixed(2)}mm`;
+        colgroup.appendChild(col);
+    });
+    table.insertBefore(colgroup, table.firstChild);
+
+    // Let long names wrap instead of forcing the whole table wider.
+    [...table.rows].forEach(row => [...row.cells].forEach(cell => {
+        cell.style.width = "auto";
+        cell.style.maxWidth = "none";
+        cell.style.overflowWrap = "anywhere";
+        cell.style.wordBreak = "normal";
+    }));
 }
 
 function printClassFolio(){
