@@ -1067,3 +1067,23 @@ tbody tr:hover {
 .student-conflict-message strong {
     color: #123b73;
 }
+
+/* =========================
+   STUDENTS / MARKS TABLE HEADER FIX
+========================= */
+#studentTableContainer table th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #f8fafc;
+    font-size: 13px;
+}
+
+.marks-table th {
+    font-size: 13px;
+}
+
+.marks-table th.sticky-roll,
+.marks-table th.sticky-name {
+    z-index: 6;
+}
