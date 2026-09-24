@@ -244,3 +244,75 @@
   .folio-print .page-number { display:none !important; }
 }
 @page folio { size:A4 portrait; margin:8mm; }
+
+
+/* =========================================================
+   CLASS MARKS FOLIO — WORD-STYLE AUTO-FIT TO A4 WINDOW
+========================================================= */
+@media print {
+  .folio-print .result-table {
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    table-layout:auto !important;
+    border-collapse:collapse !important;
+  }
+  .folio-print .result-table colgroup[data-folio-autofit] col {
+    width:auto;
+  }
+  .folio-print .result-table thead {
+    display:table-header-group !important;
+  }
+  .folio-print .result-table tbody tr {
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
+  }
+  .folio-print .result-table th,
+  .folio-print .result-table td {
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+    text-overflow:clip !important;
+    white-space:normal !important;
+  }
+  .folio-print .result-table td.name {
+    min-width:0 !important;
+    width:auto !important;
+    text-align:left !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+  }
+  .folio-print .result-table th.folio-subject-head {
+    width:auto !important;
+    min-width:0 !important;
+    height:178px !important;
+    padding:3px 1px !important;
+  }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap {
+    height:145px !important;
+    width:100% !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    overflow:visible !important;
+  }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap > .folio-subject-name {
+    max-width:none !important;
+    white-space:nowrap !important;
+    font-size:14pt !important;
+    transform:rotate(-90deg) !important;
+    -webkit-transform:rotate(-90deg) !important;
+  }
+  .folio-print .result-table th.folio-subject-head small {
+    font-size:14pt !important;
+    white-space:nowrap !important;
+  }
+  .folio-print .result-table th.percentage-head,
+  .folio-print .result-table td.percentage-cell {
+    min-width:0 !important;
+    width:auto !important;
+    white-space:nowrap !important;
+  }
+  .folio-print .result-header {
+    margin-bottom:10px !important;
+  }
+}
