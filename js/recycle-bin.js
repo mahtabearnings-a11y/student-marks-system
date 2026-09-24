@@ -190,6 +190,39 @@ async function loadRecycleBin() {
     }
 }
 
+async function getRecycleBinExistingStudentDetails(studentProfileId, sessionId) {
+    const { data, error } = await supabaseClient
+        .from("students")
+        .select("id, student_name, student_id, apaar_id")
+        .eq("id", studentProfileId)
+        .limit(1);
+
+    if (error) throw error;
+
+    const student = data?.[0] || {};
+    let academic = {};
+
+    if (sessionId) {
+        const { data: records, error: recordError } = await supabaseClient
+            .from("academic_records")
+            .select("class_no, roll_no")
+            .eq("student_profile_id", studentProfileId)
+            .eq("session_id", sessionId)
+            .limit(1);
+
+        if (recordError) throw recordError;
+        academic = records?.[0] || {};
+    }
+
+    return {
+        name: student.student_name || "Not Available",
+        studentId: student.student_id || "Not Available",
+        apaarId: student.apaar_id || "Not Available",
+        classNo: academic.class_no ?? "Not Available",
+        rollNo: academic.roll_no ?? "Not Assigned"
+    };
+}
+
 async function checkRecycleBinRestoreConflicts(selectedItems) {
     const conflicts = [];
 
@@ -204,18 +237,24 @@ async function checkRecycleBinRestoreConflicts(selectedItems) {
         if (student.student_id) {
             const { data, error } = await supabaseClient
                 .from("students")
-                .select("id, student_name")
+                .select("id, student_name, student_id, apaar_id")
                 .eq("student_id", student.student_id)
                 .limit(1);
 
             if (error) throw error;
 
             if (data && data.length) {
+                const existing = data[0];
+                const details = await getRecycleBinExistingStudentDetails(
+                    existing.id,
+                    records[0]?.session_id
+                );
+
                 conflicts.push({
                     type: "Student ID",
                     item,
-                    existingName: data[0].student_name || "Unknown",
-                    detail: student.student_id
+                    detail: student.student_id,
+                    existingStudent: details
                 });
                 continue;
             }
@@ -225,18 +264,24 @@ async function checkRecycleBinRestoreConflicts(selectedItems) {
         if (student.apaar_id) {
             const { data, error } = await supabaseClient
                 .from("students")
-                .select("id, student_name")
+                .select("id, student_name, student_id, apaar_id")
                 .eq("apaar_id", student.apaar_id)
                 .limit(1);
 
             if (error) throw error;
 
             if (data && data.length) {
+                const existing = data[0];
+                const details = await getRecycleBinExistingStudentDetails(
+                    existing.id,
+                    records[0]?.session_id
+                );
+
                 conflicts.push({
                     type: "APAAR ID",
                     item,
-                    existingName: data[0].student_name || "Unknown",
-                    detail: student.apaar_id
+                    detail: student.apaar_id,
+                    existingStudent: details
                 });
                 continue;
             }
@@ -250,7 +295,7 @@ async function checkRecycleBinRestoreConflicts(selectedItems) {
 
             const { data, error } = await supabaseClient
                 .from("academic_records")
-                .select("id, student_profile_id, class_no, roll_no, students(student_name)")
+                .select("id, student_profile_id, class_no, roll_no, students(id, student_name, student_id, apaar_id)")
                 .eq("session_id", record.session_id)
                 .eq("class_no", record.class_no)
                 .eq("roll_no", record.roll_no)
@@ -260,11 +305,19 @@ async function checkRecycleBinRestoreConflicts(selectedItems) {
 
             if (data && data.length) {
                 const existing = data[0];
+                const details = {
+                    name: existing.students?.student_name || "Not Available",
+                    studentId: existing.students?.student_id || "Not Available",
+                    apaarId: existing.students?.apaar_id || "Not Available",
+                    classNo: existing.class_no ?? "Not Available",
+                    rollNo: existing.roll_no ?? "Not Assigned"
+                };
+
                 conflicts.push({
                     type: "Class + Roll",
                     item,
-                    existingName: existing.students?.student_name || "Unknown",
-                    detail: `Class ${record.class_no}, Roll ${record.roll_no}`
+                    detail: `Class ${record.class_no}, Roll ${record.roll_no}`,
+                    existingStudent: details
                 });
                 break;
             }
@@ -275,11 +328,27 @@ async function checkRecycleBinRestoreConflicts(selectedItems) {
 }
 
 function formatRecycleBinConflict(conflict) {
-    const detail = escapeHtml(conflict.detail || "");
-    const existingName = escapeHtml(conflict.existingName || "Unknown");
-    const deletedName = escapeHtml(conflict.item?.student_name || "Unknown");
+    const existing = conflict.existingStudent || {};
+    const conflictType = escapeHtml(conflict.type || "Duplicate data");
+    const conflictValue = escapeHtml(conflict.detail || "");
 
-    return `This student cannot be restored because <strong>${detail}</strong> is already assigned to another student.<br><br>Existing student: <strong>${existingName}</strong><br>Deleted student: <strong>${deletedName}</strong>`;
+    return `
+        <div style="margin-bottom:12px;">
+            The student cannot be restored because <strong>${conflictType}</strong>
+            is already in use.
+        </div>
+        <div style="margin-bottom:8px;font-weight:700;">Existing Student</div>
+        <div style="display:grid;grid-template-columns:120px 1fr;gap:6px 10px;text-align:left;">
+            <div><strong>Name</strong></div><div>${escapeHtml(existing.name || "Not Available")}</div>
+            <div><strong>Student ID</strong></div><div>${escapeHtml(existing.studentId || "Not Available")}</div>
+            <div><strong>APAAR ID</strong></div><div>${escapeHtml(existing.apaarId || "Not Available")}</div>
+            <div><strong>Class</strong></div><div>${escapeHtml(String(existing.classNo ?? "Not Available"))}</div>
+            <div><strong>Roll No.</strong></div><div>${escapeHtml(String(existing.rollNo ?? "Not Assigned"))}</div>
+        </div>
+        <div style="margin-top:12px;font-size:0.9em;color:#6b7280;">
+            Conflicting value: <strong>${conflictValue}</strong>
+        </div>
+    `;
 }
 
 async function restoreSelectedRecycleBin() {
@@ -319,7 +388,7 @@ async function restoreSelectedRecycleBin() {
 
         if (conflicts.length) {
             showStudentConflictDialog(
-                "Duplicate Student Data",
+                "Existing Student",
                 formatRecycleBinConflict(conflicts[0])
             );
             return;
