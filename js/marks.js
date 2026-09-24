@@ -123,19 +123,14 @@ function getMarksSnapshot() {
     marksRecords.forEach(record => {
         marksSubjects.forEach(subject => {
             const key = `${record.id}_${subject.id}_${exam}`;
-            const raw = marksValues[key];
-            const value = raw === undefined || raw === null || raw === "" ? null : Number(raw);
-
-            // Snapshot ONLY editable mark values. Total, percentage and grade
-            // are derived display values and must never make the grid dirty.
-            // Blank and null are one canonical empty state.
-            if (value === null || Number.isNaN(value)) return;
-
-            values.push([Number(record.id), Number(subject.id), value]);
+            const value = marksValues[key];
+            values.push([
+                Number(record.id),
+                Number(subject.id),
+                value === undefined || value === null || value === "" ? null : Number(value)
+            ]);
         });
     });
-
-    values.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 
     return JSON.stringify({
         session: String(marksSession.value || ""),
@@ -160,23 +155,50 @@ function calculateRow(recordId) {
     const finalExam = marksExam.value === "Final";
 
     marksSubjects.forEach(subject => {
-        let value = null;
         if (finalExam) {
-            const half = marksValues[`${recordId}_${subject.id}_Half-Yearly`];
-            const annual = marksValues[`${recordId}_${subject.id}_Annual`];
-            if (half !== null && half !== undefined && half !== "") value = Number(half);
-            if (annual !== null && annual !== undefined && annual !== "") value = (value || 0) + Number(annual);
-            if ((half !== null && half !== undefined && half !== "") || (annual !== null && annual !== undefined && annual !== "")) entered++;
+            const halfRaw = marksValues[`${recordId}_${subject.id}_Half-Yearly`];
+            const annualRaw = marksValues[`${recordId}_${subject.id}_Annual`];
+            const half = halfRaw === null || halfRaw === undefined || halfRaw === "" ? null : Number(halfRaw);
+            const annual = annualRaw === null || annualRaw === undefined || annualRaw === "" ? null : Number(annualRaw);
+
+            if (half !== null || annual !== null) {
+                entered++;
+                total += (Number.isFinite(half) ? half : 0) + (Number.isFinite(annual) ? annual : 0);
+            }
         } else {
-            value = marksValues[`${recordId}_${subject.id}_${marksExam.value}`];
-            if (value !== null && value !== undefined && value !== "") entered++;
+            const raw = marksValues[`${recordId}_${subject.id}_${marksExam.value}`];
+            if (raw !== null && raw !== undefined && raw !== "") {
+                const value = Number(raw);
+                if (Number.isFinite(value)) {
+                    entered++;
+                    total += value;
+                }
+            }
         }
-        if (value !== null && value !== undefined && value !== "") total += Number(value);
     });
 
     const max = marksSubjects.length * (finalExam ? 100 : 50);
-    const pct = max ? (total / max) * 100 : 0;
-    return { total, pct, grade: entered ? gradeFromPercentage(pct) : "", max };
+    const pct = max > 0 ? (total / max) * 100 : 0;
+    return { total, pct, grade: entered > 0 ? gradeFromPercentage(pct) : "", max, entered };
+}
+
+function updateMarksCalculatedRow(recordId) {
+    const calc = calculateRow(Number(recordId));
+    const total = marksTableContainer.querySelector(`[data-total="${recordId}"]`);
+    const pct = marksTableContainer.querySelector(`[data-pct="${recordId}"]`);
+    const grade = marksTableContainer.querySelector(`[data-grade="${recordId}"]`);
+
+    if (!total || !pct || !grade) return;
+
+    if (calc.entered > 0) {
+        total.textContent = String(calc.total);
+        pct.textContent = `${calc.pct.toFixed(2)}%`;
+        grade.textContent = calc.grade;
+    } else {
+        total.textContent = "";
+        pct.textContent = "";
+        grade.textContent = "";
+    }
 }
 
 function getMarksSortedRecords() {
@@ -231,9 +253,9 @@ function renderMarksGrid() {
             }
             const value = getMark(record.id, subject.id, marksExam.value);
             const disabled = currentRole !== "admin" ? "disabled" : "";
-            return `<td><input class="marks-input" type="text" inputmode="numeric" autocomplete="off" pattern="\d*" maxlength="2" value="${value === "" ? "" : escapeHtml(String(value))}" data-record="${record.id}" data-subject="${subject.id}" ${disabled}></td>`;
+            return `<td><input class="marks-input" type="text" inputmode="numeric" autocomplete="off" maxlength="2" value="${value === "" ? "" : escapeHtml(String(value))}" data-record="${record.id}" data-subject="${subject.id}" ${disabled}></td>`;
         }).join("");
-        return `<tr><td class="sticky-roll">${escapeHtml(String(record.roll_no ?? ""))}</td><td class="sticky-name">${escapeHtml(record.students?.student_name || "")}</td>${cells}<td class="marks-calculated" data-total="${record.id}">${calc.entered ? calc.total : ""}</td><td class="marks-calculated" data-pct="${record.id}">${calc.entered ? calc.pct.toFixed(2) + "%" : ""}</td><td class="marks-calculated marks-grade" data-grade="${record.id}">${calc.entered ? escapeHtml(calc.grade) : ""}</td></tr>`;
+        return `<tr><td class="sticky-roll">${escapeHtml(String(record.roll_no ?? ""))}</td><td class="sticky-name">${escapeHtml(record.students?.student_name || "")}</td>${cells}<td class="marks-calculated" data-total="${record.id}">${calc.entered > 0 ? calc.total : ""}</td><td class="marks-calculated" data-pct="${record.id}">${calc.entered > 0 ? calc.pct.toFixed(2) + "%" : ""}</td><td class="marks-calculated marks-grade" data-grade="${record.id}">${calc.entered > 0 ? escapeHtml(calc.grade) : ""}</td></tr>`;
     }).join("");
 
     marksTableContainer.innerHTML = `<table class="marks-table"><thead><tr><th class="sticky-roll">Roll</th><th class="sticky-name">Student Name</th>${head}<th>Total</th><th>Percentage</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table>`;
@@ -242,25 +264,38 @@ function renderMarksGrid() {
 
     marksTableContainer.querySelectorAll(".marks-input").forEach(input => {
         input.addEventListener("input", () => {
-            let value = input.value.trim();
-            if (value !== "") {
-                let n = Number(value);
-                if (!Number.isFinite(n)) { input.value = ""; return; }
-                if (n > 50) { input.value = ""; showToast("Marks cannot be more than 50.", "error"); setMark(Number(input.dataset.record), Number(input.dataset.subject), marksExam.value, null); return; }
-                if (n < 0) { input.value = ""; showToast("Marks cannot be less than 0.", "error"); setMark(Number(input.dataset.record), Number(input.dataset.subject), marksExam.value, null); return; }
-                n = Math.round(n);
-                input.value = n;
-                setMark(Number(input.dataset.record), Number(input.dataset.subject), marksExam.value, n);
-            } else {
-                setMark(Number(input.dataset.record), Number(input.dataset.subject), marksExam.value, null);
+            const recordId = Number(input.dataset.record);
+            const subjectId = Number(input.dataset.subject);
+            const exam = marksExam.value;
+            let value = input.value.trim().replace(/\D/g, "");
+
+            if (value === "") {
+                input.value = "";
+                setMark(recordId, subjectId, exam, null);
+                updateMarksCalculatedRow(recordId);
+                return;
             }
-            const calc = calculateRow(Number(input.dataset.record));
-            const total = marksTableContainer.querySelector(`[data-total="${input.dataset.record}"]`);
-            const pct = marksTableContainer.querySelector(`[data-pct="${input.dataset.record}"]`);
-            const grade = marksTableContainer.querySelector(`[data-grade="${input.dataset.record}"]`);
-            total.textContent = calc.entered ? calc.total : "";
-            pct.textContent = calc.entered ? calc.pct.toFixed(2) + "%" : "";
-            grade.textContent = calc.entered ? calc.grade : "";
+
+            let n = Number(value);
+            if (!Number.isFinite(n)) {
+                input.value = "";
+                setMark(recordId, subjectId, exam, null);
+                updateMarksCalculatedRow(recordId);
+                return;
+            }
+
+            if (n > 50) {
+                input.value = "";
+                setMark(recordId, subjectId, exam, null);
+                showToast("Marks cannot be more than 50.", "error");
+                updateMarksCalculatedRow(recordId);
+                return;
+            }
+
+            n = Math.round(n);
+            input.value = String(n);
+            setMark(recordId, subjectId, exam, n);
+            updateMarksCalculatedRow(recordId);
         });
     });
 }
