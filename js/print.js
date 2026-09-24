@@ -108,15 +108,21 @@ function resultHtml(record,pageNo,totalPages){
         const tableHeader=`<tr><th>Subject</th><th>${escapeHtml(printExam.value)} / 50</th><th>Full Marks</th></tr>`;
         return `<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Student Result</h2><div class="small">Muzaffarpur, Bihar • Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")}</div><div class="small">${escapeHtml(printExam.value)} Examination</div></div><div class="result-info"><div><b>PEN / Student ID:</b> ${escapeHtml(s.student_id||"")}</div><div><b>APAAR ID:</b> ${escapeHtml(s.apaar_id||"")}</div><div><b>Class:</b> ${escapeHtml(printClassName(record.class_no))}</div><div><b>Name:</b> ${escapeHtml(s.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(record.roll_no??"")}</div><div><b>Father's Name:</b> ${escapeHtml(s.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(s.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(s.date_of_birth||"")}</div></div><table class="result-table"><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table><div class="result-rank"><span class="rank-label">Class Rank</span><span class="rank-value">#${calcRank(record)}</span></div></div>`;
     }
-    const markHeader=`<th>Half-Yearly / 50</th><th>Annual / 50</th><th>Final / 100</th><th>Full Marks</th>`;
+    // Final Examination uses the same clean summary layout as Half-Yearly/Annual:
+    // subject marks are shown separately, while Total, Percentage and Grade
+    // appear as summary rows below the subject rows. The old Final / 100
+    // column was redundant because Total already represents the combined mark.
+    const markHeader=`<th>Half-Yearly / 50</th><th>Annual / 50</th><th>Full Marks</th>`;
     const rows=printSubjects.map(sub=>{
         const hv=getPrintMark(record.id,sub.id,"Half-Yearly"), av=getPrintMark(record.id,sub.id,"Annual");
-        const finalMark=(hv===null && av===null) ? "" : (hv||0)+(av||0);
-        return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${hv??""}</td><td>${av??""}</td><td>${finalMark}</td><td>100</td><td></td><td></td><td></td></tr>`;
+        return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${hv??""}</td><td>${av??""}</td><td>100</td></tr>`;
     }).join("");
-    const summaryRow=`<tr class="result-total-row"><th colspan="4" style="text-align:right;">Total Marks</th><td>${c.total} / ${c.max}</td><td>${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;
-    const tableHeader=`<tr><th>Subject</th>${markHeader}<th>Total</th><th>Percentage</th><th>Grade</th></tr>`;
-    return `<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Student Result</h2><div class="small">Muzaffarpur, Bihar • Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")}</div><div class="small">Final Examination</div></div><div class="result-info"><div><b>PEN / Student ID:</b> ${escapeHtml(s.student_id||"")}</div><div><b>APAAR ID:</b> ${escapeHtml(s.apaar_id||"")}</div><div><b>Class:</b> ${escapeHtml(printClassName(record.class_no))}</div><div><b>Name:</b> ${escapeHtml(s.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(record.roll_no??"")}</div><div><b>Father's Name:</b> ${escapeHtml(s.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(s.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(s.date_of_birth||"")}</div></div><table class="result-table"><thead>${tableHeader}</thead><tbody>${rows}${summaryRow}</tbody></table><div class="result-rank"><span class="rank-label">Class Rank</span><span class="rank-value">#${calcRank(record)}</span></div></div>`;
+    const summaryRows=`
+      <tr class="result-total-row"><th style="text-align:left;">Total</th><td>${c.total}</td><td>${c.max}</td><td></td></tr>
+      <tr class="result-total-row"><th style="text-align:left;">Percentage</th><td colspan="3">${c.pct.toFixed(2)}%</td></tr>
+      <tr class="result-total-row"><th style="text-align:left;">Grade</th><td colspan="3">${escapeHtml(c.grade)}</td></tr>`;
+    const tableHeader=`<tr><th>Subject</th>${markHeader}</tr>`;
+    return `<div class="result-page"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Student Result</h2><div class="small">Muzaffarpur, Bihar • Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")}</div><div class="small">Final Examination</div></div><div class="result-info"><div><b>PEN / Student ID:</b> ${escapeHtml(s.student_id||"")}</div><div><b>APAAR ID:</b> ${escapeHtml(s.apaar_id||"")}</div><div><b>Class:</b> ${escapeHtml(printClassName(record.class_no))}</div><div><b>Name:</b> ${escapeHtml(s.student_name||"")}</div><div><b>Roll:</b> ${escapeHtml(record.roll_no??"")}</div><div><b>Father's Name:</b> ${escapeHtml(s.father_name||"")}</div><div><b>Mother's Name:</b> ${escapeHtml(s.mother_name||"")}</div><div><b>Date of Birth:</b> ${escapeHtml(s.date_of_birth||"")}</div></div><table class="result-table"><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table><div class="result-rank"><span class="rank-label">Class Rank</span><span class="rank-value">#${calcRank(record)}</span></div></div>`;
 }
 function calcRank(record){ const ranked=printStudents.map(r=>({r,c:calcPrintRecord(r)})).sort((a,b)=>b.c.total-a.c.total||b.c.pct-a.c.pct||Number(a.r.roll_no??999999)-Number(b.r.roll_no??999999)); return ranked.findIndex(x=>x.r.id===record.id)+1; }
 let printTitleBeforeJob="";
