@@ -1051,7 +1051,7 @@ tbody tr:hover {
 }
 #studentTableContainer table tbody tr:nth-child(even) td,
 #marksTableContainer table tbody tr:nth-child(even) td {
-    background-color: #f3f8fc;
+    background-color: #e8f0f6;
 }
 
 
