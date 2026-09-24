@@ -1110,9 +1110,6 @@ saveStudentButton.addEventListener(
             return;
         }
 
-        const editable = await ensureAcademicSessionEditable(sessionId, "edit this student's academic record");
-        if (!editable) return;
-
         saveStudentButton.disabled =
             true;
 
@@ -1428,9 +1425,6 @@ window.markLeft =
             return;
         }
 
-        const sessionId = student.sessionId;
-        const editable = await ensureAcademicSessionEditable(sessionId, "change this student's academic status");
-        if (!editable) return;
 
         const {
             error
@@ -1484,237 +1478,393 @@ window.markLeft =
 window.viewHistory =
     async function(studentProfileId) {
 
-        historyModal.classList.remove(
-            "hidden"
-        );
+        historyModal.classList.remove("hidden");
+        historyContent.innerHTML = `<div class="loading">Loading student history...</div>`;
 
+        const gradeForHistory = pct => {
+            if (pct === null || Number.isNaN(pct)) return "";
+            if (pct >= 80.5) return "A";
+            if (pct >= 60.5) return "B";
+            if (pct >= 40.5) return "C";
+            if (pct >= 32.5) return "D";
+            return "E";
+        };
 
-        historyContent.innerHTML =
-            `<div class="loading">
-                Loading student history...
-            </div>`;
+        const safeNumber = value => {
+            const n = Number(value);
+            return Number.isFinite(n) ? n : null;
+        };
 
+        const displayValue = value => value === null || value === undefined || value === ""
+            ? ""
+            : escapeHtml(String(value));
 
         try {
 
             const {
-                data,
-                error
-            } =
-                await supabaseClient
-                    .from("academic_records")
-                    .select(`
-                        id,
-                        session_id,
-                        class_no,
-                        roll_no,
-                        status,
-                        academic_sessions (
-                            session_name
-                        )
-                    `)
-                    .eq(
-                        "student_profile_id",
-                        studentProfileId
-                    )
-                    .order(
-                        "session_id",
-                        {
-                            ascending: true
-                        }
-                    );
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            const {
-                data: promotionEvents,
-                error: promotionError
+                data: records,
+                error: recordsError
             } = await supabaseClient
-                .from("promotion_history")
-                .select("id,from_session_id,to_session_id,from_class,to_class,from_roll,to_roll,status,batch_id,created_at,reverted_at")
+                .from("academic_records")
+                .select(`
+                    id,
+                    session_id,
+                    class_no,
+                    roll_no,
+                    status,
+                    academic_sessions (
+                        id,
+                        session_name
+                    )
+                `)
                 .eq("student_profile_id", studentProfileId)
-                .order("created_at", { ascending: true });
+                .order("session_id", { ascending: true });
 
-            if (promotionError) {
-                throw promotionError;
-            }
+            if (recordsError) throw recordsError;
 
-            if ((!data || !data.length) && (!promotionEvents || !promotionEvents.length)) {
-                historyContent.innerHTML =
-                    `<div class="empty-state">
-                        No academic history found.
-                    </div>`;
-
-                return;
-
-            }
-
-
-            const student =
-                studentsData.find(
-                    item =>
-                        item.studentProfileId ===
-                        studentProfileId
-                );
-
-
-            let html = "";
-
-
-            if (student) {
-
-                html += `
-
-                    <div style="margin-bottom:18px">
-
-                        <h3 style="color:#123b73">
-                            ${escapeHtml(
-                                student.studentName
-                            )}
-                        </h3>
-
-                        <p style="font-size:13px;color:#6b7280;line-height:1.7">
-                            Student ID:
-                            ${
-                                student.studentId
-                                    ? escapeHtml(
-                                        student.studentId
-                                      )
-                                    : "Blank"
-                            }
-                            <br>
-                            APAAR ID:
-                            ${
-                                student.apaarId
-                                    ? escapeHtml(
-                                        student.apaarId
-                                      )
-                                    : "Blank"
-                            }
-                        </p>
-
-                    </div>
-
-                `;
-
-            }
-
-
-            html += `
-                <div class="history-list">
-            `;
-
-
-            data.forEach(
-                record => {
-
-                    const sessionName =
-                        record
-                            .academic_sessions
-                            ?.session_name ||
-                        "-";
-
-
-                    html += `
-
-                        <div class="history-item">
-
-                            <div class="history-title">
-                                ${escapeHtml(
-                                    sessionName
-                                )}
-                            </div>
-
-                            <div class="history-details">
-
-                                Class:
-                                <strong>
-                                    ${className(
-                                        record.class_no
-                                    )}
-                                </strong>
-
-                                &nbsp; | &nbsp;
-
-                                Roll:
-                                <strong>
-                                    ${escapeHtml(
-                                        record.roll_no ?? ""
-                                    )}
-                                </strong>
-
-                                &nbsp; | &nbsp;
-
-                                Status:
-                                <strong>
-                                    ${escapeHtml(
-                                        record.status ||
-                                        "Current"
-                                    )}
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-                    `;
-
-                }
+            const student = studentsData.find(
+                item => item.studentProfileId === studentProfileId
             );
 
-            if (promotionEvents && promotionEvents.length) {
-                html += `<div style="margin-top:20px"><h4 style="color:#123b73;margin:0 0 10px">Promotion History</h4>`;
-                promotionEvents.forEach(event => {
-                    html += `<div class="history-item">
-                        <div class="history-title">${escapeHtml(formatStudentHistoryDate(event.created_at))}</div>
-                        <div class="history-details">
-                            ${event.from_class ? `From: <strong>${escapeHtml(className(event.from_class))}</strong>` : ""}
-                            ${event.from_roll !== null && event.from_roll !== undefined ? ` &nbsp;|&nbsp; Roll: <strong>${escapeHtml(String(event.from_roll))}</strong>` : ""}
-                            &nbsp;|&nbsp; Status: <strong>${escapeHtml(event.status || "—")}</strong>
-                            ${event.to_class ? ` &nbsp;|&nbsp; To: <strong>${escapeHtml(className(event.to_class))}</strong>` : ""}
-                            ${event.to_roll !== null && event.to_roll !== undefined ? ` &nbsp;|&nbsp; New Roll: <strong>${escapeHtml(String(event.to_roll))}</strong>` : ""}
-                            ${event.reverted_at ? ` &nbsp;|&nbsp; <strong>Reverted</strong>` : ""}
-                        </div>
-                    </div>`;
-                });
-                html += `</div>`;
+            if (!records || !records.length) {
+                historyContent.innerHTML = `<div class="empty-state">No academic history found.</div>`;
+                return;
             }
 
-            html += `
-                </div>
-            `;
+            const recordIds = records.map(record => record.id);
+            const classNos = [...new Set(records.map(record => Number(record.class_no)).filter(Number.isFinite))];
 
+            const [
+                marksResult,
+                attendanceResult,
+                promotionResult,
+                subjectsResult
+            ] = await Promise.all([
+                supabaseClient
+                    .from("exam_marks")
+                    .select("academic_record_id, subject_id, examination, marks, full_marks")
+                    .in("academic_record_id", recordIds),
+                supabaseClient
+                    .from("monthly_attendance")
+                    .select("academic_record_id, month_no, working_days, present_days")
+                    .in("academic_record_id", recordIds),
+                supabaseClient
+                    .from("promotion_history")
+                    .select("from_session_id, to_session_id, from_class, to_class, from_roll, to_roll, status")
+                    .eq("student_profile_id", studentProfileId),
+                supabaseClient
+                    .from("subjects")
+                    .select("id, class_no, subject_name, display_order")
+                    .in("class_no", classNos)
+                    .order("display_order", { ascending: true })
+            ]);
 
-            historyContent.innerHTML =
-                html;
+            if (marksResult.error) throw marksResult.error;
+            if (attendanceResult.error) throw attendanceResult.error;
+            if (promotionResult.error) throw promotionResult.error;
+            if (subjectsResult.error) throw subjectsResult.error;
 
+            const marksRows = marksResult.data || [];
+            const attendanceRows = attendanceResult.data || [];
+            const promotionRows = promotionResult.data || [];
+            const subjectRows = subjectsResult.data || [];
+
+            const recordMap = new Map(records.map(record => [String(record.id), record]));
+            const subjectMap = new Map(subjectRows.map(subject => [String(subject.id), subject]));
+            const promotionSessionIds = [
+                ...new Set(
+                    promotionRows
+                        .flatMap(row => [row.from_session_id, row.to_session_id])
+                        .filter(id => id !== null && id !== undefined)
+                        .map(String)
+                )
+            ];
+
+            let promotionSessions = [];
+            if (promotionSessionIds.length) {
+                const { data, error } = await supabaseClient
+                    .from("academic_sessions")
+                    .select("id, session_name")
+                    .in("id", promotionSessionIds.map(Number));
+                if (error) throw error;
+                promotionSessions = data || [];
+            }
+            const promotionSessionMap = new Map(
+                promotionSessions.map(session => [String(session.id), session.session_name])
+            );
+
+            const marksByRecord = {};
+            marksRows.forEach(row => {
+                if (!marksByRecord[row.academic_record_id]) marksByRecord[row.academic_record_id] = {};
+                const exam = String(row.examination || "Other");
+                if (!marksByRecord[row.academic_record_id][exam]) {
+                    marksByRecord[row.academic_record_id][exam] = [];
+                }
+                marksByRecord[row.academic_record_id][exam].push(row);
+            });
+
+            const attendanceByRecord = {};
+            attendanceRows.forEach(row => {
+                if (!attendanceByRecord[row.academic_record_id]) attendanceByRecord[row.academic_record_id] = [];
+                const working = safeNumber(row.working_days);
+                const present = safeNumber(row.present_days);
+                if (working !== null || present !== null) {
+                    attendanceByRecord[row.academic_record_id].push({
+                        month: Number(row.month_no),
+                        working,
+                        present
+                    });
+                }
+            });
+
+            const monthNames = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+
+            const calculateExamSummary = (rows, record) => {
+                const meaningful = rows.filter(row => row.marks !== null && row.marks !== undefined && row.marks !== "");
+                if (!meaningful.length) return { rows: [], total: null, full: null, pct: null, grade: "" };
+
+                let total = 0;
+                let full = 0;
+                const detailRows = [...meaningful].sort((a, b) => {
+                    const sa = subjectMap.get(String(a.subject_id));
+                    const sb = subjectMap.get(String(b.subject_id));
+                    return Number(sa?.display_order ?? 9999) - Number(sb?.display_order ?? 9999);
+                });
+
+                detailRows.forEach(row => {
+                    const marks = safeNumber(row.marks);
+                    const fm = safeNumber(row.full_marks);
+                    if (marks !== null) total += marks;
+                    if (fm !== null) full += fm;
+                });
+
+                const pct = full > 0 ? (total / full) * 100 : null;
+                return {
+                    rows: detailRows,
+                    total,
+                    full,
+                    pct,
+                    grade: pct === null ? "" : gradeForHistory(pct)
+                };
+            };
+
+            const renderExamSection = (record) => {
+                const examGroups = marksByRecord[record.id] || {};
+                const examNames = Object.keys(examGroups);
+
+                if (!examNames.length) {
+                    return `<div class="history-subsection"><div class="history-section-label">Marks</div><div class="history-muted">No marks recorded.</div></div>`;
+                }
+
+                const sections = [];
+                const renderedExams = new Set();
+
+                const halfRows = examGroups["Half-Yearly"] || examGroups["Half Yearly"];
+                const annualRows = examGroups["Annual"];
+                if (halfRows && annualRows) {
+                    const finalRows = [
+                        ...(halfRows || []).map(row => ({ ...row, _finalComponent: true })),
+                        ...(annualRows || []).map(row => ({ ...row, _finalComponent: true }))
+                    ];
+                    const finalSummary = calculateExamSummary(finalRows, record);
+                    if (finalSummary.rows.length) {
+                        sections.push(`
+                            <div class="history-exam-card">
+                                <div class="history-exam-header">
+                                    <strong>Final</strong>
+                                    <span>${finalSummary.total}/${finalSummary.full} • ${finalSummary.pct === null ? "" : finalSummary.pct.toFixed(2) + "%"} ${finalSummary.grade ? "• Grade " + finalSummary.grade : ""}</span>
+                                </div>
+                                <div class="history-mini-table-wrap">
+                                    <table class="history-mini-table">
+                                        <thead><tr><th>Subject</th><th>Marks</th><th>Full Marks</th></tr></thead>
+                                        <tbody>
+                                            ${(() => {
+                                                const subjectScores = {};
+                                                (halfRows || []).forEach(row => {
+                                                    const subject = subjectMap.get(String(row.subject_id));
+                                                    const key = String(row.subject_id);
+                                                    if (!subjectScores[key]) subjectScores[key] = { subject, half: null, annual: null, full: 0 };
+                                                    subjectScores[key].half = safeNumber(row.marks);
+                                                    subjectScores[key].full += safeNumber(row.full_marks) || 0;
+                                                });
+                                                (annualRows || []).forEach(row => {
+                                                    const subject = subjectMap.get(String(row.subject_id));
+                                                    const key = String(row.subject_id);
+                                                    if (!subjectScores[key]) subjectScores[key] = { subject, half: null, annual: null, full: 0 };
+                                                    subjectScores[key].annual = safeNumber(row.marks);
+                                                    subjectScores[key].full += safeNumber(row.full_marks) || 0;
+                                                });
+                                                return Object.values(subjectScores)
+                                                    .sort((a, b) => Number(a.subject?.display_order ?? 9999) - Number(b.subject?.display_order ?? 9999))
+                                                    .map(item => `<tr><td>${escapeHtml(item.subject?.subject_name || "Subject")}</td><td>${item.half !== null || item.annual !== null ? displayValue((item.half || 0) + (item.annual || 0)) : ""}</td><td>${displayValue(item.full || "")}</td></tr>`)
+                                                    .join("");
+                                            })()}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        `);
+                    }
+                    if (examGroups["Half-Yearly"]) renderedExams.add("Half-Yearly");
+                    if (examGroups["Half Yearly"]) renderedExams.add("Half Yearly");
+                    if (examGroups["Annual"]) renderedExams.add("Annual");
+                }
+
+                examNames.forEach(exam => {
+                    if (renderedExams.has(exam)) return;
+                    const summary = calculateExamSummary(examGroups[exam], record);
+                    if (!summary.rows.length) return;
+                    sections.push(`
+                        <div class="history-exam-card">
+                            <div class="history-exam-header">
+                                <strong>${escapeHtml(exam)}</strong>
+                                <span>${summary.total}/${summary.full} • ${summary.pct === null ? "" : summary.pct.toFixed(2) + "%"} ${summary.grade ? "• Grade " + summary.grade : ""}</span>
+                            </div>
+                            <div class="history-mini-table-wrap">
+                                <table class="history-mini-table">
+                                    <thead><tr><th>Subject</th><th>Marks</th><th>Full Marks</th></tr></thead>
+                                    <tbody>
+                                        ${summary.rows.map(row => {
+                                            const subject = subjectMap.get(String(row.subject_id));
+                                            return `<tr><td>${escapeHtml(subject?.subject_name || "Subject")}</td><td>${displayValue(row.marks)}</td><td>${displayValue(row.full_marks)}</td></tr>`;
+                                        }).join("")}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `);
+                });
+
+                return `<div class="history-subsection"><div class="history-section-label">Marks</div>${sections.join("")}</div>`;
+            };
+
+            const renderAttendanceSection = record => {
+                const rows = (attendanceByRecord[record.id] || []).sort((a, b) => a.month - b.month);
+                if (!rows.length) {
+                    return `<div class="history-subsection"><div class="history-section-label">Attendance</div><div class="history-muted">No attendance recorded.</div></div>`;
+                }
+
+                let totalWorking = 0;
+                let totalPresent = 0;
+                rows.forEach(row => {
+                    if (row.working !== null) totalWorking += row.working;
+                    if (row.present !== null) totalPresent += row.present;
+                });
+                const totalPct = totalWorking > 0 ? (totalPresent / totalWorking) * 100 : null;
+
+                return `
+                    <div class="history-subsection">
+                        <div class="history-section-label">Attendance</div>
+                        <div class="history-attendance-summary">
+                            <span><strong>Working:</strong> ${totalWorking}</span>
+                            <span><strong>Present:</strong> ${totalPresent}</span>
+                            <span><strong>Absent:</strong> ${Math.max(0, totalWorking - totalPresent)}</span>
+                            <span><strong>Attendance:</strong> ${totalPct === null ? "" : totalPct.toFixed(2) + "%"}</span>
+                        </div>
+                        <div class="history-mini-table-wrap">
+                            <table class="history-mini-table">
+                                <thead><tr><th>Month</th><th>Working Days</th><th>Present</th><th>Absent</th><th>Attendance %</th></tr></thead>
+                                <tbody>
+                                    ${rows.map(row => {
+                                        const pct = row.working && row.present !== null ? (row.present / row.working) * 100 : null;
+                                        const absent = row.working !== null && row.present !== null ? Math.max(0, row.working - row.present) : null;
+                                        return `<tr><td>${escapeHtml(monthNames[(row.month || 1) - 1] || String(row.month || ""))}</td><td>${displayValue(row.working)}</td><td>${displayValue(row.present)}</td><td>${displayValue(absent)}</td><td>${pct === null ? "" : pct.toFixed(2) + "%"}</td></tr>`;
+                                    }).join("")}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            };
+
+            const renderPromotionHistory = () => {
+                const relevant = promotionRows;
+                if (!relevant.length) {
+                    return `<div class="history-subsection"><div class="history-section-label">Promotion History</div><div class="history-muted">No promotion history recorded.</div></div>`;
+                }
+                return `
+                    <div class="history-subsection">
+                        <div class="history-section-label">Promotion History</div>
+                        <div class="history-promotion-list">
+                            ${relevant.map(row => {
+                                const fromSession = promotionSessionMap.get(String(row.from_session_id)) || "-";
+                                const toSession = row.to_session_id ? (promotionSessionMap.get(String(row.to_session_id)) || "-") : "-";
+                                const fromClass = row.from_class ? className(row.from_class) : "-";
+                                const toClass = row.to_class ? className(row.to_class) : (row.status || "-");
+                                const fromRoll = row.from_roll ?? "-";
+                                const toRoll = row.to_roll ?? "-";
+                                return `
+                                    <div class="history-promotion-item">
+                                        <div><strong>${escapeHtml(fromSession)}</strong> · ${escapeHtml(fromClass)} · Roll ${displayValue(fromRoll)}</div>
+                                        <div class="history-promotion-arrow">→</div>
+                                        <div><strong>${escapeHtml(toSession)}</strong> · ${escapeHtml(toClass)} · Roll ${displayValue(toRoll)}</div>
+                                        <div class="history-promotion-status">${escapeHtml(row.status || "Promoted")}</div>
+                                    </div>
+                                `;
+                            }).join("")}
+                        </div>
+                    </div>
+                `;
+            };
+
+            let html = "";
+            if (student) {
+                const currentRecord = [...records].sort((a, b) => Number(b.session_id) - Number(a.session_id))[0];
+                html += `
+                    <div class="history-student-header">
+                        <div>
+                            <h3>${escapeHtml(student.studentName)}</h3>
+                            <p>
+                                Student ID: ${student.studentId ? escapeHtml(student.studentId) : "Blank"}<br>
+                                APAAR ID: ${student.apaarId ? escapeHtml(student.apaarId) : "Blank"}
+                            </p>
+                        </div>
+                        <div class="history-current-badge">
+                            <span>Current</span>
+                            <strong>${escapeHtml(currentRecord?.academic_sessions?.session_name || "-")}</strong>
+                            <small>${escapeHtml(currentRecord ? className(currentRecord.class_no) : "-")} · Roll ${displayValue(currentRecord?.roll_no)}</small>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `<div class="history-timeline">`;
+            records.forEach((record, index) => {
+                const sessionName = record.academic_sessions?.session_name || "-";
+                const isLast = index === records.length - 1;
+                html += `
+                    <div class="history-year-card ${isLast ? "current-year" : ""}">
+                        <div class="history-year-header">
+                            <div>
+                                <div class="history-year-title">${escapeHtml(sessionName)}</div>
+                                <div class="history-year-meta">${escapeHtml(className(record.class_no))} · Roll ${displayValue(record.roll_no)} · ${escapeHtml(record.status || "Current")}</div>
+                            </div>
+                            ${isLast ? `<span class="history-current-pill">Current</span>` : ""}
+                        </div>
+                        ${renderExamSection(record)}
+                        ${renderAttendanceSection(record)}
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            html += renderPromotionHistory();
+
+            historyContent.innerHTML = html;
 
         } catch (error) {
-
-            historyContent.innerHTML =
-                `<div class="empty-state">
+            historyContent.innerHTML = `
+                <div class="empty-state">
                     Unable to load history.
                     <br><br>
-                    ${escapeHtml(
-                        error.message
-                    )}
-                </div>`;
-
+                    ${escapeHtml(error.message)}
+                </div>
+            `;
         }
-
     };
 
-
-function formatStudentHistoryDate(value) {
-    if (!value) return "—";
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return String(value);
-    return date.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
-}
 
 /* =========================================================
    LIVE UPPERCASE INPUTS
