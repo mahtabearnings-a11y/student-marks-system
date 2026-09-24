@@ -126,8 +126,9 @@ function getMarksSnapshot() {
             const raw = marksValues[key];
             const value = raw === undefined || raw === null || raw === "" ? null : Number(raw);
 
-            // Empty cells are one canonical state. Do not let a temporary
-            // input/edit history make an otherwise identical state dirty.
+            // Snapshot ONLY editable mark values. Total, percentage and grade
+            // are derived display values and must never make the grid dirty.
+            // Blank and null are one canonical empty state.
             if (value === null || Number.isNaN(value)) return;
 
             values.push([Number(record.id), Number(subject.id), value]);
@@ -232,7 +233,7 @@ function renderMarksGrid() {
             const disabled = currentRole !== "admin" ? "disabled" : "";
             return `<td><input class="marks-input" type="text" inputmode="numeric" autocomplete="off" pattern="\d*" maxlength="2" value="${value === "" ? "" : escapeHtml(String(value))}" data-record="${record.id}" data-subject="${subject.id}" ${disabled}></td>`;
         }).join("");
-        return `<tr><td class="sticky-roll">${escapeHtml(String(record.roll_no ?? ""))}</td><td class="sticky-name">${escapeHtml(record.students?.student_name || "")}</td>${cells}<td class="marks-calculated" data-total="${record.id}">${calc.total || (calc.total === 0 && calc.entered) ? calc.total : ""}</td><td class="marks-calculated" data-pct="${record.id}">${calc.total ? calc.pct.toFixed(2) + "%" : ""}</td><td class="marks-calculated marks-grade" data-grade="${record.id}">${escapeHtml(calc.grade)}</td></tr>`;
+        return `<tr><td class="sticky-roll">${escapeHtml(String(record.roll_no ?? ""))}</td><td class="sticky-name">${escapeHtml(record.students?.student_name || "")}</td>${cells}<td class="marks-calculated" data-total="${record.id}">${calc.entered ? calc.total : ""}</td><td class="marks-calculated" data-pct="${record.id}">${calc.entered ? calc.pct.toFixed(2) + "%" : ""}</td><td class="marks-calculated marks-grade" data-grade="${record.id}">${calc.entered ? escapeHtml(calc.grade) : ""}</td></tr>`;
     }).join("");
 
     marksTableContainer.innerHTML = `<table class="marks-table"><thead><tr><th class="sticky-roll">Roll</th><th class="sticky-name">Student Name</th>${head}<th>Total</th><th>Percentage</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table>`;
@@ -257,9 +258,9 @@ function renderMarksGrid() {
             const total = marksTableContainer.querySelector(`[data-total="${input.dataset.record}"]`);
             const pct = marksTableContainer.querySelector(`[data-pct="${input.dataset.record}"]`);
             const grade = marksTableContainer.querySelector(`[data-grade="${input.dataset.record}"]`);
-            total.textContent = calc.total || calc.total === 0 ? calc.total : "";
-            pct.textContent = calc.total ? calc.pct.toFixed(2) + "%" : "";
-            grade.textContent = calc.grade;
+            total.textContent = calc.entered ? calc.total : "";
+            pct.textContent = calc.entered ? calc.pct.toFixed(2) + "%" : "";
+            grade.textContent = calc.entered ? calc.grade : "";
         });
     });
 }
