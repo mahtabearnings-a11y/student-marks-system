@@ -161,12 +161,14 @@ function renderMarksGrid() {
     if (!marksRecords.length) {
         marksRecordCount.textContent = "0 students";
         marksTableContainer.innerHTML = `<div class="empty-state">No students found for ${escapeHtml(className(Number(marksClass.value)))} in the selected session.</div>`;
+        setupFrozenTableHeader(marksTableContainer);
         return;
     }
 
     if (!marksSubjects.length) {
         marksRecordCount.textContent = `${marksRecords.length} students`;
         marksTableContainer.innerHTML = `<div class="empty-state">No subjects are configured for this class.</div>`;
+        setupFrozenTableHeader(marksTableContainer);
         return;
     }
 
@@ -187,20 +189,16 @@ function renderMarksGrid() {
             }
             const value = getMark(record.id, subject.id, marksExam.value);
             const disabled = currentRole !== "admin" ? "disabled" : "";
-            return `<td><input class="marks-input" type="text" inputmode="numeric" autocomplete="off" value="${value === "" ? "" : escapeHtml(String(value))}" data-record="${record.id}" data-subject="${subject.id}" ${disabled}></td>`;
+            return `<td><input class="marks-input" type="number" min="0" max="50" step="1" value="${value === "" ? "" : escapeHtml(String(value))}" data-record="${record.id}" data-subject="${subject.id}" ${disabled}></td>`;
         }).join("");
         return `<tr><td class="sticky-roll">${escapeHtml(String(record.roll_no ?? ""))}</td><td class="sticky-name">${escapeHtml(record.students?.student_name || "")}</td>${cells}<td class="marks-calculated" data-total="${record.id}">${calc.total || (calc.total === 0 && calc.entered) ? calc.total : ""}</td><td class="marks-calculated" data-pct="${record.id}">${calc.total ? calc.pct.toFixed(2) + "%" : ""}</td><td class="marks-calculated marks-grade" data-grade="${record.id}">${escapeHtml(calc.grade)}</td></tr>`;
     }).join("");
 
     marksTableContainer.innerHTML = `<table class="marks-table"><thead><tr><th class="sticky-roll">Roll</th><th class="sticky-name">Student Name</th>${head}<th>Total</th><th>Percentage</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table>`;
 
-    marksTableContainer.querySelectorAll(".marks-input").forEach(input => {
-        // Marks are text inputs so the mouse wheel scrolls the page normally
-        // instead of changing the entered mark. No native number spinners are shown.
-        input.addEventListener("wheel", () => {
-            input.blur();
-        }, { passive: true });
+    setupFrozenTableHeader(marksTableContainer);
 
+    marksTableContainer.querySelectorAll(".marks-input").forEach(input => {
         input.addEventListener("input", () => {
             let value = input.value.trim();
             if (value !== "") {
