@@ -12,6 +12,13 @@
 <link rel="stylesheet" href="css/print.css">
 
 
+<style id="auth-initialization-style">
+body:not(.auth-ready) #loginPage,
+body:not(.auth-ready) #appPage {
+    visibility: hidden;
+}
+</style>
+
 </head>
 
 <body>
@@ -21,7 +28,7 @@
      LOGIN
 ========================================================= -->
 
-<div id="loginPage" class="hidden">
+<div id="loginPage">
     <div class="login-shell">
         <div class="login-brand">
             <div class="login-brand-content">
