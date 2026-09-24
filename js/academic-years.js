@@ -13,6 +13,40 @@ const academicYearsMessage = document.getElementById("academicYearsMessage");
 
 let editingAcademicYearId = null;
 
+
+function normalizeAcademicYearName(value) {
+    const raw = String(value ?? "")
+        .trim()
+        .replace(/[–—−]/g, "-")
+        .replace(/\s+/g, "");
+
+    if (!raw) return "";
+
+    let start = null;
+    let end = null;
+
+    let match = raw.match(/^(\d{4})[-\/]?(\d{2}|\d{4})$/);
+    if (match) {
+        start = Number(match[1]);
+        end = Number(match[2].length === 4 ? match[2] : `${match[1].slice(0, 2)}${match[2]}`);
+    }
+
+    if (!match && /^\d{8}$/.test(raw)) {
+        start = Number(raw.slice(0, 4));
+        end = Number(raw.slice(4));
+    }
+
+    if (!Number.isInteger(start) || !Number.isInteger(end)) return null;
+    if (start < 1900 || start > 2999 || end !== start + 1) return null;
+
+    return `${start}-${String(end).slice(-2)}`;
+}
+
+function academicYearDisplayName(value) {
+    const normalized = normalizeAcademicYearName(value);
+    return normalized || String(value ?? "").trim();
+}
+
 function academicYearStatus(session) {
     if (session.deleted_at) return "Deleted";
     if (session.is_active) return "Active";
@@ -40,6 +74,13 @@ function formatAcademicYearDate(value) {
     return date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 }
 
+if (academicYearNameInput) {
+    academicYearNameInput.addEventListener("blur", () => {
+        const normalized = normalizeAcademicYearName(academicYearNameInput.value);
+        if (normalized) academicYearNameInput.value = normalized;
+    });
+}
+
 function resetAcademicYearForm() {
     editingAcademicYearId = null;
     if (academicYearNameInput) academicYearNameInput.value = "";
@@ -51,7 +92,7 @@ function resetAcademicYearForm() {
 
 function prepareAcademicYearEdit(session) {
     editingAcademicYearId = Number(session.id);
-    academicYearNameInput.value = session.session_name || "";
+    academicYearNameInput.value = academicYearDisplayName(session.session_name);
     academicYearStartInput.value = session.start_date || "";
     academicYearEndInput.value = session.end_date || "";
     createAcademicYearButton.textContent = "Save Academic Year";
@@ -90,7 +131,7 @@ function renderAcademicYears() {
         }
 
         return `<tr>
-            <td><strong>${escapeHtml(session.session_name || "")}</strong></td>
+            <td><strong>${escapeHtml(academicYearDisplayName(session.session_name))}</strong></td>
             <td>${formatAcademicYearDate(session.start_date)}</td>
             <td>${formatAcademicYearDate(session.end_date)}</td>
             <td>${academicYearStatusBadge(status)}</td>
@@ -144,12 +185,32 @@ async function loadAcademicYearManager() {
 async function createOrUpdateAcademicYear() {
     if (currentRole !== "admin") return;
 
-    const name = academicYearNameInput?.value.trim() || "";
+    const rawName = academicYearNameInput?.value.trim() || "";
+    const name = normalizeAcademicYearName(rawName);
     const startDate = academicYearStartInput?.value || null;
     const endDate = academicYearEndInput?.value || null;
 
-    if (!name) {
+    if (!rawName) {
         showToast("Academic year name is required.", "error");
+        return;
+    }
+
+    if (!name) {
+        showToast("Enter the academic year as two consecutive years, for example 2026-27 or 2027-2028.", "error");
+        academicYearNameInput?.focus();
+        return;
+    }
+
+    if (academicYearNameInput) {
+        academicYearNameInput.value = name;
+    }
+
+    const duplicate = sessions.find(session =>
+        Number(session.id) !== Number(editingAcademicYearId || 0) &&
+        normalizeAcademicYearName(session.session_name) === name
+    );
+    if (duplicate) {
+        showToast(`Academic year ${name} already exists.`, "error");
         return;
     }
 
@@ -207,12 +268,12 @@ async function closeAcademicYear(sessionId) {
 
     const verified = await requireAdminPasswordForAction({
         title: "Close Academic Year",
-        message: `Closing ${session.session_name} will make its academic records protected. A password will be required before editing them later.`,
+        message: `Closing ${academicYearDisplayName(session.session_name)} will make its academic records protected. A password will be required before editing them later.`,
         actionLabel: "Close Year"
     });
     if (!verified) return;
 
-    if (!confirm(`Close academic year ${session.session_name}?\n\nThe year will remain available for viewing and historical records will be preserved.`)) return;
+    if (!confirm(`Close academic year ${academicYearDisplayName(session.session_name)}?\n\nThe year will remain available for viewing and historical records will be preserved.`)) return;
 
     try {
         const { error } = await supabaseClient.rpc("close_academic_session", { p_session_id: sessionId });
@@ -221,7 +282,7 @@ async function closeAcademicYear(sessionId) {
         renderAcademicYears();
         if (typeof populatePromotionSessions === "function") populatePromotionSessions();
         if (typeof loadPromotionStudents === "function") await loadPromotionStudents();
-        showToast(`${session.session_name} is now closed.`, "success");
+        showToast(`${academicYearDisplayName(session.session_name)} is now closed.`, "success");
     } catch (error) {
         showToast(error.message || "Unable to close the academic year.", "error");
     }
@@ -233,12 +294,12 @@ async function activateAcademicYear(sessionId) {
 
     const verified = await requireAdminPasswordForAction({
         title: "Set Active Academic Year",
-        message: `Set ${session.session_name} as the active academic year? The currently active year will be closed automatically.`,
+        message: `Set ${academicYearDisplayName(session.session_name)} as the active academic year? The currently active year will be closed automatically.`,
         actionLabel: "Set Active"
     });
     if (!verified) return;
 
-    if (!confirm(`Set ${session.session_name} as the active academic year?`)) return;
+    if (!confirm(`Set ${academicYearDisplayName(session.session_name)} as the active academic year?`)) return;
 
     try {
         const { error } = await supabaseClient.rpc("activate_academic_session", { p_session_id: sessionId });
@@ -250,7 +311,7 @@ async function activateAcademicYear(sessionId) {
         if (typeof loadPromotionStudents === "function") await loadPromotionStudents();
         if (typeof loadStudents === "function") await loadStudents();
         if (typeof updateDashboardCounts === "function") await updateDashboardCounts();
-        showToast(`${session.session_name} is now active.`, "success");
+        showToast(`${academicYearDisplayName(session.session_name)} is now active.`, "success");
     } catch (error) {
         showToast(error.message || "Unable to activate the academic year.", "error");
     }
@@ -260,22 +321,25 @@ async function moveAcademicYearToRecycleBin(sessionId) {
     const session = sessions.find(item => Number(item.id) === Number(sessionId));
     if (!session) return;
 
-    const verified = await requireAdminPasswordForAction({
+    const yearName = academicYearDisplayName(session.session_name);
+    const password = await requestRecycleBinSecurityPassword({
         title: "Move Academic Year to Recycle Bin",
-        message: `Move ${session.session_name} to the Recycle Bin? Its connected academic records will be preserved and can be restored with the year.`,
+        message: `Move ${yearName} to the Recycle Bin? Its connected academic records will be preserved and can be restored with the year.`,
         actionLabel: "Move to Recycle Bin"
     });
-    if (!verified) return;
-
-    if (!confirm(`Move ${session.session_name} to the Recycle Bin?`)) return;
+    if (password === null) return;
 
     try {
-        const { error } = await supabaseClient.rpc("move_academic_session_to_recycle_bin", { p_session_id: sessionId });
+        const { error } = await supabaseClient.rpc("move_academic_session_to_recycle_bin", {
+            p_session_id: sessionId,
+            p_password: password
+        });
         if (error) throw error;
         clearAcademicSessionEditUnlocks();
         await loadSessions();
         renderAcademicYears();
-        showToast(`${session.session_name} moved to the Recycle Bin.`, "success");
+        if (typeof loadAcademicYearRecycleBin === "function") await loadAcademicYearRecycleBin();
+        showToast(`${yearName} moved to the Recycle Bin.`, "success");
     } catch (error) {
         showToast(error.message || "Unable to move the academic year to the Recycle Bin.", "error");
     }

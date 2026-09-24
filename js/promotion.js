@@ -143,7 +143,7 @@ function openPromotionReview(){
     const next=getNextSession(sourceSession);
     if(!source){showToast("Select a valid source academic year.","error");return;}
     if(!source.is_closed){
-        showToast("Close the source academic year before running promotion.","error");
+        showStudentConflictDialog("Promotion Not Allowed", "Please close the current academic year before starting the promotion.");
         promotionMessage.textContent = `Promotion is protected until ${source.session_name} is closed. Historical records must be finalized first.`;
         return;
     }
@@ -208,7 +208,7 @@ async function confirmPromotion(){
 
     const source = sessions.find(s=>Number(s.id)===sourceSessionId);
     if(!source?.is_closed){
-        showToast("Close the source academic year before running promotion.","error");
+        showStudentConflictDialog("Promotion Not Allowed", "Please close the current academic year before starting the promotion.");
         return;
     }
     const message=sourceClass===8

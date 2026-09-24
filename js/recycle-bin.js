@@ -248,19 +248,28 @@ async function permanentlyDeleteSelectedAcademicYears() {
     const ids = getSelectedAcademicYearRecycleIds();
     if (!ids.length) return;
     const selected = academicYearRecycleData.filter(item => ids.includes(Number(item.id)));
-    const verified = await requireAdminPasswordForAction({
+    const names = selected.map(item => academicYearDisplayName(item.session_name)).join(", ");
+
+    const confirmed = confirm(
+        `Permanently delete ${names}?\n\nThis action cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    const password = await requestRecycleBinSecurityPassword({
         title: "Permanently Delete Academic Year",
-        message: "This permanently deletes the selected academic year record. It is allowed only when no connected academic or promotion records remain.",
+        message: "Enter the same Recycle Bin password used for permanently deleting students. This action cannot be undone, and permanent deletion is allowed only when no connected academic or promotion records remain.",
         actionLabel: "Permanently Delete"
     });
-    if (!verified) return;
-    if (!confirm(`Permanently delete ${selected.map(item => item.session_name).join(", ")}?\n\nThis cannot be undone.`)) return;
+    if (password === null) return;
 
     permanentDeleteAcademicYearButton.disabled = true;
     let deleted = 0;
     try {
         for (const id of ids) {
-            const { error } = await supabaseClient.rpc("permanently_delete_academic_session", { p_session_id: id });
+            const { error } = await supabaseClient.rpc("permanently_delete_academic_session", {
+                p_session_id: id,
+                p_password: password
+            });
             if (error) throw error;
             deleted++;
         }
@@ -270,6 +279,7 @@ async function permanentlyDeleteSelectedAcademicYears() {
         showToast(error.message || "Permanent academic-year deletion failed.", "error");
         await loadAcademicYearRecycleBin();
     } finally {
+        permanentDeleteAcademicYearButton.disabled = false;
         updateAcademicYearRecycleSelectionState();
     }
 }
@@ -560,8 +570,53 @@ async function restoreSelectedRecycleBin() {
     }
 }
 
+
+
+let recycleBinPasswordDialogResolve = null;
+let recycleBinPasswordDialogMode = null;
+
+function requestRecycleBinSecurityPassword({
+    title = "Recycle Bin Password",
+    message = "Enter the Recycle Bin password to continue.",
+    actionLabel = "OK"
+} = {}) {
+    return new Promise(resolve => {
+        if (!recycleBinPasswordModal || !recycleBinDeletePassword || !confirmRecycleBinPasswordButton) {
+            resolve(null);
+            return;
+        }
+
+        const titleEl = recycleBinPasswordModal.querySelector(".modal-header h3");
+        const messageEl = recycleBinPasswordModal.querySelector(".modal-body p");
+        const labelEl = recycleBinPasswordModal.querySelector("label[for='recycleBinDeletePassword']");
+
+        if (titleEl) titleEl.textContent = title;
+        if (messageEl) {
+            messageEl.textContent = message;
+            messageEl.style.textAlign = "justify";
+        }
+        if (labelEl) labelEl.textContent = "Recycle Bin Password";
+
+        recycleBinDeletePassword.value = "";
+        confirmRecycleBinPasswordButton.textContent = actionLabel;
+        confirmRecycleBinPasswordButton.disabled = false;
+
+        recycleBinPasswordDialogResolve = resolve;
+        recycleBinPasswordDialogMode = "academic-year";
+        recycleBinPasswordModal.classList.remove("hidden");
+        setTimeout(() => recycleBinDeletePassword.focus(), 50);
+    });
+}
+
 function closeRecycleBinPasswordDialog() {
     pendingPermanentDeleteIds = [];
+
+    if (recycleBinPasswordDialogResolve) {
+        const resolve = recycleBinPasswordDialogResolve;
+        recycleBinPasswordDialogResolve = null;
+        recycleBinPasswordDialogMode = null;
+        resolve(null);
+    }
 
     if (recycleBinDeletePassword) {
         recycleBinDeletePassword.value = "";
@@ -573,6 +628,8 @@ function closeRecycleBinPasswordDialog() {
 }
 
 function openRecycleBinPasswordDialog(ids) {
+    recycleBinPasswordDialogMode = null;
+    recycleBinPasswordDialogResolve = null;
     pendingPermanentDeleteIds = [...ids];
 
     if (recycleBinDeletePassword) {
@@ -624,10 +681,25 @@ async function permanentlyDeleteSelectedRecycleBin() {
 async function confirmPermanentDelete() {
     if (currentRole !== "admin") return;
 
-    const ids = [...pendingPermanentDeleteIds];
     const password = recycleBinDeletePassword
         ? recycleBinDeletePassword.value
         : "";
+
+    if (recycleBinPasswordDialogMode === "academic-year") {
+        if (!password) {
+            showToast("Please enter the password.", "error");
+            return;
+        }
+        const resolve = recycleBinPasswordDialogResolve;
+        recycleBinPasswordDialogResolve = null;
+        recycleBinPasswordDialogMode = null;
+        recycleBinPasswordModal?.classList.add("hidden");
+        recycleBinDeletePassword.value = "";
+        resolve?.(password);
+        return;
+    }
+
+    const ids = [...pendingPermanentDeleteIds];
 
     if (!ids.length) {
         closeRecycleBinPasswordDialog();

@@ -27,7 +27,15 @@ async function loadSessions() {
         if (error) throw error;
     }
 
-    sessions = (data || []).filter(session => !session.deleted_at);
+    sessions = (data || [])
+        .filter(session => !session.deleted_at)
+        .map(session => ({
+            ...session,
+            session_name:
+                typeof academicYearDisplayName === "function"
+                    ? academicYearDisplayName(session.session_name)
+                    : session.session_name
+        }));
 
     sessionFilter.innerHTML = "";
 
