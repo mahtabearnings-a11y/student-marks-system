@@ -512,10 +512,26 @@ body:not(.auth-ready) #appPage {
                 </div>
             </div>
 
+            <div class="card table-card academic-year-recycle-card">
+                <div class="table-top">
+                    <div>
+                        <h3 style="color:#123b73;margin:0 0 5px">Deleted Academic Years</h3>
+                        <div id="academicYearRecycleCount" class="record-count">0 deleted academic years</div>
+                    </div>
+                    <div class="recycle-bin-actions">
+                        <button id="restoreAcademicYearButton" class="btn btn-primary btn-small" disabled>Restore Selected</button>
+                        <button id="permanentDeleteAcademicYearButton" class="btn btn-danger btn-small" disabled>Permanently Delete Selected</button>
+                    </div>
+                </div>
+                <div id="academicYearRecycleContainer" class="table-wrapper">
+                    <div class="loading">Loading deleted academic years...</div>
+                </div>
+            </div>
+
             <div class="recycle-bin-note">
                 <strong>Recycle Bin:</strong>
-                Deleted students are kept here until they are restored or permanently deleted.
-                Permanent deletion cannot be undone.
+                Deleted students and academic years remain recoverable until permanently deleted.
+                Historical academic records are preserved; permanent academic-year deletion is blocked while connected records remain.
             </div>
 
         </section>
@@ -698,8 +714,39 @@ body:not(.auth-ready) #appPage {
             <div class="page-header">
                 <div>
                     <h2>Promotion</h2>
-                    <div class="creator-credit">Promote students to the next academic session</div>
+                    <div class="creator-credit">Manage academic years and promote students while preserving complete academic history</div>
                 </div>
+            </div>
+
+            <div class="card academic-year-manager-card">
+                <div class="table-top">
+                    <div>
+                        <h3 style="color:#123b73;margin:0 0 5px">Academic Year Management</h3>
+                        <div id="academicYearsMessage" class="record-count">Active, closed and draft academic years are managed here.</div>
+                    </div>
+                    <button id="refreshAcademicYearsButton" class="btn btn-secondary">Refresh</button>
+                </div>
+
+                <div class="academic-year-form">
+                    <div class="filter-item">
+                        <label for="academicYearName">Academic Year</label>
+                        <input id="academicYearName" type="text" maxlength="30" placeholder="e.g. 2026–27">
+                    </div>
+                    <div class="filter-item">
+                        <label for="academicYearStartDate">Start Date</label>
+                        <input id="academicYearStartDate" type="date">
+                    </div>
+                    <div class="filter-item">
+                        <label for="academicYearEndDate">End Date</label>
+                        <input id="academicYearEndDate" type="date">
+                    </div>
+                    <div class="academic-year-form-actions">
+                        <button id="createAcademicYearButton" class="btn btn-primary">Create Academic Year</button>
+                        <button id="cancelAcademicYearEditButton" class="btn btn-secondary hidden">Cancel Edit</button>
+                    </div>
+                </div>
+
+                <div id="academicYearsTableContainer" class="table-wrapper"></div>
             </div>
 
             <div class="card filter-card">
@@ -744,6 +791,20 @@ body:not(.auth-ready) #appPage {
                     <button id="promoteStudentsButton" class="btn btn-primary">Promote Students</button>
                 </div>
                 <div id="promotionTableContainer" class="table-wrapper"></div>
+            </div>
+
+            <div id="promotionHistoryCard" class="card">
+                <div class="table-top">
+                    <div>
+                        <h3 style="color:#123b73;margin:0 0 5px">Promotion History</h3>
+                        <div id="promotionHistoryCount" class="record-count"></div>
+                    </div>
+                    <button id="refreshPromotionHistoryButton" class="btn btn-secondary">Refresh</button>
+                </div>
+                <div id="promotionHistoryContainer" class="table-wrapper"></div>
+                <div class="promotion-note">
+                    New promotion batches are reversible only while the new academic records have no Marks or Attendance. Historical records from the previous academic year are never overwritten.
+                </div>
             </div>
 
             <div id="promotionReviewCard" class="card hidden">
@@ -1210,6 +1271,37 @@ body:not(.auth-ready) #appPage {
 
 
 <!-- =========================================================
+     ADMIN PASSWORD MODAL
+========================================================= -->
+
+<div
+    id="adminPasswordModal"
+    class="modal-overlay hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="adminPasswordTitle">
+
+    <div class="modal admin-password-modal">
+        <div class="modal-header">
+            <h3 id="adminPasswordTitle">Admin Verification</h3>
+            <button id="adminPasswordCloseButton" class="modal-close" type="button">×</button>
+        </div>
+
+        <div class="modal-body">
+            <p id="adminPasswordMessage" style="color:#4b5563;line-height:1.6;margin-bottom:14px;"></p>
+            <label for="adminPasswordInput">Admin Password</label>
+            <input id="adminPasswordInput" type="password" autocomplete="current-password" placeholder="Enter your Admin password">
+            <div id="adminPasswordError" class="error-message hidden" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="modal-footer">
+            <button id="adminPasswordCancelButton" class="btn btn-secondary" type="button">Cancel</button>
+            <button id="adminPasswordConfirmButton" class="btn btn-primary" type="button">Continue</button>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
      TOAST
 ========================================================= -->
 
@@ -1288,6 +1380,7 @@ body:not(.auth-ready) #appPage {
 <script src="js/students.js"></script>
 <script src="js/marks.js"></script>
 <script src="js/attendance.js"></script>
+<script src="js/academic-years.js"></script>
 <script src="js/promotion.js"></script>
 <script src="js/recycle-bin.js"></script>
 <script src="js/print.js"></script>
