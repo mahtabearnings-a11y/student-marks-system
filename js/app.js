@@ -122,24 +122,15 @@ function resetModuleState(section){
 ========================================================= */
 
 
-function showSection(section, updateRoute = true) {
-    const button = document.querySelector(`.nav-btn[data-section="${section}"]`);
-    const target = document.getElementById(section + "Section");
-
-    if (!button || !target || button.classList.contains("hidden")) {
-        section = "dashboard";
-    }
-
+function showSection(section, options = {}) {
     resetModuleState(section);
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.section === section));
     document.querySelectorAll(".app-section").forEach(item => item.classList.add("hidden"));
-    document.getElementById(section + "Section").classList.remove("hidden");
+    const target = document.getElementById(section + "Section");
+    if (target) target.classList.remove("hidden");
 
-    if (updateRoute) {
-        const desiredHash = `#${section}`;
-        if (window.location.hash !== desiredHash) {
-            history.replaceState(null, "", desiredHash);
-        }
+    if (options.updateHash !== false && window.location.hash !== "#" + section) {
+        window.history.replaceState(null, "", "#" + section);
     }
 
     if (section === "students") loadStudents();
@@ -147,19 +138,6 @@ function showSection(section, updateRoute = true) {
     if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
     if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); }
     if (section === "recycleBin") { loadRecycleBin(); }
-}
-
-function getInitialSection() {
-    const route = window.location.hash.replace(/^#/, "").trim();
-    const button = route
-        ? document.querySelector(`.nav-btn[data-section="${route}"]`)
-        : null;
-
-    if (button && !button.classList.contains("hidden") && document.getElementById(route + "Section")) {
-        return route;
-    }
-
-    return "dashboard";
 }
 
 
@@ -184,11 +162,26 @@ document
         }
     );
 
-window.addEventListener("hashchange", function() {
-    if (currentUser) {
-        showSection(getInitialSection(), false);
+
+window.addEventListener(
+    "hashchange",
+    function() {
+
+        if (!currentUser) {
+            return;
+        }
+
+        const section = getInitialSection(currentRole);
+
+        if (section === window.location.hash.replace(/^#/, "")) {
+            showSection(section, { updateHash: false });
+        } else {
+            showSection(section);
+        }
+
     }
-});
+);
+
 
 
 /* =========================================================

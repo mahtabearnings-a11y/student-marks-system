@@ -58,7 +58,7 @@ async function getUserRole(userId) {
 }
 
 
-async function showApplication(user) {
+async function showApplication(user, options = {}) {
 
     try {
 
@@ -86,20 +86,10 @@ async function showApplication(user) {
         userEmail.textContent =
             user.email;
 
-
         roleBadge.textContent =
             role === "admin"
                 ? "Admin"
                 : "View Only";
-
-
-        loginPage.classList.add(
-            "hidden"
-        );
-
-        appPage.classList.remove(
-            "hidden"
-        );
 
 
         addStudentButton.classList.toggle(
@@ -114,16 +104,34 @@ async function showApplication(user) {
             );
         }
 
-        startInactivityTimer();
 
+        // A successful new login always starts at Dashboard.
+        // During an authenticated refresh, restore the current hash instead.
+        const initialSection =
+            options.forceDashboard
+                ? "dashboard"
+                : getInitialSection(role);
+
+        // Load the data needed by the selected section before exposing the app.
         await loadSessions();
 
-        showSection(getInitialSection(), false);
-
-        populateMarksSessions();
-        populateMarksSessions();
+        showSection(initialSection, { updateHash: true });
 
         await loadStudents();
+
+        startInactivityTimer();
+
+        loginPage.classList.add(
+            "hidden"
+        );
+
+        appPage.classList.remove(
+            "hidden"
+        );
+
+        document.body.classList.add(
+            "auth-ready"
+        );
 
 
     } catch (error) {
@@ -134,12 +142,52 @@ async function showApplication(user) {
 
         showLogin();
 
+        document.body.classList.add(
+            "auth-ready"
+        );
+
         showLoginError(
             error.message
         );
 
     }
 
+}
+
+
+function getInitialSection(role) {
+
+    const requestedSection =
+        decodeURIComponent(
+            window.location.hash.replace(/^#/, "")
+        );
+
+    if (!requestedSection) {
+        return "dashboard";
+    }
+
+    const navButton =
+        document.querySelector(
+            `.nav-btn[data-section="${CSS.escape(requestedSection)}"]`
+        );
+
+    const target =
+        document.getElementById(
+            requestedSection + "Section"
+        );
+
+    if (!navButton || !target) {
+        return "dashboard";
+    }
+
+    if (
+        requestedSection === "recycleBin" &&
+        role !== "admin"
+    ) {
+        return "dashboard";
+    }
+
+    return requestedSection;
 }
 
 
@@ -207,9 +255,8 @@ loginForm.addEventListener(
             }
 
 
-            await showApplication(
-                data.user
-            );
+            // The SIGNED_IN auth event handles the successful login
+            // and always starts the application at Dashboard.
 
 
         } catch (error) {
@@ -352,7 +399,12 @@ supabaseClient.auth.onAuthStateChange(
             ) {
 
                 await showApplication(
-                    session.user
+                    session.user,
+                    {
+                        // INITIAL_SESSION means an existing session is being restored.
+                        // SIGNED_IN means a new successful login.
+                        forceDashboard: event === "SIGNED_IN"
+                    }
                 );
 
             }
@@ -363,9 +415,15 @@ supabaseClient.auth.onAuthStateChange(
                 showLogin();
             }
 
+            // Do not expose either auth screen until Supabase has finished
+            // determining the initial session.
+            if (event === "INITIAL_SESSION") {
+                document.body.classList.add(
+                    "auth-ready"
+                );
+            }
+
         }
 
     }
 );
-
-
