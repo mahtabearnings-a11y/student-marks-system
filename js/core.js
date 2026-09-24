@@ -339,7 +339,9 @@ function setupFrozenTableHeader(containerOrId) {
 
             if (!isSticky) return;
 
-            const clone = cell.cloneNode(true);
+            const clone = document.createElement("div");
+            clone.className = `frozen-sticky-header-cell ${cell.className || ""}`.trim();
+            clone.innerHTML = cell.innerHTML;
             const width = cell.getBoundingClientRect().width;
 
             clone.style.position = "absolute";
