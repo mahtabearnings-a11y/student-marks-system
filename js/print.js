@@ -174,12 +174,12 @@ function autoFitFolioTable(table){
     // columns keep practical widths and all subject columns share the rest.
     const printableWidth = 194;
     const fixed = {
-        serial: 9,
-        roll: 12,
-        name: 48,
-        total: 15,
-        percentage: 21,
-        grade: 18
+        serial: 8,
+        roll: 10,
+        name: 55,
+        total: 14,
+        percentage: 18,
+        grade: 16
     };
     const fixedWidth = fixed.serial + fixed.roll + fixed.name + fixed.total + fixed.percentage + fixed.grade;
     const remaining = Math.max(0, printableWidth - fixedWidth);
@@ -214,9 +214,18 @@ function autoFitFolioTable(table){
 function printClassFolio(){
     if(!printStudents.length){showToast("No students found.","error");return;}
     const ranked=getPrintSortedStudents();
-    const heads=printSubjects.map(s=>`<th class="folio-subject-head"><div class="folio-subject-name-wrap"><span class="folio-subject-name">${escapeHtml(s.subject_name)}</span></div><small>${printExam.value==="Final"?100:50}</small></th>`).join("");
+    const heads=printSubjects.map(s=>{
+        const subjectLabel=escapeHtml(s.subject_name).replace(/\s+/g,"<br>");
+        return `<th class="folio-subject-head folio-rotated-head"><div class="folio-subject-name-wrap"><span class="folio-subject-name">${subjectLabel}</span></div><small>${printExam.value==="Final"?100:50}</small></th>`;
+    }).join("");
+    const slHead='<th class="folio-rotated-head"><span class="folio-head-label">Sl.</span></th>';
+    const rollHead='<th class="folio-rotated-head"><span class="folio-head-label">Roll</span></th>';
+    const nameHead='<th class="folio-rotated-head"><span class="folio-head-label">Student Name</span></th>';
+    const totalHead='<th class="folio-rotated-head"><span class="folio-head-label">Total</span></th>';
+    const percentHead='<th class="folio-rotated-head percentage-head"><span class="folio-head-label">%</span></th>';
+    const gradeHead='<th class="folio-rotated-head"><span class="folio-head-label">Grade</span></th>';
     const rows=ranked.map((r,i)=>{const c=calcPrintRecord(r);return `<tr><td>${i+1}</td><td>${escapeHtml(r.roll_no??"")}</td><td class="name">${escapeHtml(r.students?.student_name||"")}</td>${printSubjects.map(s=>{let v;if(printExam.value==="Final"){v=(getPrintMark(r.id,s.id,"Half-Yearly")||0)+(getPrintMark(r.id,s.id,"Annual")||0);}else v=getPrintMark(r.id,s.id,printExam.value);return `<td>${v??""}</td>`}).join("")}<td>${c.total}</td><td class="percentage-cell">${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;}).join("");
-    openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr><th>Sl.</th><th>Roll</th><th>Student Name</th>${heads}<th>Total</th><th class="percentage-head">%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
+    openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr>${slHead}${rollHead}${nameHead}${heads}${totalHead}${percentHead}${gradeHead}</tr></thead><tbody>${rows}</tbody></table></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
 }
 
 if (printStudentSearch) printStudentSearch.addEventListener("input", filterPrintStudents);
