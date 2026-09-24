@@ -1678,7 +1678,7 @@ window.viewHistory =
                                     <span>${finalSummary.total}/${finalSummary.full} • ${finalSummary.pct === null ? "" : finalSummary.pct.toFixed(2) + "%"} ${finalSummary.grade ? "• Grade " + finalSummary.grade : ""}</span>
                                 </div>
                                 <div class="history-mini-table-wrap">
-                                    <table class="history-mini-table">
+                                    <table class="history-mini-table history-marks-table">
                                         <thead><tr><th>Subject</th><th>Marks</th><th>Full Marks</th></tr></thead>
                                         <tbody>
                                             ${(() => {
@@ -1724,7 +1724,7 @@ window.viewHistory =
                                 <span>${summary.total}/${summary.full} • ${summary.pct === null ? "" : summary.pct.toFixed(2) + "%"} ${summary.grade ? "• Grade " + summary.grade : ""}</span>
                             </div>
                             <div class="history-mini-table-wrap">
-                                <table class="history-mini-table">
+                                <table class="history-mini-table history-marks-table">
                                     <thead><tr><th>Subject</th><th>Marks</th><th>Full Marks</th></tr></thead>
                                     <tbody>
                                         ${summary.rows.map(row => {
@@ -1781,7 +1781,21 @@ window.viewHistory =
             };
 
             const renderPromotionHistory = () => {
-                const relevant = promotionRows;
+                const yearFromSessionName = value => {
+                    const match = String(value || "").match(/(\d{4})/);
+                    return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
+                };
+
+                const relevant = [...promotionRows].sort((a, b) => {
+                    const aName = promotionSessionMap.get(String(a.from_session_id)) || "";
+                    const bName = promotionSessionMap.get(String(b.from_session_id)) || "";
+                    const yearDiff = yearFromSessionName(aName) - yearFromSessionName(bName);
+                    if (yearDiff !== 0) return yearDiff;
+
+                    const aToName = promotionSessionMap.get(String(a.to_session_id)) || "";
+                    const bToName = promotionSessionMap.get(String(b.to_session_id)) || "";
+                    return yearFromSessionName(aToName) - yearFromSessionName(bToName);
+                });
                 if (!relevant.length) {
                     return `<div class="history-subsection"><div class="history-section-label">Promotion History</div><div class="history-muted">No promotion history recorded.</div></div>`;
                 }
