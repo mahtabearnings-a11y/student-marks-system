@@ -685,6 +685,21 @@ tbody tr:hover {
     gap: 8px;
 }
 
+.unsaved-changes-modal {
+    max-width: 560px;
+}
+
+.unsaved-changes-message p {
+    margin: 0;
+    color: #374151;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.unsaved-changes-footer {
+    flex-wrap: wrap;
+}
+
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2,1fr);
