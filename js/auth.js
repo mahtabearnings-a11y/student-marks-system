@@ -114,13 +114,13 @@ async function showApplication(user) {
             );
         }
 
-        showSection("dashboard");
-
         startInactivityTimer();
 
-
         await loadSessions();
-    populateMarksSessions();
+
+        showSection(getInitialSection(), false);
+
+        populateMarksSessions();
         populateMarksSessions();
 
         await loadStudents();

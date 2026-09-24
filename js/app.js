@@ -122,17 +122,44 @@ function resetModuleState(section){
 ========================================================= */
 
 
-function showSection(section) {
+function showSection(section, updateRoute = true) {
+    const button = document.querySelector(`.nav-btn[data-section="${section}"]`);
+    const target = document.getElementById(section + "Section");
+
+    if (!button || !target || button.classList.contains("hidden")) {
+        section = "dashboard";
+    }
+
     resetModuleState(section);
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.section === section));
     document.querySelectorAll(".app-section").forEach(item => item.classList.add("hidden"));
-    const target = document.getElementById(section + "Section");
-    if (target) target.classList.remove("hidden");
+    document.getElementById(section + "Section").classList.remove("hidden");
+
+    if (updateRoute) {
+        const desiredHash = `#${section}`;
+        if (window.location.hash !== desiredHash) {
+            history.replaceState(null, "", desiredHash);
+        }
+    }
+
     if (section === "students") loadStudents();
     if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
     if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
     if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); }
     if (section === "recycleBin") { loadRecycleBin(); }
+}
+
+function getInitialSection() {
+    const route = window.location.hash.replace(/^#/, "").trim();
+    const button = route
+        ? document.querySelector(`.nav-btn[data-section="${route}"]`)
+        : null;
+
+    if (button && !button.classList.contains("hidden") && document.getElementById(route + "Section")) {
+        return route;
+    }
+
+    return "dashboard";
 }
 
 
@@ -156,6 +183,12 @@ document
 
         }
     );
+
+window.addEventListener("hashchange", function() {
+    if (currentUser) {
+        showSection(getInitialSection(), false);
+    }
+});
 
 
 /* =========================================================
