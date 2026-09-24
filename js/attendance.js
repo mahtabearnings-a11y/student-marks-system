@@ -17,14 +17,20 @@ function getAttendanceSnapshot() {
     attendanceStudents.forEach(record => {
         attendanceSelectedMonths.forEach(monthNo => {
             const row = attendanceData[`${record.id}_${monthNo}`] || {};
-            values.push([
-                Number(record.id),
-                Number(monthNo),
-                row.working_days === undefined ? null : Number(row.working_days),
-                row.present_days === undefined ? null : Number(row.present_days)
-            ]);
+            const working = row.working_days === undefined || row.working_days === null || row.working_days === ""
+                ? null : Number(row.working_days);
+            const present = row.present_days === undefined || row.present_days === null || row.present_days === ""
+                ? null : Number(row.present_days);
+
+            // A completely empty attendance cell has one canonical state.
+            // This prevents edit -> undo from becoming a false dirty state.
+            if ((working === null || Number.isNaN(working)) && (present === null || Number.isNaN(present))) return;
+
+            values.push([Number(record.id), Number(monthNo), working, present]);
         });
     });
+
+    values.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 
     return JSON.stringify({
         session: String(attendanceSession.value || ""),
@@ -221,7 +227,7 @@ function renderAttendanceTable() {
     const rows = sorted.map(r => {
         const monthCells = selected.map(monthNo => {
             const row = attendanceData[`${r.id}_${monthNo}`] || {};
-            return `<td><input class="attendance-input" type="number" min="0" step="1" inputmode="numeric" value="${row.working_days ?? ""}" data-att-rec="${r.id}" data-att-month="${monthNo}" data-att-field="working" aria-label="Working Days"><input class="attendance-input" type="number" min="0" step="1" inputmode="numeric" value="${row.present_days ?? ""}" data-att-rec="${r.id}" data-att-month="${monthNo}" data-att-field="present" style="margin-top:5px" aria-label="Present Days"></td>`;
+            return `<td><input class="attendance-input" type="text" inputmode="numeric" autocomplete="off" pattern="\d*" maxlength="3" value="${row.working_days ?? ""}" data-att-rec="${r.id}" data-att-month="${monthNo}" data-att-field="working" aria-label="Working Days"><input class="attendance-input" type="text" inputmode="numeric" autocomplete="off" pattern="\d*" maxlength="3" value="${row.present_days ?? ""}" data-att-rec="${r.id}" data-att-month="${monthNo}" data-att-field="present" style="margin-top:5px" aria-label="Present Days"></td>`;
         }).join("");
         const t = getAttendanceStudentTotals(r.id);
         return `<tr>
@@ -281,10 +287,18 @@ async function loadAttendanceGrid() {
             return;
         }
         (rows || []).forEach(row => {
-            attendanceData[`${row.academic_record_id}_${row.month_no}`] = {
-                working_days: row.working_days === null ? undefined : Number(row.working_days),
-                present_days: row.present_days === null ? undefined : Number(row.present_days)
-            };
+            const working = row.working_days === null ? undefined : Number(row.working_days);
+            const present = row.present_days === null ? undefined : Number(row.present_days);
+
+            // Old/placeholder attendance rows may contain 0/0 even when the
+            // user has never entered attendance. Keep genuinely entered 0
+            // Present days when Working Days has a real value, but render a
+            // completely empty 0/0 placeholder as blank.
+            if (working === 0 && present === 0) return;
+
+            attendanceData[`${row.academic_record_id}_${row.month_no}`] = {};
+            if (working !== undefined) attendanceData[`${row.academic_record_id}_${row.month_no}`].working_days = working;
+            if (present !== undefined) attendanceData[`${row.academic_record_id}_${row.month_no}`].present_days = present;
         });
     }
     renderAttendanceTable();

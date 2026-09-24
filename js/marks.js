@@ -123,14 +123,18 @@ function getMarksSnapshot() {
     marksRecords.forEach(record => {
         marksSubjects.forEach(subject => {
             const key = `${record.id}_${subject.id}_${exam}`;
-            const value = marksValues[key];
-            values.push([
-                Number(record.id),
-                Number(subject.id),
-                value === undefined || value === null || value === "" ? null : Number(value)
-            ]);
+            const raw = marksValues[key];
+            const value = raw === undefined || raw === null || raw === "" ? null : Number(raw);
+
+            // Empty cells are one canonical state. Do not let a temporary
+            // input/edit history make an otherwise identical state dirty.
+            if (value === null || Number.isNaN(value)) return;
+
+            values.push([Number(record.id), Number(subject.id), value]);
         });
     });
+
+    values.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 
     return JSON.stringify({
         session: String(marksSession.value || ""),
@@ -226,7 +230,7 @@ function renderMarksGrid() {
             }
             const value = getMark(record.id, subject.id, marksExam.value);
             const disabled = currentRole !== "admin" ? "disabled" : "";
-            return `<td><input class="marks-input" type="number" min="0" max="50" step="1" value="${value === "" ? "" : escapeHtml(String(value))}" data-record="${record.id}" data-subject="${subject.id}" ${disabled}></td>`;
+            return `<td><input class="marks-input" type="text" inputmode="numeric" autocomplete="off" pattern="\d*" maxlength="2" value="${value === "" ? "" : escapeHtml(String(value))}" data-record="${record.id}" data-subject="${subject.id}" ${disabled}></td>`;
         }).join("");
         return `<tr><td class="sticky-roll">${escapeHtml(String(record.roll_no ?? ""))}</td><td class="sticky-name">${escapeHtml(record.students?.student_name || "")}</td>${cells}<td class="marks-calculated" data-total="${record.id}">${calc.total || (calc.total === 0 && calc.entered) ? calc.total : ""}</td><td class="marks-calculated" data-pct="${record.id}">${calc.total ? calc.pct.toFixed(2) + "%" : ""}</td><td class="marks-calculated marks-grade" data-grade="${record.id}">${escapeHtml(calc.grade)}</td></tr>`;
     }).join("");
