@@ -275,7 +275,11 @@ async function checkRecycleBinRestoreConflicts(selectedItems) {
 }
 
 function formatRecycleBinConflict(conflict) {
-    return `This student cannot be restored because ${conflict.detail} is already assigned to another student.\n\nExisting student: ${conflict.existingName}\nDeleted student: ${conflict.item.student_name}`;
+    const detail = escapeHtml(conflict.detail || "");
+    const existingName = escapeHtml(conflict.existingName || "Unknown");
+    const deletedName = escapeHtml(conflict.item?.student_name || "Unknown");
+
+    return `This student cannot be restored because <strong>${detail}</strong> is already assigned to another student.<br><br>Existing student: <strong>${existingName}</strong><br>Deleted student: <strong>${deletedName}</strong>`;
 }
 
 async function restoreSelectedRecycleBin() {
@@ -314,9 +318,9 @@ async function restoreSelectedRecycleBin() {
         const conflicts = await checkRecycleBinRestoreConflicts(selectedItems);
 
         if (conflicts.length) {
-            showToast(
-                formatRecycleBinConflict(conflicts[0]),
-                "error"
+            showStudentConflictDialog(
+                "Duplicate Student Data",
+                formatRecycleBinConflict(conflicts[0])
             );
             return;
         }
