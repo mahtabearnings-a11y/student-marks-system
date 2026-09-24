@@ -82,6 +82,9 @@ async function showApplication(user, options = {}) {
         currentRole =
             role;
 
+        if (typeof clearAcademicSessionEditUnlocks === "function") {
+            clearAcademicSessionEditUnlocks();
+        }
 
         userEmail.textContent =
             user.email;
@@ -196,6 +199,10 @@ function showLogin() {
     currentUser = null;
 
     currentRole = null;
+
+    if (typeof clearAcademicSessionEditUnlocks === "function") {
+        clearAcademicSessionEditUnlocks();
+    }
 
     stopInactivityTimer();
 
@@ -337,13 +344,21 @@ function resetInactivityTimer(force = false) {
             async function() {
 
                 inactivityTimer = null;
-                await supabaseClient.auth.signOut();
 
-                showLogin();
+                const continueLogout = async () => {
+                    await supabaseClient.auth.signOut();
+                    showLogin();
+                    showLoginError("You have been logged out because of 15 minutes of inactivity.");
+                };
 
-                showLoginError(
-                    "You have been logged out because of 15 minutes of inactivity."
-                );
+                // Never discard an active Marks/Attendance edit silently when
+                // the inactivity timeout expires. Give the same Save & Leave /
+                // Leave Without Saving / Cancel protection used by navigation.
+                const protected = await protectUnsavedChanges(activeSection, continueLogout);
+                if (!protected && currentUser) {
+                    // The user chose Cancel, so restart the 15-minute timer.
+                    resetInactivityTimer(true);
+                }
 
             },
             INACTIVITY_LIMIT

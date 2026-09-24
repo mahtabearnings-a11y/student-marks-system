@@ -243,8 +243,19 @@ function renderAttendanceTable() {
     attendanceTableContainer.innerHTML = `<div class="attendance-grid-wrapper"><table class="attendance-table"><thead><tr><th>Roll</th><th>Student Name</th>${headers}<th>Working Days</th><th>Present</th><th>Absent</th><th>Attendance %</th></tr></thead><tbody>${rows}</tbody></table></div>`;
     attendanceTableContainer.querySelectorAll("input[data-att-rec]").forEach(input => {
         input.addEventListener("focus", () => { if(input.value==="0") input.value=""; });
-        input.addEventListener("input", () => {
+        input.addEventListener("input", async () => {
             const rec=Number(input.dataset.attRec), month=Number(input.dataset.attMonth), field=input.dataset.attField;
+            const rowBefore = attendanceData[`${rec}_${month}`] || {};
+            const previousValue = field === "working" ? rowBefore.working_days : rowBefore.present_days;
+
+            if (isAcademicSessionClosed(attendanceSession.value) && !hasAcademicSessionEditUnlock(attendanceSession.value)) {
+                const allowed = await ensureAcademicSessionEditable(attendanceSession.value, "edit Attendance");
+                if (!allowed) {
+                    input.value = previousValue === undefined ? "" : String(previousValue);
+                    return;
+                }
+            }
+
             updateAttendanceCell(rec,month,field,input.value);
             const row=attendanceData[`${rec}_${month}`]||{};
             const stored=field==="working"?row.working_days:row.present_days;
@@ -331,6 +342,9 @@ async function saveAttendance({ reload = true } = {}) {
         showToast("Please enter both Working Days and Present Days, or clear both, before saving.", "error");
         return false;
     }
+
+    const editable = await ensureAcademicSessionEditable(attendanceSession.value, "save Attendance");
+    if (!editable) return false;
 
     attendanceSaveButton.disabled = true;
     attendanceSaveButton.textContent = "Saving...";

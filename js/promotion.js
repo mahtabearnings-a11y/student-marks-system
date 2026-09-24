@@ -14,20 +14,33 @@ const promotionTableContainer = document.getElementById("promotionTableContainer
 const promotionReviewContainer = document.getElementById("promotionReviewContainer");
 const promotionRecordCount = document.getElementById("promotionRecordCount");
 const promotionReviewInfo = document.getElementById("promotionReviewInfo");
+const promotionHistoryContainer = document.getElementById("promotionHistoryContainer");
+const promotionHistoryCount = document.getElementById("promotionHistoryCount");
+const refreshPromotionHistoryButton = document.getElementById("refreshPromotionHistoryButton");
+
 let promotionStudents = [];
 let promotionReviewRows = [];
+let promotionHistoryRows = [];
 
 function populatePromotionSessions(){
     if(!promotionSession) return;
     promotionSession.innerHTML = sessions.length
-        ? sessions.map(s=>`<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("")
+        ? sortAcademicSessions(sessions).map(s=>`<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("")
         : `<option value="">No sessions</option>`;
     const active=sessions.find(s=>s.is_active);
     if(active) promotionSession.value=String(active.id);
 }
 
+function sortAcademicSessions(list) {
+    return [...list].sort((a,b)=>{
+        const da=a.start_date?new Date(a.start_date).getTime():0;
+        const db=b.start_date?new Date(b.start_date).getTime():0;
+        return da-db || Number(a.id)-Number(b.id);
+    });
+}
+
 function getNextSession(sourceId){
-    const ordered=[...sessions].sort((a,b)=>Number(a.id)-Number(b.id));
+    const ordered=sortAcademicSessions(sessions);
     const idx=ordered.findIndex(s=>String(s.id)===String(sourceId));
     return idx>=0 ? ordered[idx+1] || null : null;
 }
@@ -66,7 +79,7 @@ async function loadPromotionStudents(){
     promotionListCard.classList.add("hidden");
     promotionReviewCard.classList.add("hidden");
     const {data:records,error}=await supabaseClient.from("academic_records")
-        .select("id,student_profile_id,class_no,roll_no,status,students(id,student_id,apaar_id,student_name,father_name,mother_name,date_of_birth,gender)")
+        .select("id,student_profile_id,session_id,class_no,roll_no,status,students(id,student_id,apaar_id,student_name,father_name,mother_name,date_of_birth,gender)")
         .eq("session_id",sessionId).eq("class_no",classNo).order("roll_no",{ascending:true});
     if(error){promotionMessage.textContent="Unable to load students: "+error.message;showToast("Unable to load promotion data.","error");return;}
     const {data:subjects,error:se}=await supabaseClient.from("subjects").select("id,subject_name,display_order").eq("class_no",classNo).order("display_order",{ascending:true});
@@ -126,10 +139,21 @@ function openPromotionReview(){
     const selected=selectedPromotionStudents();
     if(!selected.length){showToast("Select at least one student.","error");return;}
     const sourceClass=Number(promotionClass.value), sourceSession=promotionSession.value;
+    const source = sessions.find(s=>String(s.id)===String(sourceSession));
     const next=getNextSession(sourceSession);
+    if(!source){showToast("Select a valid source academic year.","error");return;}
+    if(!source.is_closed){
+        showToast("Close the source academic year before running promotion.","error");
+        promotionMessage.textContent = `Promotion is protected until ${source.session_name} is closed. Historical records must be finalized first.`;
+        return;
+    }
     if(sourceClass!==8 && !next){
-        showToast("Create the next academic session before confirming promotion.","error");
-        promotionMessage.textContent="No later academic session is available. Create the next session first, then return here.";
+        showToast("Create the next academic year before confirming promotion.","error");
+        promotionMessage.textContent="No later academic year is available. Create the next academic year first, then return here.";
+        return;
+    }
+    if(sourceClass!==8 && next.is_closed){
+        showToast("The next academic year is closed. Activate or prepare a writable destination year first.","error");
         return;
     }
     const ordered=[...selected].sort((a,b)=>a.rank-b.rank||Number(a.roll_no??999999)-Number(b.roll_no??999999));
@@ -144,12 +168,11 @@ function openPromotionReview(){
     promotionReviewCard.classList.remove("hidden");
     promotionReviewInfo.textContent=sourceClass===8
         ? `${selected.length} student${selected.length===1?"":"s"} selected • Class VIII completion`
-        : `${selected.length} student${selected.length===1?"":"s"} selected • Proposed next session: ${next.session_name}`;
+        : `${selected.length} student${selected.length===1?"":"s"} selected • Proposed destination: ${next.session_name}`;
 }
 
 function renderPromotionReview(){
     const sourceClass=Number(promotionClass.value);
-    const next=getNextSession(promotionSession.value);
     const classOptions=Array.from({length:8},(_,i)=>`<option value="${i+1}">Class ${className(i+1).replace(/^Class\s*/i,"")}</option>`).join("");
     promotionReviewContainer.innerHTML=`<table class="promotion-table"><thead><tr><th>Student</th><th>Rank</th><th>Status</th><th>Proposed Class</th><th>Proposed Roll</th></tr></thead><tbody>${promotionReviewRows.map((r,i)=>{
         const opts=sourceClass===8
@@ -158,10 +181,11 @@ function renderPromotionReview(){
         const statusOpts=sourceClass===8
             ? `<option value="Completed" ${r.status==="Completed"?"selected":""}>Completed</option><option value="Left School" ${r.status==="Left School"?"selected":""}>Left School</option>`
             : `<option value="Promoted" ${r.status==="Promoted"?"selected":""}>Promoted</option><option value="Repeated" ${r.status==="Repeated"?"selected":""}>Repeated</option><option value="Left School" ${r.status==="Left School"?"selected":""}>Left School</option>`;
-        return `<tr><td style="text-align:left"><strong>${escapeHtml(r.name)}</strong></td><td>${r.rank}</td><td><select class="promotion-review-status" data-index="${i}">${statusOpts}</select></td><td><select class="promotion-review-class" data-index="${i}" ${sourceClass===8?"disabled":""}>${opts}</select></td><td><input class="promotion-roll" data-index="${i}" type="text" inputmode="numeric" value="${escapeHtml(r.rollNo)}" ${sourceClass===8?"disabled":""}></td></tr>`;
+        return `<tr><td style="text-align:left"><strong>${escapeHtml(r.name)}</strong></td><td>${r.rank}</td><td><select class="promotion-review-status" data-index="${i}">${statusOpts}</select></td><td><select class="promotion-review-class" data-index="${i}" ${sourceClass===8||r.status==='Left School'?"disabled":""}>${opts}</select></td><td><input class="promotion-roll" data-index="${i}" type="text" inputmode="numeric" value="${escapeHtml(r.rollNo)}" ${sourceClass===8||r.status==='Left School'?"disabled":""}></td></tr>`;
     }).join("")}</tbody></table>`;
     promotionReviewContainer.querySelectorAll(".promotion-review-status").forEach(el=>el.addEventListener("change",()=>{
-        const i=Number(el.dataset.index);promotionReviewRows[i].status=el.value;
+        const i=Number(el.dataset.index);
+        promotionReviewRows[i].status=el.value;
         if(Number(promotionClass.value)!==8){
             if(el.value==="Promoted") promotionReviewRows[i].classNo=Number(promotionClass.value)+1;
             else promotionReviewRows[i].classNo=Number(promotionClass.value);
@@ -177,42 +201,147 @@ async function confirmPromotion(){
     if(currentRole!=="admin"){showToast("Only an Admin can confirm promotion.","error");return;}
     if(!promotionReviewRows.length)return;
     const sourceSessionId=Number(promotionSession.value), sourceClass=Number(promotionClass.value), next=getNextSession(sourceSessionId);
-    if(sourceClass!==8 && !next){showToast("Create the next academic session first.","error");return;}
+    if(sourceClass!==8 && !next){showToast("Create the next academic year first.","error");return;}
+    if(sourceClass!==8 && next.is_closed){showToast("The destination academic year is closed.","error");return;}
     const bad=promotionReviewRows.find(r=>r.status!=="Left School" && sourceClass!==8 && (!r.rollNo || Number(r.rollNo)<1 || Number(r.classNo)<1 || Number(r.classNo)>8));
     if(bad){showToast(`Please enter a valid class and roll for ${bad.name}.`,"error");return;}
+
+    const source = sessions.find(s=>Number(s.id)===sourceSessionId);
+    if(!source?.is_closed){
+        showToast("Close the source academic year before running promotion.","error");
+        return;
+    }
     const message=sourceClass===8
         ? `Complete ${promotionReviewRows.length} selected Class VIII student${promotionReviewRows.length===1?"":"s"}? Their historical data will remain unchanged.`
-        : `Confirm promotion for ${promotionReviewRows.length} selected student${promotionReviewRows.length===1?"":"s"} to ${next.session_name}?`;
+        : `Confirm promotion for ${promotionReviewRows.length} selected student${promotionReviewRows.length===1?"":"s"} to ${next.session_name}? A new academic record will be created for each selected student.`;
     if(!confirm(message))return;
+
+    const passwordVerified = await requireAdminPasswordForAction({
+        title: "Confirm Promotion",
+        message: `Enter your Admin password to finalize this promotion batch from ${source?.session_name || "the selected academic year"}.`,
+        actionLabel: "Confirm Promotion"
+    });
+    if(!passwordVerified) return;
 
     confirmPromotionButton.disabled=true;
     try{
-        for(const row of promotionReviewRows){
-            const source={id:row.recordId,student_profile_id:row.studentProfileId,roll_no:promotionStudents.find(x=>x.id===row.recordId)?.roll_no??null};
-            if(sourceClass===8){
-                const {error:he}=await supabaseClient.from("promotion_history").insert({student_profile_id:row.studentProfileId,from_session_id:sourceSessionId,to_session_id:null,from_class:8,to_class:null,from_roll:source.roll_no,to_roll:null,status:row.status});
-                if(he)throw he;
-                continue;
-            }
-            if(row.status==="Left School"){
-                const {error:he}=await supabaseClient.from("promotion_history").insert({student_profile_id:row.studentProfileId,from_session_id:sourceSessionId,to_session_id:next.id,from_class:sourceClass,to_class:null,from_roll:source.roll_no,to_roll:null,status:"Left School"});
-                if(he)throw he;
-                continue;
-            }
-            const {data:existing,error:ee}=await supabaseClient.from("academic_records").select("id").eq("session_id",next.id).eq("student_profile_id",row.studentProfileId).maybeSingle();
-            if(ee)throw ee;
-            if(existing){throw new Error(`${row.name} already has an academic record in ${next.session_name}.`);}
-            const {error:ae}=await supabaseClient.from("academic_records").insert({session_id:next.id,student_profile_id:row.studentProfileId,class_no:row.classNo,roll_no:Number(row.rollNo),status:row.status});
-            if(ae)throw ae;
-            const {error:he}=await supabaseClient.from("promotion_history").insert({student_profile_id:row.studentProfileId,from_session_id:sourceSessionId,to_session_id:next.id,from_class:sourceClass,to_class:row.classNo,from_roll:source.roll_no,to_roll:Number(row.rollNo),status:row.status});
-            if(he)throw he;
-        }
+        const batchId = crypto.randomUUID();
+        const rows = promotionReviewRows.map(row => ({
+            source_record_id: row.recordId,
+            student_profile_id: row.studentProfileId,
+            status: row.status,
+            class_no: row.status === "Left School" ? Number(promotionClass.value) : Number(row.classNo),
+            roll_no: row.status === "Left School" ? null : (row.rollNo === "" ? null : Number(row.rollNo))
+        }));
+
+        const { data, error } = await supabaseClient.rpc("promote_students_batch", {
+            p_source_session_id: sourceSessionId,
+            p_destination_session_id: sourceClass === 8 ? null : Number(next.id),
+            p_rows: rows,
+            p_batch_id: batchId
+        });
+        if(error) throw error;
+
         showToast(sourceClass===8?"Class VIII completion saved successfully.":"Promotion confirmed successfully.","success");
         resetPromotionState();
         promotionMessage.textContent=sourceClass===8?"Class VIII completion has been recorded. Historical data remains preserved.":"Promotion completed successfully. Historical data remains preserved.";
+        await loadSessions();
+        await loadPromotionStudents();
+        await loadPromotionHistory();
+        await loadStudents();
+        if (typeof updateDashboardCounts === "function") await updateDashboardCounts();
+        void data;
     }catch(e){
         showToast("Promotion could not be completed: "+e.message,"error");
     }finally{confirmPromotionButton.disabled=false;}
+}
+
+async function loadPromotionHistory(){
+    if(!promotionHistoryContainer || currentRole!=="admin") return;
+    promotionHistoryContainer.innerHTML = `<div class="loading">Loading promotion history...</div>`;
+    try {
+        const {data, error} = await supabaseClient
+            .from("promotion_history")
+            .select("id,student_profile_id,from_session_id,to_session_id,from_class,to_class,from_roll,to_roll,status,batch_id,created_at,reverted_at")
+            .order("created_at", {ascending:false});
+        if(error) throw error;
+        promotionHistoryRows = data || [];
+
+        const studentIds = [...new Set(promotionHistoryRows.map(row=>row.student_profile_id).filter(Boolean))];
+        const sessionIds = [...new Set(promotionHistoryRows.flatMap(row=>[row.from_session_id,row.to_session_id]).filter(Boolean))];
+        const [studentResult, sessionResult] = await Promise.all([
+            studentIds.length ? supabaseClient.from("students").select("id,student_name,student_id").in("id", studentIds) : Promise.resolve({data:[],error:null}),
+            sessionIds.length ? supabaseClient.from("academic_sessions").select("id,session_name").in("id", sessionIds) : Promise.resolve({data:[],error:null})
+        ]);
+        if(studentResult.error) throw studentResult.error;
+        if(sessionResult.error) throw sessionResult.error;
+        const studentsMap = new Map((studentResult.data||[]).map(s=>[String(s.id),s]));
+        const sessionsMap = new Map((sessionResult.data||[]).map(s=>[String(s.id),s]));
+
+        if(!promotionHistoryRows.length){
+            promotionHistoryCount.textContent = "0 records";
+            promotionHistoryContainer.innerHTML = `<div class="empty-state">No promotion history found.</div>`;
+            return;
+        }
+
+        const grouped = [];
+        const batches = new Map();
+        promotionHistoryRows.forEach(row=>{
+            const key = row.batch_id || `legacy-${row.id}`;
+            if(!batches.has(key)) batches.set(key, []);
+            batches.get(key).push(row);
+        });
+        batches.forEach((rows,key)=>grouped.push({key,rows,createdAt:rows.map(r=>r.created_at).filter(Boolean).sort().reverse()[0] || null}));
+        grouped.sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||"")));
+
+        promotionHistoryCount.textContent = `${promotionHistoryRows.length} record${promotionHistoryRows.length===1?"":"s"} in ${grouped.length} batch${grouped.length===1?"":"es"}`;
+        promotionHistoryContainer.innerHTML = `<table class="promotion-history-table"><thead><tr><th>Date</th><th>Student(s)</th><th>From</th><th>To</th><th>Status</th><th>Action</th></tr></thead><tbody>${grouped.map(group=>{
+            const first=group.rows[0];
+            const names=group.rows.slice(0,4).map(r=>studentsMap.get(String(r.student_profile_id))?.student_name||"Unknown");
+            const extra=group.rows.length>4?` +${group.rows.length-4}`:"";
+            const fromName=sessionsMap.get(String(first.from_session_id))?.session_name||"—";
+            const toName=first.to_session_id? (sessionsMap.get(String(first.to_session_id))?.session_name||"—") : "Completed";
+            const statuses=[...new Set(group.rows.map(r=>r.status))].join(", ");
+            const reversible = Boolean(first.batch_id) && group.rows.every(r=>!r.reverted_at && (r.status !== "Reverted"));
+            const action = reversible ? `<button class="btn btn-danger btn-small promotion-revert" data-batch-id="${escapeHtml(String(first.batch_id))}">Revert Batch</button>` : (group.rows.every(r=>r.reverted_at) ? `<span class="academic-year-status academic-year-status-closed">Reverted</span>` : "—");
+            return `<tr><td>${formatPromotionDate(group.createdAt)}</td><td>${escapeHtml(names.join(", ")+extra)}</td><td>${escapeHtml(fromName)} • Class ${escapeHtml(String(first.from_class ?? ""))}</td><td>${escapeHtml(toName)}${first.to_class?` • Class ${escapeHtml(String(first.to_class))}`:""}</td><td>${escapeHtml(statuses)}</td><td>${action}</td></tr>`;
+        }).join("")}</tbody></table>`;
+        promotionHistoryContainer.querySelectorAll(".promotion-revert").forEach(button=>button.addEventListener("click",()=>revertPromotionBatch(button.dataset.batchId)));
+    } catch(error) {
+        promotionHistoryContainer.innerHTML = `<div class="empty-state">Unable to load promotion history.<br><br>${escapeHtml(error.message||"Unknown error")}</div>`;
+    }
+}
+
+function formatPromotionDate(value){
+    if(!value) return "—";
+    const date=new Date(value);
+    if(Number.isNaN(date.getTime())) return escapeHtml(value);
+    return date.toLocaleString("en-IN",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+
+async function revertPromotionBatch(batchId){
+    if(!batchId) return;
+    const verified = await requireAdminPasswordForAction({
+        title: "Revert Promotion",
+        message: "Enter your Admin password to revert this promotion batch. The new academic records will be removed only when they contain no Marks or Attendance.",
+        actionLabel: "Revert Promotion"
+    });
+    if(!verified) return;
+
+    if(!confirm("Revert this promotion batch? Historical academic records from the previous year will not be changed.")) return;
+
+    try {
+        const {error} = await supabaseClient.rpc("revert_promotion_batch", {p_batch_id: batchId});
+        if(error) throw error;
+        showToast("Promotion batch reverted successfully.", "success");
+        await loadSessions();
+        await loadPromotionStudents();
+        await loadPromotionHistory();
+        await loadStudents();
+        if (typeof updateDashboardCounts === "function") await updateDashboardCounts();
+    } catch(error) {
+        showToast(error.message || "Promotion could not be reverted.", "error");
+    }
 }
 
 if(promotionSession)promotionSession.addEventListener("change",loadPromotionStudents);
@@ -221,15 +350,11 @@ if(promotionSort)promotionSort.addEventListener("change",renderPromotionStudents
 if(promoteStudentsButton)promoteStudentsButton.addEventListener("click",openPromotionReview);
 if(promotionBackButton)promotionBackButton.addEventListener("click",()=>{promotionReviewCard.classList.add("hidden");promotionListCard.classList.remove("hidden");});
 if(confirmPromotionButton)confirmPromotionButton.addEventListener("click",confirmPromotion);
+if(refreshPromotionHistoryButton)refreshPromotionHistoryButton.addEventListener("click",loadPromotionHistory);
 
-
-
-/* =========================================================
-   PROMOTION STATE RESET
-========================================================= */
 function resetPromotionState(){
     const active = sessions.find(s => s.is_active);
-    if (promotionSession) promotionSession.value = active ? String(active.id) : "";
+    if (promotionSession) promotionSession.value = active ? String(active.id) : (sessions[0] ? String(sessions[0].id) : "");
     if (promotionClass) promotionClass.value = "1";
     if (promotionSort) promotionSort.value = "roll_asc";
     promotionStudents = [];

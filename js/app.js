@@ -3,71 +3,49 @@
 ========================================================= */
 
 async function loadSessions() {
+    let data = null;
+    let error = null;
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("academic_sessions")
-            .select(
-                "id, session_name, is_active"
-            )
-            .order(
-                "session_name",
-                {
-                    ascending: false
-                }
-            );
+    const extended = await supabaseClient
+        .from("academic_sessions")
+        .select("id, session_name, is_active, is_closed, start_date, end_date, deleted_at, created_at, updated_at")
+        .is("deleted_at", null)
+        .order("start_date", { ascending: false, nullsFirst: false })
+        .order("session_name", { ascending: false });
 
+    data = extended.data;
+    error = extended.error;
 
+    // Graceful fallback for a database that has not yet received the Step 8.4 migration.
     if (error) {
-        throw error;
+        const fallback = await supabaseClient
+            .from("academic_sessions")
+            .select("id, session_name, is_active")
+            .order("session_name", { ascending: false });
+        data = fallback.data;
+        error = fallback.error;
+        if (error) throw error;
     }
 
+    sessions = (data || []).filter(session => !session.deleted_at);
 
-    sessions =
-        data || [];
+    sessionFilter.innerHTML = "";
 
-
-    sessionFilter.innerHTML =
-        "";
-
-
-    sessions.forEach(
-        session => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                session.id;
-
-            option.textContent =
-                session.session_name;
-
-            if (session.is_active) {
-                option.selected =
-                    true;
-            }
-
-            sessionFilter.appendChild(
-                option
-            );
-
-        }
-    );
-
+    sessions.forEach(session => {
+        const option = document.createElement("option");
+        option.value = session.id;
+        option.textContent = session.session_name;
+        if (session.is_active) option.selected = true;
+        sessionFilter.appendChild(option);
+    });
 
     if (!sessions.length) {
-
-        sessionFilter.innerHTML =
-            `<option value="">No sessions</option>`;
-
+        sessionFilter.innerHTML = `<option value="">No sessions</option>`;
     }
 
+    if (typeof updateAcademicSessionProtectionUI === "function") {
+        updateAcademicSessionProtectionUI();
+    }
 }
 
 
@@ -138,7 +116,7 @@ function showSection(section, options = {}) {
     if (section === "students") loadStudents();
     if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
     if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }
-    if (section === "promotion") { populatePromotionSessions(); loadPromotionStudents(); }
+    if (section === "promotion") { populatePromotionSessions(); loadAcademicYearManager?.(); loadPromotionStudents(); loadPromotionHistory?.(); }
     if (section === "recycleBin") { loadRecycleBin(); }
 }
 
@@ -228,6 +206,9 @@ window.deleteStudent =
         if (!confirmed) {
             return;
         }
+
+        const editable = await ensureAcademicSessionEditable(student.sessionId, "delete this student's academic record");
+        if (!editable) return;
 
         try {
 

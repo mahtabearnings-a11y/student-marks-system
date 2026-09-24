@@ -268,10 +268,20 @@ function renderMarksGrid() {
     setupFrozenTableHeader(marksTableContainer);
 
     marksTableContainer.querySelectorAll(".marks-input").forEach(input => {
-        input.addEventListener("input", () => {
+        input.addEventListener("input", async () => {
             const recordId = Number(input.dataset.record);
             const subjectId = Number(input.dataset.subject);
             const exam = marksExam.value;
+            const previousValue = getMark(recordId, subjectId, exam);
+
+            if (isAcademicSessionClosed(marksSession.value) && !hasAcademicSessionEditUnlock(marksSession.value)) {
+                const allowed = await ensureAcademicSessionEditable(marksSession.value, "edit Marks");
+                if (!allowed) {
+                    input.value = previousValue === "" ? "" : String(previousValue);
+                    return;
+                }
+            }
+
             let value = input.value.trim().replace(/\D/g, "");
 
             if (value === "") {
@@ -318,6 +328,9 @@ async function saveMarks({ reload = true } = {}) {
         showToast("Load a class before saving marks.", "error");
         return false;
     }
+
+    const editable = await ensureAcademicSessionEditable(marksSession.value, "save Marks");
+    if (!editable) return false;
 
     saveMarksButton.disabled = true;
     saveMarksButton.textContent = "Saving...";

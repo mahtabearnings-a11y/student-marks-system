@@ -146,6 +146,134 @@ function activeSessionId() {
     return active ? active.id : null;
 }
 
+
+function getSelectedAcademicYearRecycleIds() {
+    return Array.from(document.querySelectorAll('.academic-year-recycle-checkbox:checked'))
+        .map(input => Number(input.value))
+        .filter(Number.isFinite);
+}
+
+function updateAcademicYearRecycleSelectionState() {
+    const ids = getSelectedAcademicYearRecycleIds();
+    if (restoreAcademicYearButton) restoreAcademicYearButton.disabled = ids.length === 0;
+    if (permanentDeleteAcademicYearButton) permanentDeleteAcademicYearButton.disabled = ids.length === 0;
+}
+
+function renderAcademicYearRecycleBin() {
+    if (!academicYearRecycleContainer) return;
+    academicYearRecycleCount.textContent = `${academicYearRecycleData.length} deleted academic year${academicYearRecycleData.length === 1 ? "" : "s"}`;
+
+    if (!academicYearRecycleData.length) {
+        academicYearRecycleContainer.innerHTML = `<div class="empty-state">No deleted academic years.</div>`;
+        updateAcademicYearRecycleSelectionState();
+        return;
+    }
+
+    const rows = academicYearRecycleData.map(session => `
+        <tr>
+            <td style="text-align:center;"><input type="checkbox" class="academic-year-recycle-checkbox" value="${Number(session.id)}"></td>
+            <td><strong>${escapeHtml(session.session_name || "")}</strong></td>
+            <td>${session.start_date ? formatRecycleBinDate(session.start_date) : "—"}</td>
+            <td>${session.end_date ? formatRecycleBinDate(session.end_date) : "—"}</td>
+            <td>${formatRecycleBinDate(session.deleted_at)}</td>
+            <td><span class="recycle-bin-status">Deleted</span></td>
+        </tr>
+    `).join("");
+
+    academicYearRecycleContainer.innerHTML = `<table class="recycle-bin-table academic-year-recycle-table">
+        <thead><tr><th style="width:48px;text-align:center;">Select</th><th>Academic Year</th><th>Start</th><th>End</th><th>Deleted On</th><th>Status</th></tr></thead>
+        <tbody>${rows}</tbody>
+    </table>`;
+
+    academicYearRecycleContainer.querySelectorAll('.academic-year-recycle-checkbox').forEach(cb => {
+        cb.addEventListener('change', updateAcademicYearRecycleSelectionState);
+    });
+    updateAcademicYearRecycleSelectionState();
+}
+
+async function loadAcademicYearRecycleBin() {
+    if (!academicYearRecycleContainer) return;
+    if (currentRole !== "admin") {
+        academicYearRecycleContainer.innerHTML = `<div class="empty-state">Only an Admin can access deleted academic years.</div>`;
+        return;
+    }
+
+    try {
+        const { data, error } = await supabaseClient
+            .from("academic_sessions")
+            .select("id, session_name, start_date, end_date, is_active, is_closed, deleted_at")
+            .not("deleted_at", "is", null)
+            .order("deleted_at", { ascending: false });
+        if (error) throw error;
+        academicYearRecycleData = data || [];
+        renderAcademicYearRecycleBin();
+    } catch (error) {
+        academicYearRecycleData = [];
+        academicYearRecycleContainer.innerHTML = `<div class="empty-state">Unable to load deleted academic years.<br><br>${escapeHtml(error.message || "Unknown error")}</div>`;
+        updateAcademicYearRecycleSelectionState();
+    }
+}
+
+async function restoreSelectedAcademicYears() {
+    const ids = getSelectedAcademicYearRecycleIds();
+    if (!ids.length) return;
+    const selected = academicYearRecycleData.filter(item => ids.includes(Number(item.id)));
+    const verified = await requireAdminPasswordForAction({
+        title: "Restore Academic Year",
+        message: `Restore ${selected.length} deleted academic year${selected.length === 1 ? "" : "s"}? Connected academic records will remain linked to the restored year.`,
+        actionLabel: "Restore"
+    });
+    if (!verified) return;
+    if (!confirm(`Restore ${selected.map(item => item.session_name).join(", ")} from the Recycle Bin?`)) return;
+
+    restoreAcademicYearButton.disabled = true;
+    try {
+        for (const id of ids) {
+            const { error } = await supabaseClient.rpc("restore_academic_session", { p_session_id: id });
+            if (error) throw error;
+        }
+        await loadSessions();
+        await loadAcademicYearRecycleBin();
+        if (typeof loadAcademicYearManager === "function") renderAcademicYears?.();
+        if (typeof populatePromotionSessions === "function") populatePromotionSessions();
+        showToast(`${ids.length} academic year${ids.length === 1 ? "" : "s"} restored successfully.`, "success");
+    } catch (error) {
+        showToast(error.message || "Unable to restore the academic year.", "error");
+    } finally {
+        updateAcademicYearRecycleSelectionState();
+    }
+}
+
+async function permanentlyDeleteSelectedAcademicYears() {
+    const ids = getSelectedAcademicYearRecycleIds();
+    if (!ids.length) return;
+    const selected = academicYearRecycleData.filter(item => ids.includes(Number(item.id)));
+    const verified = await requireAdminPasswordForAction({
+        title: "Permanently Delete Academic Year",
+        message: "This permanently deletes the selected academic year record. It is allowed only when no connected academic or promotion records remain.",
+        actionLabel: "Permanently Delete"
+    });
+    if (!verified) return;
+    if (!confirm(`Permanently delete ${selected.map(item => item.session_name).join(", ")}?\n\nThis cannot be undone.`)) return;
+
+    permanentDeleteAcademicYearButton.disabled = true;
+    let deleted = 0;
+    try {
+        for (const id of ids) {
+            const { error } = await supabaseClient.rpc("permanently_delete_academic_session", { p_session_id: id });
+            if (error) throw error;
+            deleted++;
+        }
+        await loadAcademicYearRecycleBin();
+        showToast(`${deleted} academic year${deleted === 1 ? "" : "s"} permanently deleted.`, "success");
+    } catch (error) {
+        showToast(error.message || "Permanent academic-year deletion failed.", "error");
+        await loadAcademicYearRecycleBin();
+    } finally {
+        updateAcademicYearRecycleSelectionState();
+    }
+}
+
 async function loadRecycleBin() {
     if (!recycleBinTableContainer) return;
 
@@ -174,6 +302,7 @@ async function loadRecycleBin() {
 
         recycleBinData = data || [];
         renderRecycleBin();
+        await loadAcademicYearRecycleBin();
 
     } catch (error) {
         console.error("Recycle Bin load failed:", error);
@@ -581,6 +710,14 @@ if (permanentDeleteRecycleBinButton) {
         "click",
         permanentlyDeleteSelectedRecycleBin
     );
+}
+
+if (restoreAcademicYearButton) {
+    restoreAcademicYearButton.addEventListener("click", restoreSelectedAcademicYears);
+}
+
+if (permanentDeleteAcademicYearButton) {
+    permanentDeleteAcademicYearButton.addEventListener("click", permanentlyDeleteSelectedAcademicYears);
 }
 
 if (closeRecycleBinPasswordModal) {

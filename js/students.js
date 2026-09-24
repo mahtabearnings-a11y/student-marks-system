@@ -1110,6 +1110,9 @@ saveStudentButton.addEventListener(
             return;
         }
 
+        const editable = await ensureAcademicSessionEditable(sessionId, "edit this student's academic record");
+        if (!editable) return;
+
         saveStudentButton.disabled =
             true;
 
@@ -1425,6 +1428,9 @@ window.markLeft =
             return;
         }
 
+        const sessionId = student.sessionId;
+        const editable = await ensureAcademicSessionEditable(sessionId, "change this student's academic status");
+        if (!editable) return;
 
         const {
             error
@@ -1524,8 +1530,20 @@ window.viewHistory =
             }
 
 
-            if (!data || !data.length) {
+            const {
+                data: promotionEvents,
+                error: promotionError
+            } = await supabaseClient
+                .from("promotion_history")
+                .select("id,from_session_id,to_session_id,from_class,to_class,from_roll,to_roll,status,batch_id,created_at,reverted_at")
+                .eq("student_profile_id", studentProfileId)
+                .order("created_at", { ascending: true });
 
+            if (promotionError) {
+                throw promotionError;
+            }
+
+            if ((!data || !data.length) && (!promotionEvents || !promotionEvents.length)) {
                 historyContent.innerHTML =
                     `<div class="empty-state">
                         No academic history found.
@@ -1648,6 +1666,23 @@ window.viewHistory =
                 }
             );
 
+            if (promotionEvents && promotionEvents.length) {
+                html += `<div style="margin-top:20px"><h4 style="color:#123b73;margin:0 0 10px">Promotion History</h4>`;
+                promotionEvents.forEach(event => {
+                    html += `<div class="history-item">
+                        <div class="history-title">${escapeHtml(formatStudentHistoryDate(event.created_at))}</div>
+                        <div class="history-details">
+                            ${event.from_class ? `From: <strong>${escapeHtml(className(event.from_class))}</strong>` : ""}
+                            ${event.from_roll !== null && event.from_roll !== undefined ? ` &nbsp;|&nbsp; Roll: <strong>${escapeHtml(String(event.from_roll))}</strong>` : ""}
+                            &nbsp;|&nbsp; Status: <strong>${escapeHtml(event.status || "—")}</strong>
+                            ${event.to_class ? ` &nbsp;|&nbsp; To: <strong>${escapeHtml(className(event.to_class))}</strong>` : ""}
+                            ${event.to_roll !== null && event.to_roll !== undefined ? ` &nbsp;|&nbsp; New Roll: <strong>${escapeHtml(String(event.to_roll))}</strong>` : ""}
+                            ${event.reverted_at ? ` &nbsp;|&nbsp; <strong>Reverted</strong>` : ""}
+                        </div>
+                    </div>`;
+                });
+                html += `</div>`;
+            }
 
             html += `
                 </div>
@@ -1673,6 +1708,13 @@ window.viewHistory =
 
     };
 
+
+function formatStudentHistoryDate(value) {
+    if (!value) return "—";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}
 
 /* =========================================================
    LIVE UPPERCASE INPUTS

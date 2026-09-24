@@ -73,6 +73,10 @@ let attendanceSavedSnapshot = null;
 // Prevents multiple unsaved-change dialogs from being opened at once.
 let unsavedChangesDialogOpen = false;
 
+// Closed academic years require admin re-authentication before editing.
+const academicSessionEditUnlocks = new Map();
+const ACADEMIC_SESSION_UNLOCK_MS = 30 * 60 * 1000;
+
 let sessions = [];
 
 let studentsData = [];
@@ -159,6 +163,15 @@ const restoreRecycleBinButton =
 const permanentDeleteRecycleBinButton =
     document.getElementById("permanentDeleteRecycleBinButton");
 
+const academicYearRecycleContainer =
+    document.getElementById("academicYearRecycleContainer");
+const academicYearRecycleCount =
+    document.getElementById("academicYearRecycleCount");
+const restoreAcademicYearButton =
+    document.getElementById("restoreAcademicYearButton");
+const permanentDeleteAcademicYearButton =
+    document.getElementById("permanentDeleteAcademicYearButton");
+
 const recycleBinPasswordModal =
     document.getElementById("recycleBinPasswordModal");
 
@@ -222,6 +235,23 @@ const unsavedChangesLeaveButton =
 const unsavedChangesCancelButton =
     document.getElementById("unsavedChangesCancelButton");
 
+const adminPasswordModal =
+    document.getElementById("adminPasswordModal");
+const adminPasswordTitle =
+    document.getElementById("adminPasswordTitle");
+const adminPasswordMessage =
+    document.getElementById("adminPasswordMessage");
+const adminPasswordInput =
+    document.getElementById("adminPasswordInput");
+const adminPasswordError =
+    document.getElementById("adminPasswordError");
+const adminPasswordCancelButton =
+    document.getElementById("adminPasswordCancelButton");
+const adminPasswordConfirmButton =
+    document.getElementById("adminPasswordConfirmButton");
+const adminPasswordCloseButton =
+    document.getElementById("adminPasswordCloseButton");
+
 const printSession = document.getElementById("marksSession");
 const printClass = document.getElementById("marksClass");
 const printExam = document.getElementById("marksExam");
@@ -254,6 +284,155 @@ let attendanceSelectedMonths = [];
 
 
 
+
+/* =========================================================
+   ACADEMIC SESSION EDIT PROTECTION
+========================================================= */
+
+function getAcademicSessionById(sessionId) {
+    return sessions.find(session => String(session.id) === String(sessionId)) || null;
+}
+
+function isAcademicSessionClosed(sessionId) {
+    const session = getAcademicSessionById(sessionId);
+    return Boolean(session?.is_closed);
+}
+
+function hasAcademicSessionEditUnlock(sessionId) {
+    const expiresAt = academicSessionEditUnlocks.get(String(sessionId)) || 0;
+    if (expiresAt > Date.now()) return true;
+    academicSessionEditUnlocks.delete(String(sessionId));
+    return false;
+}
+
+function clearAcademicSessionEditUnlocks() {
+    academicSessionEditUnlocks.clear();
+}
+
+function showAdminPasswordDialog({
+    title = "Admin Verification",
+    message = "Enter your Admin password to continue.",
+    actionLabel = "Continue"
+} = {}) {
+    return new Promise(resolve => {
+        if (!adminPasswordModal || !adminPasswordInput || !adminPasswordConfirmButton) {
+            resolve(null);
+            return;
+        }
+
+        adminPasswordTitle.textContent = title;
+        adminPasswordMessage.textContent = message;
+        adminPasswordError.textContent = "";
+        adminPasswordError.classList.add("hidden");
+        adminPasswordInput.value = "";
+        adminPasswordConfirmButton.textContent = actionLabel;
+        adminPasswordConfirmButton.disabled = false;
+        adminPasswordModal.classList.remove("hidden");
+
+        let settled = false;
+
+        const cleanup = () => {
+            adminPasswordConfirmButton.removeEventListener("click", onConfirm);
+            adminPasswordCancelButton?.removeEventListener("click", onCancel);
+            adminPasswordCloseButton?.removeEventListener("click", onCancel);
+            adminPasswordModal?.removeEventListener("click", onBackdrop);
+            document.removeEventListener("keydown", onKeyDown);
+        };
+
+        const finish = value => {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            adminPasswordModal.classList.add("hidden");
+            resolve(value);
+        };
+
+        const onConfirm = () => finish(adminPasswordInput.value);
+        const onCancel = () => finish(null);
+        const onBackdrop = event => {
+            if (event.target === adminPasswordModal) finish(null);
+        };
+        const onKeyDown = event => {
+            if (event.key === "Escape") {
+                event.preventDefault();
+                finish(null);
+            } else if (event.key === "Enter") {
+                event.preventDefault();
+                finish(adminPasswordInput.value);
+            }
+        };
+
+        adminPasswordConfirmButton.addEventListener("click", onConfirm);
+        adminPasswordCancelButton?.addEventListener("click", onCancel);
+        adminPasswordCloseButton?.addEventListener("click", onCancel);
+        adminPasswordModal.addEventListener("click", onBackdrop);
+        document.addEventListener("keydown", onKeyDown);
+        setTimeout(() => adminPasswordInput.focus(), 50);
+    });
+}
+
+async function requireAdminPasswordForAction({
+    title = "Admin Verification",
+    message = "Enter your Admin password to continue.",
+    actionLabel = "Continue"
+} = {}) {
+    if (currentRole !== "admin" || !currentUser?.email) {
+        showToast("Only an Admin can perform this action.", "error");
+        return false;
+    }
+
+    while (true) {
+        const password = await showAdminPasswordDialog({ title, message, actionLabel });
+        if (password === null) return false;
+
+        if (!password) {
+            showToast("Please enter the password.", "error");
+            continue;
+        }
+
+        try {
+            const { error } = await supabaseClient.auth.signInWithPassword({
+                email: currentUser.email,
+                password
+            });
+
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            if (adminPasswordError) {
+                adminPasswordError.textContent = "Incorrect password. Please try again.";
+                adminPasswordError.classList.remove("hidden");
+            }
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+    }
+}
+
+async function ensureAcademicSessionEditable(sessionId, action = "edit this academic year") {
+    if (currentRole !== "admin") return false;
+
+    const session = getAcademicSessionById(sessionId);
+    if (!session || !session.is_closed || hasAcademicSessionEditUnlock(sessionId)) {
+        return true;
+    }
+
+    const verified = await requireAdminPasswordForAction({
+        title: "Academic Year Locked",
+        message: `${session.session_name || "This academic year"} is closed. Enter your Admin password to ${action}. The unlock lasts for 30 minutes in this session.`,
+        actionLabel: "Unlock"
+    });
+
+    if (verified) {
+        academicSessionEditUnlocks.set(String(sessionId), Date.now() + ACADEMIC_SESSION_UNLOCK_MS);
+    }
+
+    return verified;
+}
+
+function updateAcademicSessionProtectionUI() {
+    // Kept centralized so modules can add a visual lock state later without
+    // duplicating session-state checks.
+}
 
 /* =========================================================
    UNSAVED CHANGES PROTECTION
