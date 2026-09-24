@@ -1045,10 +1045,33 @@ tbody tr:hover {
     overflow: hidden;
     z-index: 5;
 }
-.frozen-table-header-sticky-cells > th {
+ .frozen-table-header-sticky-cells > th {
     position: absolute !important;
     top: 0 !important;
     margin: 0 !important;
+}
+.frozen-table-header-sticky-cells .frozen-sticky-header-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 8px;
+    border-right: 1px solid #dbe3ee;
+    border-bottom: 1px solid #dbe3ee;
+    background: #eef4fb;
+    color: #123b73;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-align: center;
+    box-sizing: border-box;
+}
+.frozen-table-header-sticky-cells .frozen-sticky-header-cell.sticky-name {
+    justify-content: flex-start;
+    text-align: left;
+}
+.frozen-table-header-sticky-cells .frozen-sticky-header-cell small {
+    font-size: inherit;
 }
 
 @media print {
