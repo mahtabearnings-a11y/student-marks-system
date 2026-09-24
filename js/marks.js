@@ -110,7 +110,12 @@ function getMark(recordId, subjectId, exam) {
 
 function setMark(recordId, subjectId, exam, value) {
     const key = `${recordId}_${subjectId}_${exam}`;
-    marksValues[key] = value === "" ? null : Number(value);
+    // Keep an empty/deleted mark as null. Do not use Number(null),
+    // because JavaScript converts null to 0 and that would create
+    // a false mark/calculation change after the user deletes a value.
+    marksValues[key] = value === "" || value === null || value === undefined
+        ? null
+        : Number(value);
 }
 
 
