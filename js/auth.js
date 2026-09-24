@@ -293,11 +293,16 @@ logoutButton.addEventListener(
     "click",
     async function() {
 
-        stopInactivityTimer();
+        const sectionAtLogout = activeSection;
+        const proceeded = await protectUnsavedChanges(sectionAtLogout, async () => {
+            stopInactivityTimer();
+            await supabaseClient.auth.signOut();
+            showLogin();
+        });
 
-        await supabaseClient.auth.signOut();
-
-        showLogin();
+        if (!proceeded) {
+            return;
+        }
 
     }
 );
@@ -307,11 +312,19 @@ logoutButton.addEventListener(
    SESSION TIMEOUT
 ========================================================= */
 
-function resetInactivityTimer() {
+let lastActivityTimestamp = 0;
+
+function resetInactivityTimer(force = false) {
 
     if (!currentUser) {
         return;
     }
+
+    const now = Date.now();
+    if (!force && now - lastActivityTimestamp < 1000) {
+        return;
+    }
+    lastActivityTimestamp = now;
 
 
     clearTimeout(
@@ -323,6 +336,7 @@ function resetInactivityTimer() {
         setTimeout(
             async function() {
 
+                inactivityTimer = null;
                 await supabaseClient.auth.signOut();
 
                 showLogin();
@@ -340,7 +354,7 @@ function resetInactivityTimer() {
 
 function startInactivityTimer() {
 
-    resetInactivityTimer();
+    resetInactivityTimer(true);
 
 }
 
@@ -353,6 +367,8 @@ function stopInactivityTimer() {
 
     inactivityTimer =
         null;
+
+    lastActivityTimestamp = 0;
 
 }
 

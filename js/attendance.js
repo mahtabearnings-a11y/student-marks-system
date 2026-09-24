@@ -10,6 +10,39 @@ function attendanceClassName(n) {
     return className(Number(n));
 }
 
+function getAttendanceSnapshot() {
+    if (!attendanceSession || !attendanceClass) return null;
+
+    const values = [];
+    attendanceStudents.forEach(record => {
+        attendanceSelectedMonths.forEach(monthNo => {
+            const row = attendanceData[`${record.id}_${monthNo}`] || {};
+            values.push([
+                Number(record.id),
+                Number(monthNo),
+                row.working_days === undefined ? null : Number(row.working_days),
+                row.present_days === undefined ? null : Number(row.present_days)
+            ]);
+        });
+    });
+
+    return JSON.stringify({
+        session: String(attendanceSession.value || ""),
+        classNo: Number(attendanceClass.value || 0),
+        months: [...attendanceSelectedMonths].sort((a, b) => a - b),
+        values
+    });
+}
+
+function captureAttendanceSavedSnapshot() {
+    attendanceSavedSnapshot = getAttendanceSnapshot();
+}
+
+function hasUnsavedAttendanceChanges() {
+    if (currentRole !== "admin" || attendanceSavedSnapshot === null) return false;
+    return getAttendanceSnapshot() !== attendanceSavedSnapshot;
+}
+
 function populateAttendanceSessions() {
     if (!attendanceSession) return;
     attendanceSession.innerHTML = sessions.length
@@ -27,13 +60,21 @@ function renderAttendanceMonthButtons() {
     attendanceMonths.querySelectorAll("[data-att-month]").forEach(btn => {
         btn.addEventListener("click", () => {
             const monthNo = Number(btn.dataset.attMonth);
-            if (attendanceSelectedMonths.includes(monthNo)) {
-                attendanceSelectedMonths = attendanceSelectedMonths.filter(x => x !== monthNo);
-            } else {
-                attendanceSelectedMonths = [...attendanceSelectedMonths, monthNo].sort((a,b) => a-b);
-            }
-            renderAttendanceMonthButtons();
-            resetAttendanceGridForSelectionChange();
+            const previousMonths = [...attendanceSelectedMonths];
+            const nextMonths = attendanceSelectedMonths.includes(monthNo)
+                ? attendanceSelectedMonths.filter(x => x !== monthNo)
+                : [...attendanceSelectedMonths, monthNo].sort((a, b) => a - b);
+
+            protectUnsavedChanges("attendance", async () => {
+                attendanceSelectedMonths = nextMonths;
+                renderAttendanceMonthButtons();
+                await resetAttendanceGridForSelectionChange();
+            }).then(proceeded => {
+                if (!proceeded) {
+                    attendanceSelectedMonths = previousMonths;
+                    renderAttendanceMonthButtons();
+                }
+            });
         });
     });
     if (attendanceSelectedLabel) {
@@ -45,7 +86,11 @@ function renderAttendanceMonthButtons() {
 async function resetAttendanceGridForSelectionChange() {
     attendanceStudents = []; attendanceData = {};
     if (attendanceRecordCount) attendanceRecordCount.textContent = attendanceSelectedMonths.length ? "Loading attendance..." : "Select month(s) to continue.";
-    if (!attendanceSelectedMonths.length) { if(attendanceTableContainer) attendanceTableContainer.innerHTML=`<div class="empty-state">Select month(s) to continue.</div>`; return; }
+    if (!attendanceSelectedMonths.length) {
+        if(attendanceTableContainer) attendanceTableContainer.innerHTML=`<div class="empty-state">Select month(s) to continue.</div>`;
+        captureAttendanceSavedSnapshot();
+        return;
+    }
     await loadAttendanceGrid();
 }
 
@@ -243,17 +288,36 @@ async function loadAttendanceGrid() {
         });
     }
     renderAttendanceTable();
+    captureAttendanceSavedSnapshot();
 }
 
-async function saveAttendance() {
+async function saveAttendance({ reload = true } = {}) {
     if (currentRole !== "admin") {
         showToast("View Only users cannot save attendance.", "error");
-        return;
+        return false;
     }
     if (!attendanceSelectedMonths.length || !attendanceStudents.length) {
         showToast("Load a class and select month(s) before saving.", "error");
-        return;
+        return false;
     }
+
+    // A half-filled attendance pair is not a valid record. Refuse to leave
+    // the page through Save & Leave until the row is completed or cleared.
+    let invalidPartialEntry = false;
+    attendanceStudents.forEach(record => {
+        attendanceSelectedMonths.forEach(monthNo => {
+            const row = attendanceData[`${record.id}_${monthNo}`] || {};
+            const hasW = row.working_days !== undefined;
+            const hasP = row.present_days !== undefined;
+            if (hasW !== hasP) invalidPartialEntry = true;
+        });
+    });
+
+    if (invalidPartialEntry) {
+        showToast("Please enter both Working Days and Present Days, or clear both, before saving.", "error");
+        return false;
+    }
+
     attendanceSaveButton.disabled = true;
     attendanceSaveButton.textContent = "Saving...";
     const rows = [];
@@ -262,7 +326,6 @@ async function saveAttendance() {
             const row=attendanceData[`${record.id}_${monthNo}`]||{};
             const hasW=row.working_days!==undefined; const hasP=row.present_days!==undefined;
             if(!hasW && !hasP) return;
-            if(!hasW || !hasP) return;
             rows.push({academic_record_id:record.id,month_no:monthNo,working_days:Number(row.working_days),present_days:Number(row.present_days)});
         });
     });
@@ -273,10 +336,17 @@ async function saveAttendance() {
     attendanceSaveButton.textContent = "Save Attendance";
     if (error) {
         showToast("Unable to save attendance: " + error.message, "error");
-        return;
+        return false;
     }
+
+    captureAttendanceSavedSnapshot();
     showToast("Attendance saved successfully.", "success");
-    await loadAttendanceGrid();
+
+    if (reload) {
+        await loadAttendanceGrid();
+    }
+
+    return true;
 }
 
 function printAttendanceSummary() {
@@ -308,27 +378,66 @@ function resetAttendanceState() {
     attendanceSelectedMonths = [];
     attendanceStudents = [];
     attendanceData = {};
+    attendanceSavedSnapshot = null;
     renderAttendanceMonthButtons();
     if (attendanceRecordCount) attendanceRecordCount.textContent = "Select session, class and month(s).";
     if (attendanceTableContainer) attendanceTableContainer.innerHTML = `<div class="empty-state">Select session, class and month(s) to load attendance.</div>`;
 }
 
-if (attendanceSelectAll) attendanceSelectAll.addEventListener("click", () => {
-    attendanceSelectedMonths = attendanceMonthNames.map((_, i) => i + 1);
-    renderAttendanceMonthButtons();
-    resetAttendanceGridForSelectionChange();
+async function handleAttendanceContextChange(control, previousValue, loader) {
+    const nextValue = control.value;
+    const restoreValue = previousValue ?? nextValue;
+    control.value = restoreValue;
+
+    const proceeded = await protectUnsavedChanges("attendance", async () => {
+        control.value = nextValue;
+        await loader();
+    });
+
+    if (!proceeded) {
+        control.value = restoreValue;
+    }
+}
+
+if (attendanceSelectAll) attendanceSelectAll.addEventListener("click", function () {
+    const previousMonths = [...attendanceSelectedMonths];
+    const nextMonths = attendanceMonthNames.map((_, i) => i + 1);
+
+    protectUnsavedChanges("attendance", async () => {
+        attendanceSelectedMonths = nextMonths;
+        renderAttendanceMonthButtons();
+        await resetAttendanceGridForSelectionChange();
+    }).then(proceeded => {
+        if (!proceeded) {
+            attendanceSelectedMonths = previousMonths;
+            renderAttendanceMonthButtons();
+        }
+    });
 });
-if (attendanceClearMonths) attendanceClearMonths.addEventListener("click", () => {
-    attendanceSelectedMonths = [];
-    renderAttendanceMonthButtons();
-    resetAttendanceGridForSelectionChange();
+
+if (attendanceClearMonths) attendanceClearMonths.addEventListener("click", function () {
+    const previousMonths = [...attendanceSelectedMonths];
+
+    protectUnsavedChanges("attendance", async () => {
+        attendanceSelectedMonths = [];
+        renderAttendanceMonthButtons();
+        await resetAttendanceGridForSelectionChange();
+    }).then(proceeded => {
+        if (!proceeded) {
+            attendanceSelectedMonths = previousMonths;
+            renderAttendanceMonthButtons();
+        }
+    });
 });
-if (attendanceSaveButton) attendanceSaveButton.addEventListener("click", saveAttendance);
-if (attendanceSession) attendanceSession.addEventListener("change", () => { if(attendanceSelectedMonths.length) loadAttendanceGrid(); });
-if (attendanceClass) attendanceClass.addEventListener("change", () => { if(attendanceSelectedMonths.length) loadAttendanceGrid(); });
+
+if (attendanceSaveButton) attendanceSaveButton.addEventListener("click", () => saveAttendance());
+if (attendanceSession) attendanceSession.addEventListener("change", function () {
+    const previous = attendanceSavedSnapshot ? JSON.parse(attendanceSavedSnapshot).session : this.value;
+    handleAttendanceContextChange(this, previous, resetAttendanceGridForSelectionChange);
+});
+if (attendanceClass) attendanceClass.addEventListener("change", function () {
+    const previous = attendanceSavedSnapshot ? JSON.parse(attendanceSavedSnapshot).classNo : Number(this.value);
+    handleAttendanceContextChange(this, String(previous), resetAttendanceGridForSelectionChange);
+});
 if (attendanceSort) attendanceSort.addEventListener("change", renderAttendanceTable);
 if (attendancePrintButton) attendancePrintButton.addEventListener("click", printAttendanceSummary);
-if (attendanceSort) attendanceSort.addEventListener("change", () => { if (attendanceStudents.length) renderAttendanceTable(); });
-if (attendanceSession) attendanceSession.addEventListener("change", resetAttendanceGridForSelectionChange);
-if (attendanceClass) attendanceClass.addEventListener("change", resetAttendanceGridForSelectionChange);
-

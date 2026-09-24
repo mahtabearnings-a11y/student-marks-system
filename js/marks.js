@@ -98,6 +98,7 @@ async function loadMarksGrid() {
 
     syncPrintDataFromMarks();
     renderMarksGrid();
+    captureMarksSavedSnapshot();
     marksLoading = false;
 }
 
@@ -110,6 +111,42 @@ function getMark(recordId, subjectId, exam) {
 function setMark(recordId, subjectId, exam, value) {
     const key = `${recordId}_${subjectId}_${exam}`;
     marksValues[key] = value === "" ? null : Number(value);
+}
+
+
+function getMarksSnapshot() {
+    if (!marksSession || !marksClass || !marksExam) return null;
+
+    const exam = marksExam.value || "";
+    const values = [];
+
+    marksRecords.forEach(record => {
+        marksSubjects.forEach(subject => {
+            const key = `${record.id}_${subject.id}_${exam}`;
+            const value = marksValues[key];
+            values.push([
+                Number(record.id),
+                Number(subject.id),
+                value === undefined || value === null || value === "" ? null : Number(value)
+            ]);
+        });
+    });
+
+    return JSON.stringify({
+        session: String(marksSession.value || ""),
+        classNo: Number(marksClass.value || 0),
+        exam,
+        values
+    });
+}
+
+function captureMarksSavedSnapshot() {
+    marksSavedSnapshot = getMarksSnapshot();
+}
+
+function hasUnsavedMarksChanges() {
+    if (currentRole !== "admin" || marksSavedSnapshot === null) return false;
+    return getMarksSnapshot() !== marksSavedSnapshot;
 }
 
 function calculateRow(recordId) {
@@ -223,18 +260,18 @@ function renderMarksGrid() {
     });
 }
 
-async function saveMarks() {
+async function saveMarks({ reload = true } = {}) {
     if (currentRole !== "admin") {
         showToast("View Only users cannot save marks.", "error");
-        return;
+        return false;
     }
     if (marksExam.value === "Final") {
         showToast("Final marks are calculated from Half-Yearly and Annual marks and are not entered separately.", "info");
-        return;
+        return false;
     }
     if (!marksRecords.length || !marksSubjects.length) {
         showToast("Load a class before saving marks.", "error");
-        return;
+        return false;
     }
 
     saveMarksButton.disabled = true;
@@ -266,16 +303,50 @@ async function saveMarks() {
     if (error) {
         console.error(error);
         showToast("Unable to save marks: " + error.message, "error");
-        return;
+        return false;
     }
 
+    captureMarksSavedSnapshot();
     showToast("Marks saved successfully.", "success");
-    await loadMarksGrid();
+
+    if (reload) {
+        await loadMarksGrid();
+    }
+
+    return true;
 }
 
-if (marksSession) marksSession.addEventListener("change", loadMarksGrid);
-if (marksClass) marksClass.addEventListener("change", loadMarksGrid);
-if (marksExam) marksExam.addEventListener("change", loadMarksGrid);
+async function handleMarksContextChange(control, previousValue) {
+    const nextValue = control.value;
+    const restoreValue = previousValue ?? nextValue;
+
+    // Put the control back to the currently loaded grid while the dialog/save
+    // operation is being handled. This guarantees Save & Leave saves the data
+    // that is actually on screen rather than the newly selected context.
+    control.value = restoreValue;
+
+    const proceeded = await protectUnsavedChanges("marks", async () => {
+        control.value = nextValue;
+        await loadMarksGrid();
+    });
+
+    if (!proceeded) {
+        control.value = restoreValue;
+    }
+}
+
+if (marksSession) marksSession.addEventListener("change", function () {
+    const previous = marksSavedSnapshot ? JSON.parse(marksSavedSnapshot).session : this.value;
+    handleMarksContextChange(this, previous);
+});
+if (marksClass) marksClass.addEventListener("change", function () {
+    const previous = marksSavedSnapshot ? JSON.parse(marksSavedSnapshot).classNo : Number(this.value);
+    handleMarksContextChange(this, String(previous));
+});
+if (marksExam) marksExam.addEventListener("change", function () {
+    const previous = marksSavedSnapshot ? JSON.parse(marksSavedSnapshot).exam : this.value;
+    handleMarksContextChange(this, previous);
+});
 if (marksSort) marksSort.addEventListener("change", () => { renderMarksGrid(); filterPrintStudents(); });
-if (saveMarksButton) saveMarksButton.addEventListener("click", saveMarks);
+if (saveMarksButton) saveMarksButton.addEventListener("click", () => saveMarks());
 

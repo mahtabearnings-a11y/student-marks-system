@@ -103,6 +103,7 @@ function resetStudentsState(){
     if(studentSort) studentSort.value="rollAsc";
 }
 function resetMarksState(){
+    marksSavedSnapshot = null;
     if(marksSession){ const active=sessions.find(s=>s.is_active); marksSession.value=active?String(active.id):""; }
     if(marksClass) marksClass.value="1";
     if(marksExam) marksExam.value="Half-Yearly";
@@ -123,6 +124,7 @@ function resetModuleState(section){
 
 
 function showSection(section, options = {}) {
+    activeSection = section;
     resetModuleState(section);
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.section === section));
     document.querySelectorAll(".app-section").forEach(item => item.classList.add("hidden"));
@@ -140,6 +142,17 @@ function showSection(section, options = {}) {
     if (section === "recycleBin") { loadRecycleBin(); }
 }
 
+async function requestSectionChange(section, options = {}) {
+    if (!section || section === activeSection) return;
+
+    const fromSection = activeSection;
+    const proceeded = await protectUnsavedChanges(fromSection, async () => {
+        showSection(section, options);
+    });
+
+    return proceeded;
+}
+
 
 /* =========================================================
    NAVIGATION
@@ -154,7 +167,7 @@ document
                 "click",
                 function() {
 
-                    showSection(this.dataset.section);
+                    requestSectionChange(this.dataset.section);
 
                 }
             );
@@ -171,14 +184,15 @@ window.addEventListener(
             return;
         }
 
-        const section = getInitialSection(currentRole);
-
-        if (section === window.location.hash.replace(/^#/, "")) {
-            showSection(section, { updateHash: false });
-        } else {
-            showSection(section);
+        const requestedSection = getInitialSection(currentRole);
+        if (!requestedSection || requestedSection === activeSection) {
+            return;
         }
 
+        const previousHash = activeSection ? `#${activeSection}` : "#dashboard";
+        window.history.replaceState(null, "", previousHash);
+
+        requestSectionChange(requestedSection, { updateHash: true });
     }
 );
 

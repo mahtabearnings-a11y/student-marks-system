@@ -63,6 +63,16 @@ let inactivityTimer = null;
 const INACTIVITY_LIMIT =
     15 * 60 * 1000;
 
+// Tracks which application section is currently visible.
+let activeSection = "dashboard";
+
+// Last successfully loaded/saved snapshots for the editable modules.
+let marksSavedSnapshot = null;
+let attendanceSavedSnapshot = null;
+
+// Prevents multiple unsaved-change dialogs from being opened at once.
+let unsavedChangesDialogOpen = false;
+
 let sessions = [];
 
 let studentsData = [];
@@ -200,6 +210,18 @@ const closeHistoryButton =
 const toast =
     document.getElementById("toast");
 
+const unsavedChangesModal =
+    document.getElementById("unsavedChangesModal");
+
+const unsavedChangesSaveButton =
+    document.getElementById("unsavedChangesSaveButton");
+
+const unsavedChangesLeaveButton =
+    document.getElementById("unsavedChangesLeaveButton");
+
+const unsavedChangesCancelButton =
+    document.getElementById("unsavedChangesCancelButton");
+
 const printSession = document.getElementById("marksSession");
 const printClass = document.getElementById("marksClass");
 const printExam = document.getElementById("marksExam");
@@ -231,6 +253,117 @@ let attendanceSelectedMonths = [];
 
 
 
+
+
+/* =========================================================
+   UNSAVED CHANGES PROTECTION
+========================================================= */
+
+function showUnsavedChangesDialog() {
+    return new Promise(resolve => {
+        if (!unsavedChangesModal) {
+            resolve("cancel");
+            return;
+        }
+
+        if (unsavedChangesDialogOpen) {
+            resolve("cancel");
+            return;
+        }
+
+        unsavedChangesDialogOpen = true;
+        unsavedChangesModal.classList.remove("hidden");
+
+        let settled = false;
+
+        const finish = choice => {
+            if (settled) return;
+            settled = true;
+            unsavedChangesDialogOpen = false;
+            unsavedChangesModal.classList.add("hidden");
+            cleanup();
+            resolve(choice);
+        };
+
+        const onSave = () => finish("save");
+        const onLeave = () => finish("leave");
+        const onCancel = () => finish("cancel");
+        const onKeyDown = event => {
+            if (event.key === "Escape") {
+                event.preventDefault();
+                finish("cancel");
+            }
+        };
+
+        const cleanup = () => {
+            unsavedChangesSaveButton?.removeEventListener("click", onSave);
+            unsavedChangesLeaveButton?.removeEventListener("click", onLeave);
+            unsavedChangesCancelButton?.removeEventListener("click", onCancel);
+            document.removeEventListener("keydown", onKeyDown);
+        };
+
+        unsavedChangesSaveButton?.addEventListener("click", onSave);
+        unsavedChangesLeaveButton?.addEventListener("click", onLeave);
+        unsavedChangesCancelButton?.addEventListener("click", onCancel);
+        document.addEventListener("keydown", onKeyDown);
+
+        // Default focus goes to the safest action.
+        setTimeout(() => unsavedChangesCancelButton?.focus(), 0);
+    });
+}
+
+function hasUnsavedChangesForSection(section) {
+    if (section === "marks" && typeof hasUnsavedMarksChanges === "function") {
+        return hasUnsavedMarksChanges();
+    }
+    if (section === "attendance" && typeof hasUnsavedAttendanceChanges === "function") {
+        return hasUnsavedAttendanceChanges();
+    }
+    return false;
+}
+
+async function protectUnsavedChanges(section, continueAction) {
+    if (!hasUnsavedChangesForSection(section)) {
+        await continueAction();
+        return true;
+    }
+
+    const choice = await showUnsavedChangesDialog();
+
+    if (choice === "cancel") {
+        return false;
+    }
+
+    if (choice === "save") {
+        let saved = false;
+
+        if (section === "marks" && typeof saveMarks === "function") {
+            saved = await saveMarks({ reload: false });
+        } else if (section === "attendance" && typeof saveAttendance === "function") {
+            saved = await saveAttendance({ reload: false });
+        }
+
+        if (!saved) {
+            return false;
+        }
+    }
+
+    await continueAction();
+    return true;
+}
+
+function hasAnyUnsavedChanges() {
+    return hasUnsavedChangesForSection("marks") || hasUnsavedChangesForSection("attendance");
+}
+
+// Browser refresh/close dialogs are controlled by the browser itself. We only
+// trigger them when there is genuinely unsaved data; normal navigation uses
+// the custom three-button dialog above.
+window.addEventListener("beforeunload", event => {
+    if (!currentUser || !hasAnyUnsavedChanges()) return;
+    event.preventDefault();
+    event.returnValue = "";
+});
 
 
 /* =========================================================
