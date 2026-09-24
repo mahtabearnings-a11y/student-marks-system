@@ -162,44 +162,39 @@ function printAllStudents(){
 function autoFitFolioTable(table){
     if(!table) return;
 
-    const rows = [...table.rows];
-    if(!rows.length) return;
-
-    const cols = rows[0].cells.length;
+    const headerCells = table.tHead?.rows?.[0]?.cells || [];
+    const cols = headerCells.length;
     if(!cols) return;
 
-    // A4 portrait printable width with the folio page margins used below.
-    // This behaves like Word's "AutoFit to Window": the table fills the
-    // printable width, while the student-name and result columns get more
-    // space and the narrow mark columns share the remaining width.
     const subjectCount = Math.max(0, cols - 6);
-    const fixed = {
-        serial: 8,
-        roll: 11,
-        name: 40,
-        total: 14,
-        percentage: 18,
-        grade: 16
-    };
 
+    // A4 portrait with 8mm page margins = 194mm printable width.
+    // This is the equivalent of Word's "AutoFit to Window":
+    // the complete table fills the printable width, while identity/result
+    // columns keep practical widths and all subject columns share the rest.
     const printableWidth = 194;
+    const fixed = {
+        serial: 9,
+        roll: 12,
+        name: 48,
+        total: 15,
+        percentage: 21,
+        grade: 18
+    };
     const fixedWidth = fixed.serial + fixed.roll + fixed.name + fixed.total + fixed.percentage + fixed.grade;
     const remaining = Math.max(0, printableWidth - fixedWidth);
-    const subjectWidth = subjectCount ? Math.max(7, remaining / subjectCount) : 0;
+    const subjectWidth = subjectCount ? remaining / subjectCount : 0;
 
-    const widths = [];
-    widths.push(fixed.serial, fixed.roll, fixed.name);
-    for(let i=0;i<subjectCount;i++) widths.push(subjectWidth);
+    const widths = [fixed.serial, fixed.roll, fixed.name];
+    for(let i=0; i<subjectCount; i++) widths.push(subjectWidth);
     widths.push(fixed.total, fixed.percentage, fixed.grade);
 
-    table.style.width = "100%";
-    table.style.maxWidth = "100%";
-    table.style.minWidth = "0";
-    table.style.tableLayout = "auto";
+    table.style.width = "194mm";
+    table.style.maxWidth = "194mm";
+    table.style.minWidth = "194mm";
+    table.style.tableLayout = "fixed";
 
-    // Remove any previous auto-fit colgroup.
-    table.querySelector("colgroup[data-folio-autofit]")?.remove();
-
+    table.querySelector('colgroup[data-folio-autofit]')?.remove();
     const colgroup = document.createElement("colgroup");
     colgroup.dataset.folioAutofit = "true";
     widths.forEach(width => {
@@ -209,15 +204,13 @@ function autoFitFolioTable(table){
     });
     table.insertBefore(colgroup, table.firstChild);
 
-    // Let long names wrap instead of forcing the whole table wider.
-    [...table.rows].forEach(row => [...row.cells].forEach(cell => {
-        cell.style.width = "auto";
-        cell.style.maxWidth = "none";
-        cell.style.overflowWrap = "anywhere";
+    [...table.rows].forEach(row => [...row.cells].forEach((cell, index) => {
+        cell.style.width = `${widths[index].toFixed(2)}mm`;
+        cell.style.maxWidth = `${widths[index].toFixed(2)}mm`;
+        cell.style.overflowWrap = index === 2 ? "anywhere" : "normal";
         cell.style.wordBreak = "normal";
     }));
 }
-
 function printClassFolio(){
     if(!printStudents.length){showToast("No students found.","error");return;}
     const ranked=getPrintSortedStudents();

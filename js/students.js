@@ -858,6 +858,37 @@ function normalizeStudentText(value) {
     return String(value ?? "").trim().toUpperCase();
 }
 
+function showStudentConflictDialog(title, message) {
+    const modal = document.getElementById("studentConflictModal");
+    const titleEl = document.getElementById("studentConflictTitle");
+    const messageEl = document.getElementById("studentConflictMessage");
+    const okButton = document.getElementById("studentConflictOkButton");
+    if (!modal || !titleEl || !messageEl || !okButton) {
+        showToast(message, "error");
+        return;
+    }
+    titleEl.textContent = title;
+    messageEl.innerHTML = message;
+    modal.classList.remove("hidden");
+    okButton.focus();
+}
+
+function closeStudentConflictDialog() {
+    const modal = document.getElementById("studentConflictModal");
+    if (modal) modal.classList.add("hidden");
+}
+
+async function getStudentConflictDetails(studentProfileId, sessionId) {
+    const { data, error } = await supabaseClient
+        .from("academic_records")
+        .select("class_no, roll_no")
+        .eq("student_profile_id", studentProfileId)
+        .eq("session_id", sessionId)
+        .limit(1);
+    if (error) throw error;
+    return data?.[0] || {};
+}
+
 function normalizeStudentFormFields() {
     const ids = [
         "formStudentId",
@@ -888,7 +919,16 @@ async function validateStudentUniqueFields({studentId, apaarId, classNo, rollNo,
         const { data, error } = await query;
         if (error) throw error;
         if (data?.length) {
-            throw new Error(`Student ID ${studentId} is already used by another student.`);
+            const existing = data[0];
+            const details = await getStudentConflictDetails(existing.id, sessionId);
+            throw {
+                type: "student-conflict",
+                title: "Student ID Already in Use",
+                name: existing.student_name || "—",
+                classNo: details.class_no,
+                rollNo: details.roll_no,
+                message: `Student ID <strong>${escapeHtml(studentId)}</strong> is already being used by another student.`
+            };
         }
     }
 
@@ -902,7 +942,16 @@ async function validateStudentUniqueFields({studentId, apaarId, classNo, rollNo,
         const { data, error } = await query;
         if (error) throw error;
         if (data?.length) {
-            throw new Error(`APAAR ID ${apaarId} is already used by another student.`);
+            const existing = data[0];
+            const details = await getStudentConflictDetails(existing.id, sessionId);
+            throw {
+                type: "student-conflict",
+                title: "APAAR ID Already in Use",
+                name: existing.student_name || "—",
+                classNo: details.class_no,
+                rollNo: details.roll_no,
+                message: `APAAR ID <strong>${escapeHtml(apaarId)}</strong> is already being used by another student.`
+            };
         }
     }
 
@@ -918,12 +967,18 @@ async function validateStudentUniqueFields({studentId, apaarId, classNo, rollNo,
         const { data, error } = await query;
         if (error) throw error;
         if (data?.length) {
-            const existingName = data[0]?.students?.student_name || "another student";
-            throw new Error(`Roll No. ${rollNo} is already used by ${existingName} in ${className(classNo)} for this academic session.`);
+            const existing = data[0];
+            throw {
+                type: "student-conflict",
+                title: "Roll Number Already in Use",
+                name: existing.students?.student_name || "—",
+                classNo: existing.class_no,
+                rollNo: existing.roll_no,
+                message: `Roll No. <strong>${escapeHtml(String(rollNo))}</strong> is already being used by another student in this class.`
+            };
         }
     }
 }
-
 /* =========================================================
    SAVE STUDENT
 ========================================================= */
@@ -1120,11 +1175,18 @@ saveStudentButton.addEventListener(
 
             console.error(error);
 
-            showToast(
-                error.message ||
-                "Unable to save student.",
-                "error"
-            );
+            if (error?.type === "student-conflict") {
+                showStudentConflictDialog(
+                    error.title || "Duplicate Student Data",
+                    `${error.message}<br><br><strong>Student Name:</strong> ${escapeHtml(error.name || "—")}<br><strong>Class:</strong> ${escapeHtml(error.classNo ? className(error.classNo) : "—")}<br><strong>Roll No.:</strong> ${escapeHtml(error.rollNo ?? "—")}`
+                );
+            } else {
+                showToast(
+                    error.message ||
+                    "Unable to save student.",
+                    "error"
+                );
+            }
 
         } finally {
 
@@ -1625,11 +1687,27 @@ window.viewHistory =
         input.addEventListener("input", () => {
             const start = input.selectionStart;
             const end = input.selectionEnd;
-            input.value = normalizeStudentText(input.value);
+            input.value = String(input.value ?? "").toUpperCase();
             try { input.setSelectionRange(start, end); } catch (_) {}
         });
     }
 });
+
+/* =========================================================
+   STUDENT CONFLICT DIALOG EVENTS
+========================================================= */
+
+const studentConflictOkButton = document.getElementById("studentConflictOkButton");
+const studentConflictModal = document.getElementById("studentConflictModal");
+const studentConflictCloseButton = document.getElementById("studentConflictCloseButton");
+
+if (studentConflictOkButton) studentConflictOkButton.addEventListener("click", closeStudentConflictDialog);
+if (studentConflictCloseButton) studentConflictCloseButton.addEventListener("click", closeStudentConflictDialog);
+if (studentConflictModal) {
+    studentConflictModal.addEventListener("click", event => {
+        if (event.target === studentConflictModal) closeStudentConflictDialog();
+    });
+}
 
 /* =========================================================
    MODAL EVENTS

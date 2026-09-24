@@ -1053,3 +1053,17 @@ tbody tr:hover {
 #marksTableContainer table tbody tr:nth-child(even) td {
     background-color: #f3f8fc;
 }
+
+
+/* Student duplicate-data dialog */
+.student-conflict-modal {
+    max-width: 560px;
+}
+.student-conflict-message {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #374151;
+}
+.student-conflict-message strong {
+    color: #123b73;
+}

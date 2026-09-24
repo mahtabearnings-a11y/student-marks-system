@@ -316,3 +316,82 @@
     margin-bottom:10px !important;
   }
 }
+
+
+/* Final Class Marks Folio layout: Word-style AutoFit to Window */
+@media print {
+  .folio-print .result-table {
+    width:194mm !important;
+    min-width:194mm !important;
+    max-width:194mm !important;
+    table-layout:fixed !important;
+    border-collapse:collapse !important;
+  }
+  .folio-print .result-table colgroup[data-folio-autofit] col {
+    width:auto;
+  }
+  .folio-print .result-table th,
+  .folio-print .result-table td {
+    box-sizing:border-box !important;
+    padding:4px 3px !important;
+    overflow:hidden !important;
+    text-overflow:clip !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+    word-break:normal !important;
+    vertical-align:middle !important;
+  }
+  .folio-print .result-table td.name {
+    text-align:left !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+    min-width:0 !important;
+  }
+  .folio-print .result-table th.folio-subject-head {
+    height:178px !important;
+    min-height:178px !important;
+    padding:3px 2px !important;
+    overflow:hidden !important;
+    white-space:nowrap !important;
+  }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap {
+    height:145px !important;
+    width:100% !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    overflow:visible !important;
+  }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap > .folio-subject-name {
+    display:inline-block !important;
+    width:max-content !important;
+    max-width:none !important;
+    white-space:nowrap !important;
+    writing-mode:horizontal-tb !important;
+    transform:rotate(-90deg) !important;
+    -webkit-transform:rotate(-90deg) !important;
+    transform-origin:center center !important;
+    font-size:14pt !important;
+    line-height:1 !important;
+  }
+  .folio-print .result-table th.folio-subject-head small {
+    display:block !important;
+    height:24px !important;
+    margin:4px auto 0 !important;
+    font-size:14pt !important;
+    line-height:1 !important;
+    white-space:nowrap !important;
+  }
+  .folio-print .result-table th.percentage-head,
+  .folio-print .result-table td.percentage-cell {
+    white-space:nowrap !important;
+    overflow-wrap:normal !important;
+  }
+  .folio-print .result-table thead {
+    display:table-header-group !important;
+  }
+  .folio-print .result-table tbody tr {
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
+  }
+}
