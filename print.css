@@ -1,0 +1,246 @@
+/* =========================================================
+   PRINT MODULE STYLES
+========================================================= */
+
+/* =========================
+   PRINT MODULE
+========================= */
+.print-controls { display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:12px; align-items:end; }
+.print-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+.print-student-preview { margin-top:15px; padding:14px; background:#f8fafc; border:1px solid #e5e7eb; border-radius:9px; }
+.print-results-table { width:100%; min-width:700px; border-collapse:collapse; }
+.print-results-table th,.print-results-table td { border:1px solid #cbd5e1; padding:8px; text-align:center; }
+.print-results-table th { background:#f1f5f9; }
+.print-results-table td.name { text-align:left; }
+@media(max-width:700px){ .print-controls{grid-template-columns:1fr;} }
+
+/* Printable result */
+.print-document { display:none; }
+@media print {
+  html, body {
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:visible !important;
+  }
+  body > *:not(#printDocumentHost) { display:none !important; }
+  #printDocumentHost {
+    display:block !important;
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:visible !important;
+  }
+  .print-document {
+    display:block !important;
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    font-family:Arial,Helvetica,sans-serif;
+    color:#111;
+  }
+  @page { size:A4 portrait; margin:12mm; }
+  @page folio { size:A4 portrait; margin:8mm; }
+  .result-page {
+    page-break-after:auto !important;
+    break-after:auto !important;
+    page-break-inside:avoid;
+    break-inside:avoid-page;
+    width:100%;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+  }
+  .result-page + .result-page { page-break-before:always; break-before:page; }
+  .result-header { width:100%; box-sizing:border-box; display:block; text-align:center !important; line-height:1.4; margin:0 auto 18px; }
+  .result-header h1 { font-size:16pt; font-weight:700; margin:0 0 4px; text-align:center !important;}
+  .result-header h2 { font-size:16pt; font-weight:700; margin:2px 0; text-align:center !important;}
+  .result-header .small { font-size:14pt; margin:1px 0; text-align:center !important;}
+  .result-info { display:grid; grid-template-columns:1fr 1fr; gap:4px 18px; font-size:14pt; margin-bottom:8px;}
+  .result-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:14pt;}
+  .result-table th,.result-table td { border:1px solid #222; padding:5px 4px; text-align:center; vertical-align:middle; word-wrap:break-word;}
+  .result-table th { background:#f3f4f6; font-size:16pt;}
+  .result-table td.subject { text-align:left; }
+  .result-summary { margin-top:10px; font-size:14pt;}
+  .result-rank {
+    margin:12px auto 0;
+    width:max-content;
+    min-width:150px;
+    box-sizing:border-box;
+    padding:7px 16px;
+    border:2px solid #222;
+    border-radius:10px;
+    background:#f3f4f6;
+    text-align:center;
+    font-size:14pt;
+    font-weight:700;
+  }
+  .result-rank .rank-label { margin-right:8px; }
+  .result-rank .rank-value { font-size:14pt; font-weight:800; }
+  .result-total-row th,
+  .result-total-row td { font-size:14pt; font-weight:700; }
+  .folio-print { page:folio; }
+  .folio-print .result-table {
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    table-layout:auto !important;
+    font-size:14pt;
+  }
+  .folio-print .result-table th,
+  .folio-print .result-table td {
+    box-sizing:border-box;
+    padding:4px 3px;
+    line-height:1.12;
+    overflow-wrap:anywhere;
+    word-break:normal;
+    vertical-align:middle;
+  }
+  .folio-print .result-table th { font-size:16pt; }
+  .folio-print .result-table td { font-size:14pt; }
+
+  /* Marks Folio subject headers: rotate the whole subject name, keep 50 horizontal below it. */
+  .folio-print .result-table th.folio-subject-head {
+    height:178px;
+    min-height:178px;
+    padding:3px 2px;
+    overflow:hidden;
+    text-align:center;
+    vertical-align:middle;
+    white-space:nowrap;
+  }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap {
+    height:145px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:visible;
+    position:relative;
+  }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap > .folio-subject-name {
+    display:inline-block;
+    width:max-content;
+    height:auto;
+    white-space:nowrap;
+    writing-mode:horizontal-tb;
+    transform:rotate(-90deg);
+    -webkit-transform:rotate(-90deg);
+    transform-origin:center center;
+    line-height:1;
+    margin:0;
+    text-align:center;
+    font-size:16pt;
+    font-weight:700;
+  }
+  .folio-print .result-table th.folio-subject-head small {
+    display:block;
+    height:24px;
+    font-size:16pt;
+    line-height:1;
+    margin:4px auto 0;
+    white-space:nowrap;
+    writing-mode:horizontal-tb;
+    transform:none;
+    -webkit-transform:none;
+  }
+  .folio-print .result-table thead th:not(.folio-subject-head) {
+    white-space:normal;
+    line-height:1.05;
+    padding:4px 2px;
+  }
+  .folio-print .result-table td.name {
+    text-align:left;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:normal;
+    min-width:42mm;
+  }
+  .folio-print .result-table th.percentage-head,
+  .folio-print .result-table td.percentage-cell {
+    min-width:20mm;
+    width:20mm;
+    white-space:nowrap;
+    overflow-wrap:normal;
+  }
+  .folio-print .result-table th:nth-child(1),
+  .folio-print .result-table td:nth-child(1) { min-width:9mm; width:9mm; }
+  .folio-print .result-table th:nth-child(2),
+  .folio-print .result-table td:nth-child(2) { min-width:11mm; width:11mm; }
+  .folio-print .result-table th:nth-child(4),
+  .folio-print .result-table th:nth-child(5),
+  .folio-print .result-table th:nth-child(6),
+  .folio-print .result-table th:nth-child(7),
+  .folio-print .result-table th:nth-child(8),
+  .folio-print .result-table th:nth-child(9),
+  .folio-print .result-table td:nth-child(4),
+  .folio-print .result-table td:nth-child(5),
+  .folio-print .result-table td:nth-child(6),
+  .folio-print .result-table td:nth-child(7),
+  .folio-print .result-table td:nth-child(8),
+  .folio-print .result-table td:nth-child(9) {
+    min-width:9mm;
+  }
+  .folio-print .result-table th:nth-child(10),
+  .folio-print .result-table td:nth-child(10) { min-width:14mm; width:14mm; }
+  .folio-print .result-table th:last-child,
+  .folio-print .result-table td:last-child { min-width:18mm; width:18mm; }
+  .folio-print {
+    page:folio !important;
+    width:100% !important;
+  }
+
+  .attendance-print-table {
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    table-layout:fixed !important;
+    font-size:12pt !important;
+  }
+  .attendance-print-table th,
+  .attendance-print-table td {
+    padding:5px 4px !important;
+    word-wrap:break-word;
+  }
+  .attendance-print-table th:nth-child(1){width:32px;}
+  .attendance-print-table th:nth-child(2){width:42px;}
+  .attendance-print-table th:nth-child(3){width:34%;}
+  .attendance-print-table th:nth-child(4),
+  .attendance-print-table th:nth-child(5),
+  .attendance-print-table th:nth-child(6){width:14%;white-space:normal;line-height:1.1;}
+  .attendance-print-table th:nth-child(7){width:16%;white-space:normal;line-height:1.1;}
+}
+
+/* Final print typography and layout */
+@media print {
+  @page { size:A4 portrait; margin:10mm; }
+  .result-page:not(.folio-print) .result-header h1,
+  .result-page:not(.folio-print) .result-header h2 { font-size:16pt !important; }
+  .result-page:not(.folio-print) .result-header .small,
+  .result-page:not(.folio-print) .result-info { font-size:14pt !important; }
+  .result-page:not(.folio-print) .result-table { font-size:14pt !important; table-layout:auto !important; }
+  .result-page:not(.folio-print) .result-table th { font-size:16pt !important; }
+  .result-page:not(.folio-print) .result-table td { font-size:14pt !important; }
+  .result-page:not(.folio-print) .result-total-row td { font-size:14pt !important; }
+  .rank-box { margin:10px auto 0; width:max-content; min-width:180px; padding:6px 18px; border:2px solid #123b73; border-radius:8px; text-align:center; font-size:14pt; line-height:1.15; }
+  .rank-box span { display:block; font-size:12pt; font-weight:700; letter-spacing:.5px; }
+  .rank-box strong { display:block; font-size:18pt; }
+  .folio-print { page:folio !important; }
+  .folio-print .result-table { width:100% !important; max-width:100% !important; table-layout:auto !important; font-size:14pt !important; }
+  .folio-print .result-table th { font-size:16pt !important; }
+  .folio-print .result-table td { font-size:14pt !important; }
+  .folio-print .result-table th.folio-subject-head { height:178px !important; min-height:178px !important; padding:3px 2px !important; }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap { display:flex !important; align-items:center !important; justify-content:center !important; height:145px !important; overflow:visible !important; position:relative !important; }
+  .folio-print .result-table th.folio-subject-head > .folio-subject-name-wrap > .folio-subject-name { display:inline-block !important; width:max-content !important; height:auto !important; white-space:nowrap !important; writing-mode:horizontal-tb !important; transform:rotate(-90deg) !important; -webkit-transform:rotate(-90deg) !important; }
+  .folio-print .result-table th.folio-subject-head small { display:block !important; height:24px !important; margin:4px auto 0 !important; font-size:16pt !important; line-height:1 !important; writing-mode:horizontal-tb !important; transform:none !important; -webkit-transform:none !important; white-space:nowrap !important; }
+  .folio-print .result-table th:last-child, .folio-print .result-table td:last-child { min-width:18mm !important; width:18mm !important; }
+  .folio-print .result-table th, .folio-print .result-table td { overflow-wrap:anywhere; word-break:normal; }
+  .folio-print .result-table th.percentage-head, .folio-print .result-table td.percentage-cell { white-space:nowrap !important; overflow-wrap:normal !important; min-width:20mm !important; width:20mm !important; }
+  .folio-print .page-number { display:none !important; }
+}
+@page folio { size:A4 portrait; margin:8mm; }

@@ -1,0 +1,25 @@
+UMS SASAULI MODULAR PROJECT — C-10 REBUILD
+
+This is a working modular copy for testing only.
+It is NOT the master copy.
+The original master remains untouched until the complete website is tested on GitHub and all functionality is verified.
+
+Modules:
+- core.js
+- auth.js
+- dashboard.js
+- students.js
+- marks.js
+- attendance.js
+- promotion.js
+- recycle-bin.js
+- print.js
+- app.js
+
+CSS:
+- core.css
+- print.css
+
+Assets:
+- school-logo.png
+- school-building.jpg
