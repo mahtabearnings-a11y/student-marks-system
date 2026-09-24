@@ -214,32 +214,155 @@ async function loadAcademicYearRecycleBin() {
     }
 }
 
+async function checkAcademicYearRestoreConflicts(selectedItems) {
+    const conflicts = [];
+    const restoredNames = new Map();
+
+    const getNormalizedName = (value) => {
+        if (typeof normalizeAcademicYearName === "function") {
+            const normalized = normalizeAcademicYearName(value);
+            if (normalized) return normalized;
+        }
+        return String(value ?? "").trim().toLowerCase();
+    };
+
+    // Validate each deleted academic year against every currently existing
+    // academic year using the same normalized naming rule used by the manager.
+    for (const item of selectedItems) {
+        const normalizedName = getNormalizedName(item.session_name);
+        const existing = sessions.find(session =>
+            Number(session.id) !== Number(item.id) &&
+            !session.deleted_at &&
+            getNormalizedName(session.session_name) === normalizedName
+        );
+
+        if (existing) {
+            conflicts.push({
+                item,
+                existingAcademicYear: existing
+            });
+            continue;
+        }
+
+        // Also prevent selecting two deleted variants of the same academic year
+        // for simultaneous restoration.
+        if (restoredNames.has(normalizedName)) {
+            conflicts.push({
+                item,
+                existingAcademicYear: restoredNames.get(normalizedName)
+            });
+            continue;
+        }
+
+        restoredNames.set(normalizedName, item);
+    }
+
+    return conflicts;
+}
+
+function formatAcademicYearRestoreConflict(conflict) {
+    const existing = conflict.existingAcademicYear || {};
+    const existingName = typeof academicYearDisplayName === "function"
+        ? academicYearDisplayName(existing.session_name)
+        : (existing.session_name || "Not Available");
+    const status = existing.is_active
+        ? "Active"
+        : existing.is_closed
+            ? "Closed"
+            : "Draft";
+
+    return `
+        <div style="margin-bottom:12px;">
+            The academic year cannot be restored because the same academic year already exists.
+        </div>
+        <div style="margin-bottom:8px;font-weight:700;">Existing Academic Year</div>
+        <div style="display:grid;grid-template-columns:150px 1fr;gap:6px 10px;text-align:left;">
+            <div><strong>Academic Year</strong></div><div>${escapeHtml(String(existingName))}</div>
+            <div><strong>Status</strong></div><div>${escapeHtml(status)}</div>
+            <div><strong>Start Date</strong></div><div>${escapeHtml(existing.start_date || "Not Available")}</div>
+            <div><strong>End Date</strong></div><div>${escapeHtml(existing.end_date || "Not Available")}</div>
+        </div>
+    `;
+}
+
 async function restoreSelectedAcademicYears() {
     const ids = getSelectedAcademicYearRecycleIds();
     if (!ids.length) return;
-    const selected = academicYearRecycleData.filter(item => ids.includes(Number(item.id)));
-    const verified = await requireAdminPasswordForAction({
-        title: "Restore Academic Year",
-        message: `Restore ${selected.length} deleted academic year${selected.length === 1 ? "" : "s"}? Connected academic records will remain linked to the restored year.`,
-        actionLabel: "Restore"
-    });
-    if (!verified) return;
-    if (!confirm(`Restore ${selected.map(item => item.session_name).join(", ")} from the Recycle Bin?`)) return;
+
+    const selected = academicYearRecycleData.filter(
+        item => ids.includes(Number(item.id))
+    );
+
+    const names = selected
+        .map(item => typeof academicYearDisplayName === "function"
+            ? academicYearDisplayName(item.session_name)
+            : item.session_name
+        )
+        .filter(Boolean);
+
+    const confirmed = confirm(
+        `Restore ${selected.length} deleted academic year${selected.length === 1 ? "" : "s"}?` +
+        (names.length ? `\n\n${names.join("\n")}` : "") +
+        `\n\nConnected academic records will remain linked to the restored year.`
+    );
+
+    if (!confirmed) return;
 
     restoreAcademicYearButton.disabled = true;
+
     try {
+        // Match the Student Recycle Bin restore pattern: validate before
+        // performing any restore so a batch cannot partially restore.
+        const conflicts = await checkAcademicYearRestoreConflicts(selected);
+
+        if (conflicts.length) {
+            const conflict = conflicts[0];
+            if (typeof showStudentConflictDialog === "function") {
+                showStudentConflictDialog(
+                    "Academic Year Already Exists",
+                    formatAcademicYearRestoreConflict(conflict)
+                );
+            } else {
+                showToast("The academic year already exists and cannot be restored.", "error");
+            }
+            return;
+        }
+
         for (const id of ids) {
-            const { error } = await supabaseClient.rpc("restore_academic_session", { p_session_id: id });
+            const { error } = await supabaseClient.rpc("restore_academic_session", {
+                p_session_id: id
+            });
             if (error) throw error;
         }
+
         await loadSessions();
         await loadAcademicYearRecycleBin();
         if (typeof loadAcademicYearManager === "function") renderAcademicYears?.();
         if (typeof populatePromotionSessions === "function") populatePromotionSessions();
-        showToast(`${ids.length} academic year${ids.length === 1 ? "" : "s"} restored successfully.`, "success");
+
+        showToast(
+            `${selected.length} academic year${selected.length === 1 ? "" : "s"} restored successfully.`,
+            "success"
+        );
     } catch (error) {
-        showToast(error.message || "Unable to restore the academic year.", "error");
+        console.error("Academic year restore failed:", error);
+
+        // A database-side duplicate check can catch a race where another
+        // academic year was created after the preflight validation.
+        if (String(error.message || "").toLowerCase().includes("already exists")) {
+            if (typeof showStudentConflictDialog === "function") {
+                showStudentConflictDialog(
+                    "Academic Year Already Exists",
+                    `<div style="margin-bottom:12px;">The academic year could not be restored because the same academic year already exists.</div>`
+                );
+            } else {
+                showToast(error.message, "error");
+            }
+        } else {
+            showToast(error.message || "Unable to restore the academic year.", "error");
+        }
     } finally {
+        restoreAcademicYearButton.disabled = false;
         updateAcademicYearRecycleSelectionState();
     }
 }
