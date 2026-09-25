@@ -1443,13 +1443,91 @@ tbody tr:hover {
     }
 }
 
-/* Admin verification message: compact, readable, justified paragraph. */
-#adminPasswordModal .modal-content {
-    width: min(460px, calc(100vw - 32px));
-    max-width: 460px;
+
+/* =========================
+   GLOBAL UI TYPOGRAPHY
+   Requested readable sizes:
+   Normal UI text / labels / inputs / tables = 12pt
+   Dashboard cards / section headings / table headers = 14pt
+   Buttons = 11pt
+========================= */
+body {
+    font-size: 12pt;
 }
 
-#adminPasswordMessage {
-    text-align: justify;
-    text-justify: inter-word;
+.nav-btn,
+.filter-item label,
+input,
+select,
+.record-count,
+.creator-credit,
+.user-email,
+.role-badge,
+.recycle-bin-status,
+.recycle-bin-note,
+.login-note,
+.login-page-credit,
+.brand-feature,
+.error-message,
+.promotion-message,
+.promotion-note,
+.attendance-month-btn,
+.attendance-summary-line,
+.attendance-input,
+.marks-table,
+.marks-input,
+.marks-error,
+.promotion-table,
+.history-details,
+.history-student-header p,
+.history-current-badge span,
+.history-current-badge small,
+.history-year-meta,
+.history-current-pill,
+.history-section-label,
+.history-muted,
+.history-exam-header,
+.history-mini-table,
+.history-attendance-summary,
+.history-promotion-item,
+.recycle-bin-table,
+.login-card form label {
+    font-size: 12pt;
+}
+
+.dashboard-card .label,
+.dashboard-card,
+.dashboard-overview-table,
+.section-heading,
+.card > h3,
+.table-top h3,
+.modal-header h3,
+.academic-year-manager-card h3 {
+    font-size: 14pt;
+}
+
+.btn,
+.btn-small,
+.login-btn,
+.logout-btn {
+    font-size: 11pt;
+}
+
+.marks-table th,
+.attendance-table th,
+.promotion-table th,
+.recycle-bin-table th,
+.history-mini-table th,
+.frozen-table-header-sticky-cells .frozen-sticky-header-cell,
+table th {
+    font-size: 14pt;
+}
+
+.marks-table td,
+.attendance-table td,
+.promotion-table td,
+.recycle-bin-table td,
+.history-mini-table td,
+table td {
+    font-size: 12pt;
 }
