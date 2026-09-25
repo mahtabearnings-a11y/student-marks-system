@@ -153,6 +153,14 @@ function renderAcademicYears() {
         button.addEventListener("click", async () => {
             const session = sessions.find(item => Number(item.id) === Number(button.dataset.id));
             if (!session) return;
+            if (session.is_closed) {
+                const verified = await requireAdminPasswordForAction({
+                    title: "Edit Closed Academic Year",
+                    message: `${session.session_name} is closed. Enter your Recycle Bin permanent-deletion password to edit its details.`,
+                    actionLabel: "Unlock & Edit"
+                });
+                if (!verified) return;
+            }
             prepareAcademicYearEdit(session);
         });
     });
@@ -197,7 +205,9 @@ async function createOrUpdateAcademicYear() {
         return;
     }
 
-    if (academicYearNameInput) academicYearNameInput.value = name;
+    if (academicYearNameInput) {
+        academicYearNameInput.value = name;
+    }
 
     const duplicate = sessions.find(session =>
         Number(session.id) !== Number(editingAcademicYearId || 0) &&
@@ -208,35 +218,31 @@ async function createOrUpdateAcademicYear() {
         return;
     }
 
+    if (startDate && endDate && startDate >= endDate) {
+        showToast("End date must be after the start date.", "error");
+        return;
+    }
+
     createAcademicYearButton.disabled = true;
     try {
         if (editingAcademicYearId) {
-            const current = sessions.find(item => Number(item.id) === Number(editingAcademicYearId));
-            if (current?.is_closed) {
-                const password = await requestRecycleBinSecurityPassword({
+            const current = sessions.find(item => Number(item.id) === editingAcademicYearId);
+            if (current?.is_closed && !hasAcademicSessionEditUnlock(editingAcademicYearId)) {
+                const verified = await requireAdminPasswordForAction({
                     title: "Edit Closed Academic Year",
-                    message: `${current.session_name} is closed. Enter the Recycle Bin permanent-deletion password to save these changes.`,
+                    message: `${current.session_name} is closed. Enter your Recycle Bin permanent-deletion password to save these changes.`,
                     actionLabel: "Save Changes"
                 });
-                if (password === null) return;
-
-                const { error } = await supabaseClient.rpc("update_academic_session_with_recycle_password", {
-                    p_session_id: editingAcademicYearId,
-                    p_session_name: name,
-                    p_start_date: startDate,
-                    p_end_date: endDate,
-                    p_password: password
-                });
-                if (error) throw error;
-            } else {
-                const { error } = await supabaseClient.rpc("update_academic_session", {
-                    p_session_id: editingAcademicYearId,
-                    p_session_name: name,
-                    p_start_date: startDate,
-                    p_end_date: endDate
-                });
-                if (error) throw error;
+                if (!verified) return;
             }
+
+            const { error } = await supabaseClient.rpc("update_academic_session", {
+                p_session_id: editingAcademicYearId,
+                p_session_name: name,
+                p_start_date: startDate,
+                p_end_date: endDate
+            });
+            if (error) throw error;
             showToast("Academic year updated successfully.", "success");
         } else {
             const { error } = await supabaseClient.rpc("create_academic_session", {
@@ -254,22 +260,10 @@ async function createOrUpdateAcademicYear() {
         if (typeof populatePromotionSessions === "function") populatePromotionSessions();
     } catch (error) {
         console.error(error);
-        showRecycleBinProtectedActionError(error, "Unable to save the academic year.");
+        showToast(error.message || "Unable to save the academic year.", "error");
     } finally {
         createAcademicYearButton.disabled = false;
     }
-}
-
-function isRecycleBinPasswordError(error) {
-    const message = String(error?.message || error || "");
-    return /incorrect\s+recycle\s+bin\s+password|wrong\s+recycle\s+bin\s+password|recycle\s+bin\s+permanent-deletion\s+password.*not\s+configured/i.test(message);
-}
-
-function showRecycleBinProtectedActionError(error, fallback) {
-    const message = String(error?.message || error || "");
-    showToast(isRecycleBinPasswordError(error)
-        ? "Wrong Recycle Bin password. Please enter the correct permanent-deletion password."
-        : (message || fallback), "error");
 }
 
 async function closeAcademicYear(sessionId) {
@@ -294,7 +288,7 @@ async function closeAcademicYear(sessionId) {
         if (typeof loadPromotionStudents === "function") await loadPromotionStudents();
         showToast(`${academicYearDisplayName(session.session_name)} is now closed.`, "success");
     } catch (error) {
-        showRecycleBinProtectedActionError(error, "Unable to close the academic year.");
+        showToast(error.message || "Unable to close the academic year.", "error");
     }
 }
 
@@ -302,17 +296,17 @@ async function activateAcademicYear(sessionId) {
     const session = sessions.find(item => Number(item.id) === Number(sessionId));
     if (!session) return;
 
-    const password = await requestRecycleBinSecurityPassword({
+    const verified = await requireAdminPasswordForAction({
         title: "Set Active Academic Year",
         message: `Set ${academicYearDisplayName(session.session_name)} as the active academic year? The currently active year will be closed automatically.`,
         actionLabel: "Set Active"
     });
-    if (password === null) return;
+    if (!verified) return;
 
     if (!confirm(`Set ${academicYearDisplayName(session.session_name)} as the active academic year?`)) return;
 
     try {
-        const { error } = await supabaseClient.rpc("activate_academic_session_with_recycle_password", { p_session_id: sessionId, p_password: password });
+        const { error } = await supabaseClient.rpc("activate_academic_session", { p_session_id: sessionId });
         if (error) throw error;
         clearAcademicSessionEditUnlocks();
         await loadSessions();
@@ -323,7 +317,7 @@ async function activateAcademicYear(sessionId) {
         if (typeof updateDashboardCounts === "function") await updateDashboardCounts();
         showToast(`${academicYearDisplayName(session.session_name)} is now active.`, "success");
     } catch (error) {
-        showRecycleBinProtectedActionError(error, "Unable to activate the academic year.");
+        showToast(error.message || "Unable to activate the academic year.", "error");
     }
 }
 
@@ -351,7 +345,7 @@ async function moveAcademicYearToRecycleBin(sessionId) {
         if (typeof loadAcademicYearRecycleBin === "function") await loadAcademicYearRecycleBin();
         showToast(`${yearName} moved to the Recycle Bin.`, "success");
     } catch (error) {
-        showRecycleBinProtectedActionError(error, "Unable to move the academic year to the Recycle Bin.");
+        showToast(error.message || "Unable to move the academic year to the Recycle Bin.", "error");
     }
 }
 

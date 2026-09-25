@@ -25,8 +25,6 @@ let promotionHistoryRows = [];
 function populatePromotionSessions(){
     if(!promotionSession) return;
     promotionSession.innerHTML = `<option value="">Please Select</option>` + sortAcademicSessions(sessions).map(s=>`<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("");
-    const active = sessions.find(s => s.is_active);
-    promotionSession.value = active ? String(active.id) : "";
 }
 
 function sortAcademicSessions(list) {
@@ -214,8 +212,12 @@ async function confirmPromotion(){
         : `Confirm promotion for ${promotionReviewRows.length} selected student${promotionReviewRows.length===1?"":"s"} to ${next.session_name}? A new academic record will be created for each selected student.`;
     if(!confirm(message))return;
 
-    // The confirmation step does not require a second password prompt.
-    // Protected Promotion/Academic Year actions use the shared Recycle Bin password instead.
+    const passwordVerified = await requireAdminPasswordForAction({
+        title: "Confirm Promotion",
+        message: `Enter your Recycle Bin permanent-deletion password to finalize this promotion batch from ${source?.session_name || "the selected academic year"}.`,
+        actionLabel: "Confirm Promotion"
+    });
+    if(!passwordVerified) return;
 
     confirmPromotionButton.disabled=true;
     try{
@@ -228,7 +230,7 @@ async function confirmPromotion(){
             roll_no: row.status === "Left School" ? null : (row.rollNo === "" ? null : Number(row.rollNo))
         }));
 
-        const { data, error } = await supabaseClient.rpc("promote_students_batch_v2", {
+        const { data, error } = await supabaseClient.rpc("promote_students_batch", {
             p_source_session_id: sourceSessionId,
             p_destination_session_id: sourceClass === 8 ? null : Number(next.id),
             p_rows: rows,
@@ -313,28 +315,19 @@ function formatPromotionDate(value){
     return date.toLocaleString("en-IN",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
 }
 
-
-function isPromotionRecycleBinPasswordError(error) {
-    const message = String(error?.message || error || "");
-    return /incorrect\s+recycle\s+bin\s+password|wrong\s+recycle\s+bin\s+password|recycle\s+bin\s+permanent-deletion\s+password.*not\s+configured/i.test(message);
-}
-
 async function revertPromotionBatch(batchId){
     if(!batchId) return;
-    if(!confirm("Revert this promotion batch? Historical academic records from the previous year will not be changed.")) return;
-
-    const password = await requestRecycleBinSecurityPassword({
+    const verified = await requireAdminPasswordForAction({
         title: "Revert Promotion",
-        message: "Enter the Recycle Bin permanent-deletion password to revert this promotion batch. The new academic records will be removed only when they contain no Marks or Attendance.",
+        message: "Enter your Recycle Bin permanent-deletion password to revert this promotion batch. The new academic records will be removed only when they contain no Marks or Attendance.",
         actionLabel: "Revert Promotion"
     });
-    if(password === null) return;
+    if(!verified) return;
+
+    if(!confirm("Revert this promotion batch? Historical academic records from the previous year will not be changed.")) return;
 
     try {
-        const {error} = await supabaseClient.rpc("revert_promotion_batch_with_recycle_password", {
-            p_batch_id: batchId,
-            p_password: password
-        });
+        const {error} = await supabaseClient.rpc("revert_promotion_batch", {p_batch_id: batchId});
         if(error) throw error;
         showToast("Promotion batch reverted successfully.", "success");
         await loadSessions();
@@ -343,8 +336,7 @@ async function revertPromotionBatch(batchId){
         await loadStudents();
         if (typeof updateDashboardCounts === "function") await updateDashboardCounts();
     } catch(error) {
-        const message = String(error?.message || "");
-        showToast(isPromotionRecycleBinPasswordError(error) ? "Wrong Recycle Bin password. Please enter the correct permanent-deletion password." : (message || "Promotion could not be reverted."), "error");
+        showToast(error.message || "Promotion could not be reverted.", "error");
     }
 }
 
@@ -359,7 +351,7 @@ if(refreshPromotionHistoryButton)refreshPromotionHistoryButton.addEventListener(
 function resetPromotionState(){
     const active = sessions.find(s => s.is_active);
     if (promotionSession) promotionSession.value = active ? String(active.id) : (sessions[0] ? String(sessions[0].id) : "");
-    if (promotionClass) promotionClass.value = "";
+    if (promotionClass) promotionClass.value = "1";
     if (promotionSort) promotionSort.value = "";
     promotionStudents = [];
     promotionReviewRows = [];

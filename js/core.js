@@ -316,7 +316,7 @@ function clearAcademicSessionEditUnlocks() {
 
 function showAdminPasswordDialog({
     title = "Admin Verification",
-    message = "Enter your Admin password to continue.",
+    message = "Enter your password to continue.",
     actionLabel = "Continue"
 } = {}) {
     return new Promise(resolve => {
@@ -377,11 +377,11 @@ function showAdminPasswordDialog({
 }
 
 async function requireAdminPasswordForAction({
-    title = "Admin Verification",
-    message = "Enter your Admin password to continue.",
+    title = "Password Verification",
+    message = "Enter your Recycle Bin permanent-deletion password to continue.",
     actionLabel = "Continue"
 } = {}) {
-    if (currentRole !== "admin" || !currentUser?.email) {
+    if (currentRole !== "admin") {
         showToast("Only an Admin can perform this action.", "error");
         return false;
     }
@@ -391,24 +391,30 @@ async function requireAdminPasswordForAction({
         if (password === null) return false;
 
         if (!password) {
-            showToast("Please enter the password.", "error");
+            if (adminPasswordError) {
+                adminPasswordError.textContent = "Please enter the Recycle Bin permanent-deletion password.";
+                adminPasswordError.classList.remove("hidden");
+            }
             continue;
         }
 
         try {
-            const { error } = await supabaseClient.auth.signInWithPassword({
-                email: currentUser.email,
-                password
+            const { error } = await supabaseClient.rpc("verify_recycle_bin_security_password", {
+                p_password: password
             });
 
             if (error) throw error;
             return true;
         } catch (error) {
+            const messageText = String(error?.message || "");
+            const isWrongPassword = /incorrect|invalid.*password|wrong.*password/i.test(messageText);
             if (adminPasswordError) {
-                adminPasswordError.textContent = "Incorrect password. Please try again.";
+                adminPasswordError.textContent = isWrongPassword
+                    ? "Wrong password. Please enter the correct password."
+                    : (messageText || "Unable to verify the password.");
                 adminPasswordError.classList.remove("hidden");
             }
-            await new Promise(resolve => setTimeout(resolve, 200));
+            await new Promise(resolve => setTimeout(resolve, 150));
         }
     }
 }
@@ -423,7 +429,7 @@ async function ensureAcademicSessionEditable(sessionId, action = "edit this acad
 
     const verified = await requireAdminPasswordForAction({
         title: "Academic Year Locked",
-        message: `${session.session_name || "This academic year"} is closed. Enter your Admin password to ${action}. The unlock lasts for 30 minutes in this session.`,
+        message: `${session.session_name || "This academic year"} is closed. Enter your Recycle Bin permanent-deletion password to ${action}. The unlock lasts for 30 minutes in this session.`,
         actionLabel: "Unlock"
     });
 
