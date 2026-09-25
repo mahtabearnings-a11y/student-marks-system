@@ -1357,11 +1357,24 @@ tbody tr:hover {
     font-size:13px;
     line-height:1.5;
 }
+.admin-password-modal {
+    max-width: 460px;
+}
+
 .recycle-bin-password-box {
     max-width:460px;
 }
 .recycle-bin-password-box input {
     margin-top:7px;
+}
+
+.history-marks-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 10px 0 2px;
+    font-size: 12pt;
+    color: #374151;
 }
 
 
