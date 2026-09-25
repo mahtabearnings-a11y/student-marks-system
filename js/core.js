@@ -58,6 +58,11 @@ let currentUser = null;
 
 let currentRole = null;
 
+// Prevent Admin password verification from restarting the application through
+// Supabase auth events. These flags are shared with auth.js.
+let adminPasswordVerificationInProgress = false;
+let suppressAuthApplicationRefresh = 0;
+
 let inactivityTimer = null;
 
 const INACTIVITY_LIMIT =
@@ -381,46 +386,30 @@ async function requireAdminPasswordForAction({
         return false;
     }
 
-    if (adminPasswordVerificationInProgress) return false;
+    while (true) {
+        const password = await showAdminPasswordDialog({ title, message, actionLabel });
+        if (password === null) return false;
 
-    adminPasswordVerificationInProgress = true;
-    try {
-        while (true) {
-            const password = await showAdminPasswordDialog({ title, message, actionLabel });
-            if (password === null) return false;
-
-            if (!password) {
-                showToast("Please enter the password.", "error");
-                continue;
-            }
-
-            try {
-                // Supabase emits SIGNED_IN/TOKEN events during password
-                // re-authentication. Suppress them for the complete
-                // verification window so the application is not restarted.
-                suppressAuthApplicationRefresh = 100;
-                setTimeout(() => {
-                    suppressAuthApplicationRefresh = 0;
-                }, 10000);
-
-                const { error } = await supabaseClient.auth.signInWithPassword({
-                    email: currentUser.email,
-                    password
-                });
-
-                if (error) throw error;
-                return true;
-            } catch (error) {
-                suppressAuthApplicationRefresh = 0;
-                if (adminPasswordError) {
-                    adminPasswordError.textContent = "Incorrect password. Please try again.";
-                    adminPasswordError.classList.remove("hidden");
-                }
-                await new Promise(resolve => setTimeout(resolve, 200));
-            }
+        if (!password) {
+            showToast("Please enter the password.", "error");
+            continue;
         }
-    } finally {
-        adminPasswordVerificationInProgress = false;
+
+        try {
+            const { error } = await supabaseClient.auth.signInWithPassword({
+                email: currentUser.email,
+                password
+            });
+
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            if (adminPasswordError) {
+                adminPasswordError.textContent = "Incorrect password. Please try again.";
+                adminPasswordError.classList.remove("hidden");
+            }
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
     }
 }
 

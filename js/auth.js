@@ -419,14 +419,6 @@ function stopInactivityTimer() {
 supabaseClient.auth.onAuthStateChange(
     async function(event, session) {
 
-        // Password verification uses Supabase signInWithPassword(), which emits
-        // SIGNED_IN/TOKEN events. Those are authentication events, not a new
-        // application login. Ignore them while verification is in progress so
-        // the current page and modal state are never restarted.
-        if (typeof suppressAuthApplicationRefresh !== "undefined" && suppressAuthApplicationRefresh > 0) {
-            return;
-        }
-
         if (
             session &&
             session.user
