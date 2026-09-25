@@ -6,9 +6,9 @@ function resetPrintState(){
     if(printStudentSearch) printStudentSearch.value="";
     if(printStudentInfo) printStudentInfo.textContent="No student selected.";
     if(printStudentSelect) printStudentSelect.innerHTML=`<option value="">Select student</option>`;
-    if(printClass) printClass.value="1";
-    if(printExam) printExam.value="Half-Yearly";
-    if(printSession){ const active=sessions.find(s=>s.is_active); if(active) printSession.value=String(active.id); }
+    if(printClass) printClass.value="";
+    if(printExam) printExam.value="";
+    if(printSession) printSession.value="";
     printStudents=[]; printSubjects=[]; printMarks={};
     if(printClassInfo) printClassInfo.textContent="Select session, class and examination.";
 }
@@ -18,9 +18,8 @@ function resetPrintState(){
 ========================================================= */
 function populatePrintSessions() {
     if (!printSession) return;
-    printSession.innerHTML = sessions.length ? sessions.map(s => `<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("") : `<option value="">No sessions</option>`;
-    const active = sessions.find(s => s.is_active);
-    if (active) printSession.value = String(active.id);
+    const ordered = [...sessions].sort((a, b) => (typeof academicYearStartNumber === "function" ? academicYearStartNumber(a.session_name) : Number(String(a.session_name).slice(0, 4))) - (typeof academicYearStartNumber === "function" ? academicYearStartNumber(b.session_name) : Number(String(b.session_name).slice(0, 4))) || Number(a.id) - Number(b.id));
+    printSession.innerHTML = `<option value="">Please Select</option>` + ordered.map(s => `<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("");
 }
 
 function printClassName(n){ return className(Number(n)); }

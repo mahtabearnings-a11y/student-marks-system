@@ -173,8 +173,8 @@ function renderAcademicYearRecycleBin() {
         <tr>
             <td style="text-align:center;"><input type="checkbox" class="academic-year-recycle-checkbox" value="${Number(session.id)}"></td>
             <td><strong>${escapeHtml(session.session_name || "")}</strong></td>
-            <td>${session.start_date ? formatRecycleBinDate(session.start_date) : "—"}</td>
-            <td>${session.end_date ? formatRecycleBinDate(session.end_date) : "—"}</td>
+            <td>${typeof getAcademicYearDates === "function" ? formatRecycleBinDate(getAcademicYearDates(session.session_name).startDate) : (session.start_date ? formatRecycleBinDate(session.start_date) : "—")}</td>
+            <td>${typeof getAcademicYearDates === "function" ? formatRecycleBinDate(getAcademicYearDates(session.session_name).endDate) : (session.end_date ? formatRecycleBinDate(session.end_date) : "—")}</td>
             <td>${formatRecycleBinDate(session.deleted_at)}</td>
             <td><span class="recycle-bin-status">Deleted</span></td>
         </tr>

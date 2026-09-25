@@ -3,8 +3,6 @@
 ========================================================= */
 
 const academicYearNameInput = document.getElementById("academicYearName");
-const academicYearStartInput = document.getElementById("academicYearStartDate");
-const academicYearEndInput = document.getElementById("academicYearEndDate");
 const createAcademicYearButton = document.getElementById("createAcademicYearButton");
 const cancelAcademicYearEditButton = document.getElementById("cancelAcademicYearEditButton");
 const refreshAcademicYearsButton = document.getElementById("refreshAcademicYearsButton");
@@ -42,6 +40,21 @@ function normalizeAcademicYearName(value) {
     return `${start}-${String(end).slice(-2)}`;
 }
 
+function getAcademicYearDates(value) {
+    const normalized = normalizeAcademicYearName(value);
+    if (!normalized) return { startDate: null, endDate: null };
+    const startYear = Number(normalized.slice(0, 4));
+    return {
+        startDate: `${startYear}-04-01`,
+        endDate: `${startYear + 1}-03-31`
+    };
+}
+
+function academicYearStartNumber(value) {
+    const normalized = normalizeAcademicYearName(value);
+    return normalized ? Number(normalized.slice(0, 4)) : Number.MAX_SAFE_INTEGER;
+}
+
 function academicYearDisplayName(value) {
     const normalized = normalizeAcademicYearName(value);
     return normalized || String(value ?? "").trim();
@@ -60,11 +73,7 @@ function academicYearStatusBadge(status) {
 }
 
 function sortAcademicSessionsForManager(items) {
-    return [...items].sort((a, b) => {
-        const dateA = a.start_date ? new Date(a.start_date).getTime() : 0;
-        const dateB = b.start_date ? new Date(b.start_date).getTime() : 0;
-        return dateB - dateA || Number(b.id) - Number(a.id);
-    });
+    return [...items].sort((a, b) => academicYearStartNumber(a.session_name) - academicYearStartNumber(b.session_name) || Number(a.id) - Number(b.id));
 }
 
 function formatAcademicYearDate(value) {
@@ -84,8 +93,6 @@ if (academicYearNameInput) {
 function resetAcademicYearForm() {
     editingAcademicYearId = null;
     if (academicYearNameInput) academicYearNameInput.value = "";
-    if (academicYearStartInput) academicYearStartInput.value = "";
-    if (academicYearEndInput) academicYearEndInput.value = "";
     if (createAcademicYearButton) createAcademicYearButton.textContent = "Create Academic Year";
     if (cancelAcademicYearEditButton) cancelAcademicYearEditButton.classList.add("hidden");
 }
@@ -93,8 +100,6 @@ function resetAcademicYearForm() {
 function prepareAcademicYearEdit(session) {
     editingAcademicYearId = Number(session.id);
     academicYearNameInput.value = academicYearDisplayName(session.session_name);
-    academicYearStartInput.value = session.start_date || "";
-    academicYearEndInput.value = session.end_date || "";
     createAcademicYearButton.textContent = "Save Academic Year";
     cancelAcademicYearEditButton.classList.remove("hidden");
     academicYearNameInput.focus();
@@ -132,8 +137,8 @@ function renderAcademicYears() {
 
         return `<tr>
             <td><strong>${escapeHtml(academicYearDisplayName(session.session_name))}</strong></td>
-            <td>${formatAcademicYearDate(session.start_date)}</td>
-            <td>${formatAcademicYearDate(session.end_date)}</td>
+            <td>${formatAcademicYearDate(getAcademicYearDates(session.session_name).startDate)}</td>
+            <td>${formatAcademicYearDate(getAcademicYearDates(session.session_name).endDate)}</td>
             <td>${academicYearStatusBadge(status)}</td>
             <td>${actions.join(" ") || "—"}</td>
         </tr>`;
@@ -187,8 +192,7 @@ async function createOrUpdateAcademicYear() {
 
     const rawName = academicYearNameInput?.value.trim() || "";
     const name = normalizeAcademicYearName(rawName);
-    const startDate = academicYearStartInput?.value || null;
-    const endDate = academicYearEndInput?.value || null;
+    const { startDate, endDate } = getAcademicYearDates(name);
 
     if (!rawName) {
         showToast("Academic year name is required.", "error");
@@ -266,17 +270,17 @@ async function closeAcademicYear(sessionId) {
     const session = sessions.find(item => Number(item.id) === Number(sessionId));
     if (!session) return;
 
-    const verified = await requireAdminPasswordForAction({
+    const password = await requestRecycleBinSecurityPassword({
         title: "Close Academic Year",
-        message: `Closing ${academicYearDisplayName(session.session_name)} will make its academic records protected. A password will be required before editing them later.`,
+        message: `Closing ${academicYearDisplayName(session.session_name)} will make its academic records protected. Enter the Recycle Bin permanent-deletion password to continue.`,
         actionLabel: "Close Year"
     });
-    if (!verified) return;
+    if (password === null) return;
 
     if (!confirm(`Close academic year ${academicYearDisplayName(session.session_name)}?\n\nThe year will remain available for viewing and historical records will be preserved.`)) return;
 
     try {
-        const { error } = await supabaseClient.rpc("close_academic_session", { p_session_id: sessionId });
+        const { error } = await supabaseClient.rpc("close_academic_session_with_recycle_password", { p_session_id: sessionId, p_password: password });
         if (error) throw error;
         await loadSessions();
         renderAcademicYears();

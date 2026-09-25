@@ -51,11 +51,8 @@ function hasUnsavedAttendanceChanges() {
 
 function populateAttendanceSessions() {
     if (!attendanceSession) return;
-    attendanceSession.innerHTML = sessions.length
-        ? sessions.map(s => `<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("")
-        : `<option value="">No sessions</option>`;
-    const active = sessions.find(s => s.is_active);
-    if (active) attendanceSession.value = String(active.id);
+    const ordered = [...sessions].sort((a, b) => (typeof academicYearStartNumber === "function" ? academicYearStartNumber(a.session_name) : Number(String(a.session_name).slice(0, 4))) - (typeof academicYearStartNumber === "function" ? academicYearStartNumber(b.session_name) : Number(String(b.session_name).slice(0, 4))) || Number(a.id) - Number(b.id));
+    attendanceSession.innerHTML = `<option value="">Please Select</option>` + ordered.map(s => `<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("");
 }
 
 function renderAttendanceMonthButtons() {
@@ -402,7 +399,7 @@ function resetAttendanceState() {
     const active = sessions.find(s => s.is_active);
     if (attendanceSession && active) attendanceSession.value = String(active.id);
     if (attendanceClass) attendanceClass.value = "1";
-    if (attendanceSort) attendanceSort.value = "roll_asc";
+    if (attendanceSort) attendanceSort.value = "";
     attendanceSelectedMonths = [];
     attendanceStudents = [];
     attendanceData = {};

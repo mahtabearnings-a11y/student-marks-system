@@ -24,11 +24,7 @@ let promotionHistoryRows = [];
 
 function populatePromotionSessions(){
     if(!promotionSession) return;
-    promotionSession.innerHTML = sessions.length
-        ? sortAcademicSessions(sessions).map(s=>`<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("")
-        : `<option value="">No sessions</option>`;
-    const active=sessions.find(s=>s.is_active);
-    if(active) promotionSession.value=String(active.id);
+    promotionSession.innerHTML = `<option value="">Please Select</option>` + sortAcademicSessions(sessions).map(s=>`<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("");
 }
 
 function sortAcademicSessions(list) {
@@ -356,7 +352,7 @@ function resetPromotionState(){
     const active = sessions.find(s => s.is_active);
     if (promotionSession) promotionSession.value = active ? String(active.id) : (sessions[0] ? String(sessions[0].id) : "");
     if (promotionClass) promotionClass.value = "1";
-    if (promotionSort) promotionSort.value = "roll_asc";
+    if (promotionSort) promotionSort.value = "";
     promotionStudents = [];
     promotionReviewRows = [];
     if (promotionListCard) promotionListCard.classList.add("hidden");

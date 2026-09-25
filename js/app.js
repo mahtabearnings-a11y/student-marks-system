@@ -10,8 +10,8 @@ async function loadSessions() {
         .from("academic_sessions")
         .select("id, session_name, is_active, is_closed, start_date, end_date, deleted_at, created_at, updated_at")
         .is("deleted_at", null)
-        .order("start_date", { ascending: false, nullsFirst: false })
-        .order("session_name", { ascending: false });
+        .order("start_date", { ascending: true, nullsFirst: false })
+        .order("session_name", { ascending: true });
 
     data = extended.data;
     error = extended.error;
@@ -21,7 +21,7 @@ async function loadSessions() {
         const fallback = await supabaseClient
             .from("academic_sessions")
             .select("id, session_name, is_active")
-            .order("session_name", { ascending: false });
+            .order("session_name", { ascending: true });
         data = fallback.data;
         error = fallback.error;
         if (error) throw error;
@@ -37,18 +37,23 @@ async function loadSessions() {
                     : session.session_name
         }));
 
-    sessionFilter.innerHTML = "";
+    sessions.sort((a, b) => {
+        const ay = typeof academicYearStartNumber === "function" ? academicYearStartNumber(a.session_name) : Number(String(a.session_name).slice(0, 4));
+        const by = typeof academicYearStartNumber === "function" ? academicYearStartNumber(b.session_name) : Number(String(b.session_name).slice(0, 4));
+        return ay - by || Number(a.id) - Number(b.id);
+    });
+
+    sessionFilter.innerHTML = `<option value="">Please Select</option>`;
 
     sessions.forEach(session => {
         const option = document.createElement("option");
         option.value = session.id;
         option.textContent = session.session_name;
-        if (session.is_active) option.selected = true;
         sessionFilter.appendChild(option);
     });
 
     if (!sessions.length) {
-        sessionFilter.innerHTML = `<option value="">No sessions</option>`;
+        sessionFilter.innerHTML = `<option value="">Please Select</option>`;
     }
 
     if (typeof updateAcademicSessionProtectionUI === "function") {
@@ -83,7 +88,7 @@ function className(classNo) {
    SECTION NAVIGATION
 ========================================================= */
 function resetStudentsState(){
-    if(sessionFilter){ const active=sessions.find(s=>s.is_active); sessionFilter.value=active?String(active.id):""; }
+    if(sessionFilter) sessionFilter.value="";
     if(classFilter) classFilter.value="";
     if(studentSearch) studentSearch.value="";
     if(studentSort) studentSort.value="rollAsc";
@@ -91,9 +96,9 @@ function resetStudentsState(){
 function resetMarksState(){
     marksSavedSnapshot = null;
     if(marksSession){ const active=sessions.find(s=>s.is_active); marksSession.value=active?String(active.id):""; }
-    if(marksClass) marksClass.value="1";
-    if(marksExam) marksExam.value="Half-Yearly";
-    if(marksSort) marksSort.value="roll_asc";
+    if(marksClass) marksClass.value="";
+    if(marksExam) marksExam.value="";
+    if(marksSort) marksSort.value="";
 }
 function resetModuleState(section){
     if(section==="students") resetStudentsState();
