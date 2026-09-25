@@ -830,14 +830,37 @@ body:not(.auth-ready) #appPage {
 
             <div class="card">
 
-                <h2 style="color:#123b73;margin-bottom:10px">
-                    Backup
-                </h2>
+                <div class="table-top" style="padding-left:0;padding-right:0;border-bottom:none;">
+                    <div>
+                        <h2 style="color:#123b73;margin:0 0 6px">Backup &amp; Recovery</h2>
+                        <p style="color:#6b7280;margin:0;line-height:1.6;">
+                            Create a complete application-data backup as a JSON file and restore it later.
+                            Security passwords and user login credentials are never included in the backup.
+                        </p>
+                    </div>
+                </div>
 
-                <p style="color:#6b7280">
-                    Complete backup and restore will be added
-                    after the core modules are complete.
-                </p>
+                <div id="backupStatus" class="empty-state" style="padding:24px 10px 10px;">
+                    Loading backup information...
+                </div>
+
+                <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:center;">
+                    <button id="createBackupButton" class="btn btn-primary">Download Full Backup</button>
+                    <button id="restoreBackupButton" class="btn btn-secondary">Restore Backup</button>
+                    <input id="backupFileInput" type="file" accept="application/json,.json" class="hidden">
+                </div>
+
+                <div class="card" style="margin-top:18px;background:#f8fafc;box-shadow:none;border:1px solid #e5e7eb;">
+                    <strong>What is included</strong>
+                    <p style="margin:8px 0 0;color:#4b5563;line-height:1.6;">
+                        Students, academic sessions, academic records, subjects, marks, attendance, promotion history,
+                        and Recycle Bin records. The Recycle Bin security password and login information are excluded.
+                    </p>
+                    <p style="margin:8px 0 0;color:#6b7280;line-height:1.6;">
+                        Restore adds or updates application records from the selected backup. Always keep the original
+                        backup file safely stored before restoring.
+                    </p>
+                </div>
 
             </div>
 
@@ -1287,14 +1310,14 @@ body:not(.auth-ready) #appPage {
 
     <div class="modal admin-password-modal">
         <div class="modal-header">
-            <h3 id="adminPasswordTitle">Password Verification</h3>
+            <h3 id="adminPasswordTitle">Admin Verification</h3>
             <button id="adminPasswordCloseButton" class="modal-close" type="button">×</button>
         </div>
 
         <div class="modal-body">
             <p id="adminPasswordMessage" style="color:#4b5563;line-height:1.6;margin-bottom:14px;"></p>
-            <label for="adminPasswordInput">Password</label>
-            <input id="adminPasswordInput" type="password" autocomplete="off" placeholder="Enter Recycle Bin permanent-deletion password">
+            <label for="adminPasswordInput">Admin Password</label>
+            <input id="adminPasswordInput" type="password" autocomplete="current-password" placeholder="Enter your Admin password">
             <div id="adminPasswordError" class="error-message hidden" style="margin-top:10px;"></div>
         </div>
 
@@ -1387,6 +1410,7 @@ body:not(.auth-ready) #appPage {
 <script src="js/academic-years.js"></script>
 <script src="js/promotion.js"></script>
 <script src="js/recycle-bin.js"></script>
+<script src="js/backup.js"></script>
 <script src="js/print.js"></script>
 <script src="js/app.js"></script>
 
