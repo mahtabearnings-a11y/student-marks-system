@@ -307,7 +307,7 @@ body:not(.auth-ready) #appPage {
                         </label>
 
                         <select id="classFilter">
-
+                            <option value="">Please Select</option>
                             <option value="all">
                                 All Classes
                             </option>
@@ -371,7 +371,7 @@ body:not(.auth-ready) #appPage {
                         </label>
 
                         <select id="studentSort">
-
+                            <option value="">Please Select</option>
                             <option value="roll_asc">
                                 Roll Number ↑
                             </option>
@@ -563,6 +563,7 @@ body:not(.auth-ready) #appPage {
                     <div class="filter-item">
                         <label for="marksClass">Class</label>
                         <select id="marksClass">
+                            <option value="">Please Select</option>
                             <option value="1">Class I</option>
                             <option value="2">Class II</option>
                             <option value="3">Class III</option>
@@ -576,6 +577,7 @@ body:not(.auth-ready) #appPage {
                     <div class="filter-item">
                         <label for="marksExam">Examination</label>
                         <select id="marksExam">
+                            <option value="">Please Select</option>
                             <option value="Half-Yearly">Half-Yearly</option>
                             <option value="Annual">Annual</option>
                             <option value="Final">Final</option>
@@ -584,6 +586,7 @@ body:not(.auth-ready) #appPage {
                     <div class="filter-item">
                         <label for="marksSort">Arrange</label>
                         <select id="marksSort">
+                            <option value="">Please Select</option>
                             <option value="roll_asc">Roll Number — Low to High</option>
                             <option value="roll_desc">Roll Number — High to Low</option>
                             <option value="name_asc">Name — A to Z</option>
@@ -658,6 +661,7 @@ body:not(.auth-ready) #appPage {
                     <div class="filter-item">
                         <label for="attendanceClass">Class</label>
                         <select id="attendanceClass">
+                            <option value="">Please Select</option>
                             <option value="1">Class I</option>
                             <option value="2">Class II</option>
                             <option value="3">Class III</option>
@@ -671,6 +675,7 @@ body:not(.auth-ready) #appPage {
                     <div class="filter-item">
                         <label for="attendanceSort">Sort Students By</label>
                         <select id="attendanceSort">
+                            <option value="">Please Select</option>
                             <option value="roll_asc">Roll Number — Low to High</option>
                             <option value="roll_desc">Roll Number — High to Low</option>
                             <option value="name_asc">Name — A to Z</option>
@@ -732,14 +737,6 @@ body:not(.auth-ready) #appPage {
                         <label for="academicYearName">Academic Year</label>
                         <input id="academicYearName" type="text" maxlength="30" placeholder="e.g. 2026–27">
                     </div>
-                    <div class="filter-item">
-                        <label for="academicYearStartDate">Start Date</label>
-                        <input id="academicYearStartDate" type="date">
-                    </div>
-                    <div class="filter-item">
-                        <label for="academicYearEndDate">End Date</label>
-                        <input id="academicYearEndDate" type="date">
-                    </div>
                     <div class="academic-year-form-actions">
                         <button id="createAcademicYearButton" class="btn btn-primary">Create Academic Year</button>
                         <button id="cancelAcademicYearEditButton" class="btn btn-secondary hidden">Cancel Edit</button>
@@ -753,11 +750,12 @@ body:not(.auth-ready) #appPage {
                 <div class="print-controls promotion-controls">
                     <div class="filter-item">
                         <label for="promotionSession">Academic Session</label>
-                        <select id="promotionSession"></select>
+                        <select id="promotionSession"><option value="">Please Select</option></select>
                     </div>
                     <div class="filter-item">
                         <label for="promotionClass">Class</label>
                         <select id="promotionClass">
+                            <option value="">Please Select</option>
                             <option value="1">Class I</option><option value="2">Class II</option>
                             <option value="3">Class III</option><option value="4">Class IV</option>
                             <option value="5">Class V</option><option value="6">Class VI</option>
@@ -767,6 +765,7 @@ body:not(.auth-ready) #appPage {
                     <div class="filter-item">
                         <label for="promotionSort">Sort Students By</label>
                         <select id="promotionSort">
+                            <option value="">Please Select</option>
                             <option value="roll_asc">Roll Number — Low to High</option>
                             <option value="roll_desc">Roll Number — High to Low</option>
                             <option value="name_asc">Name — A to Z</option>
@@ -984,7 +983,7 @@ body:not(.auth-ready) #appPage {
                         <select id="formGender">
 
                             <option value="">
-                                Select
+                                Please Select
                             </option>
 
                             <option value="MALE">
@@ -1011,6 +1010,7 @@ body:not(.auth-ready) #appPage {
                         </label>
 
                         <select id="formClass">
+                            <option value="">Please Select</option>
 
                             <option value="1">
                                 Class I
@@ -1071,6 +1071,10 @@ body:not(.auth-ready) #appPage {
                         </label>
 
                         <select id="formStatus">
+
+                            <option value="" disabled selected>
+                                Please Select
+                            </option>
 
                             <option value="">
                                 Blank / Current Student
