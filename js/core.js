@@ -285,6 +285,10 @@ let attendanceSelectedMonths = [];
 
 
 
+/* Prevent an intentional password re-authentication from being treated
+   as a fresh application login by the global Supabase auth listener. */
+let suppressAuthApplicationRefresh = 0;
+
 /* =========================================================
    ACADEMIC SESSION EDIT PROTECTION
 ========================================================= */
@@ -391,6 +395,11 @@ async function requireAdminPasswordForAction({
         }
 
         try {
+            // Supabase emits a SIGNED_IN/TOKEN event during password re-authentication.
+            // Suppress only the next auth event so the app does not restart or reopen dialogs.
+            suppressAuthApplicationRefresh = 1;
+            setTimeout(() => { suppressAuthApplicationRefresh = 0; }, 5000);
+
             const { error } = await supabaseClient.auth.signInWithPassword({
                 email: currentUser.email,
                 password
@@ -399,6 +408,7 @@ async function requireAdminPasswordForAction({
             if (error) throw error;
             return true;
         } catch (error) {
+            suppressAuthApplicationRefresh = 0;
             if (adminPasswordError) {
                 adminPasswordError.textContent = "Incorrect password. Please try again.";
                 adminPasswordError.classList.remove("hidden");

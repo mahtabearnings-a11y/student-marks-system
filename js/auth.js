@@ -419,6 +419,11 @@ function stopInactivityTimer() {
 supabaseClient.auth.onAuthStateChange(
     async function(event, session) {
 
+        if (suppressAuthApplicationRefresh > 0) {
+            suppressAuthApplicationRefresh -= 1;
+            return;
+        }
+
         if (
             session &&
             session.user
