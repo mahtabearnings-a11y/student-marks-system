@@ -1357,24 +1357,11 @@ tbody tr:hover {
     font-size:13px;
     line-height:1.5;
 }
-.admin-password-modal {
-    max-width: 460px;
-}
-
 .recycle-bin-password-box {
     max-width:460px;
 }
 .recycle-bin-password-box input {
     margin-top:7px;
-}
-
-.history-marks-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    padding: 10px 0 2px;
-    font-size: 12pt;
-    color: #374151;
 }
 
 
@@ -1454,4 +1441,15 @@ tbody tr:hover {
         width: 120px;
         max-width: 120px;
     }
+}
+
+/* Admin verification message: compact, readable, justified paragraph. */
+#adminPasswordModal .modal-content {
+    width: min(460px, calc(100vw - 32px));
+    max-width: 460px;
+}
+
+#adminPasswordMessage {
+    text-align: justify;
+    text-justify: inter-word;
 }
