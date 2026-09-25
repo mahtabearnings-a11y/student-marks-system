@@ -254,11 +254,22 @@ async function createOrUpdateAcademicYear() {
         if (typeof populatePromotionSessions === "function") populatePromotionSessions();
     } catch (error) {
         console.error(error);
-        const message = String(error?.message || "");
-        showToast(/incorrect|wrong|password/i.test(message) ? "Wrong Recycle Bin password. Please enter the correct password." : (message || "Unable to save the academic year."), "error");
+        showRecycleBinProtectedActionError(error, "Unable to save the academic year.");
     } finally {
         createAcademicYearButton.disabled = false;
     }
+}
+
+function isRecycleBinPasswordError(error) {
+    const message = String(error?.message || error || "");
+    return /incorrect\s+recycle\s+bin\s+password|wrong\s+recycle\s+bin\s+password|recycle\s+bin\s+permanent-deletion\s+password.*not\s+configured/i.test(message);
+}
+
+function showRecycleBinProtectedActionError(error, fallback) {
+    const message = String(error?.message || error || "");
+    showToast(isRecycleBinPasswordError(error)
+        ? "Wrong Recycle Bin password. Please enter the correct permanent-deletion password."
+        : (message || fallback), "error");
 }
 
 async function closeAcademicYear(sessionId) {
@@ -283,8 +294,7 @@ async function closeAcademicYear(sessionId) {
         if (typeof loadPromotionStudents === "function") await loadPromotionStudents();
         showToast(`${academicYearDisplayName(session.session_name)} is now closed.`, "success");
     } catch (error) {
-        const message = String(error?.message || "");
-        showToast(/incorrect|wrong|password/i.test(message) ? "Wrong Recycle Bin password. Please enter the correct password." : (message || "Unable to close the academic year."), "error");
+        showRecycleBinProtectedActionError(error, "Unable to close the academic year.");
     }
 }
 
@@ -313,8 +323,7 @@ async function activateAcademicYear(sessionId) {
         if (typeof updateDashboardCounts === "function") await updateDashboardCounts();
         showToast(`${academicYearDisplayName(session.session_name)} is now active.`, "success");
     } catch (error) {
-        const message = String(error?.message || "");
-        showToast(/incorrect|wrong|password/i.test(message) ? "Wrong Recycle Bin password. Please enter the correct password." : (message || "Unable to activate the academic year."), "error");
+        showRecycleBinProtectedActionError(error, "Unable to activate the academic year.");
     }
 }
 
@@ -342,8 +351,7 @@ async function moveAcademicYearToRecycleBin(sessionId) {
         if (typeof loadAcademicYearRecycleBin === "function") await loadAcademicYearRecycleBin();
         showToast(`${yearName} moved to the Recycle Bin.`, "success");
     } catch (error) {
-        const message = String(error?.message || "");
-        showToast(/incorrect|wrong|password/i.test(message) ? "Wrong Recycle Bin password. Please enter the correct password." : (message || "Unable to move the academic year to the Recycle Bin."), "error");
+        showRecycleBinProtectedActionError(error, "Unable to move the academic year to the Recycle Bin.");
     }
 }
 

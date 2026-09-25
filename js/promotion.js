@@ -313,6 +313,12 @@ function formatPromotionDate(value){
     return date.toLocaleString("en-IN",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
 }
 
+
+function isPromotionRecycleBinPasswordError(error) {
+    const message = String(error?.message || error || "");
+    return /incorrect\s+recycle\s+bin\s+password|wrong\s+recycle\s+bin\s+password|recycle\s+bin\s+permanent-deletion\s+password.*not\s+configured/i.test(message);
+}
+
 async function revertPromotionBatch(batchId){
     if(!batchId) return;
     if(!confirm("Revert this promotion batch? Historical academic records from the previous year will not be changed.")) return;
@@ -338,7 +344,7 @@ async function revertPromotionBatch(batchId){
         if (typeof updateDashboardCounts === "function") await updateDashboardCounts();
     } catch(error) {
         const message = String(error?.message || "");
-        showToast(/incorrect|wrong|password/i.test(message) ? "Wrong Recycle Bin password. Please enter the correct password." : (message || "Promotion could not be reverted."), "error");
+        showToast(isPromotionRecycleBinPasswordError(error) ? "Wrong Recycle Bin password. Please enter the correct permanent-deletion password." : (message || "Promotion could not be reverted."), "error");
     }
 }
 
