@@ -607,7 +607,7 @@ body:not(.auth-ready) #appPage {
                     </div>
                     <div class="filter-item">
                         <label for="printStudentSelect">Select Student</label>
-                        <select id="printStudentSelect"><option value="">Please Select</option></select>
+                        <select id="printStudentSelect"><option value="">Search and select a student</option></select>
                     </div>
                     <div class="filter-item">
                         <label>Selected Student</label>
@@ -1287,14 +1287,14 @@ body:not(.auth-ready) #appPage {
 
     <div class="modal admin-password-modal">
         <div class="modal-header">
-            <h3 id="adminPasswordTitle">Admin Verification</h3>
+            <h3 id="adminPasswordTitle">Password Verification</h3>
             <button id="adminPasswordCloseButton" class="modal-close" type="button">×</button>
         </div>
 
         <div class="modal-body">
             <p id="adminPasswordMessage" style="color:#4b5563;line-height:1.6;margin-bottom:14px;"></p>
-            <label for="adminPasswordInput">Admin Password</label>
-            <input id="adminPasswordInput" type="password" autocomplete="current-password" placeholder="Enter your Admin password">
+            <label for="adminPasswordInput">Password</label>
+            <input id="adminPasswordInput" type="password" autocomplete="off" placeholder="Enter Recycle Bin permanent-deletion password">
             <div id="adminPasswordError" class="error-message hidden" style="margin-top:10px;"></div>
         </div>
 
