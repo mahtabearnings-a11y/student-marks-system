@@ -54,6 +54,9 @@ async function loadSessions() {
 
     if (!sessions.length) {
         sessionFilter.innerHTML = `<option value="">Please Select</option>`;
+    } else {
+        const activeSession = sessions.find(session => session.is_active);
+        sessionFilter.value = activeSession ? String(activeSession.id) : "";
     }
 
     if (typeof updateAcademicSessionProtectionUI === "function") {
@@ -88,10 +91,11 @@ function className(classNo) {
    SECTION NAVIGATION
 ========================================================= */
 function resetStudentsState(){
-    if(sessionFilter) sessionFilter.value="";
+    const active = sessions.find(s => s.is_active);
+    if(sessionFilter) sessionFilter.value = active ? String(active.id) : "";
     if(classFilter) classFilter.value="";
     if(studentSearch) studentSearch.value="";
-    if(studentSort) studentSort.value="rollAsc";
+    if(studentSort) studentSort.value="";
 }
 function resetMarksState(){
     marksSavedSnapshot = null;
@@ -126,6 +130,7 @@ function showSection(section, options = {}) {
         window.history.replaceState(null, "", "#" + section);
     }
 
+    if (section === "dashboard" && typeof updateDashboardCounts === "function") updateDashboardCounts();
     if (section === "students") loadStudents();
     if (section === "marks") { populateMarksSessions(); loadMarksGrid(); }
     if (section === "attendance") { populateAttendanceSessions(); renderAttendanceMonthButtons(); }

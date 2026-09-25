@@ -9,7 +9,14 @@ async function updateDashboardCounts() {
     const femaleCard = document.getElementById("dashboardFemaleStudents");
     const sessionCard = document.getElementById("dashboardAcademicSession");
     const session = sessions.find(x => x.is_active);
-    if (!session) return;
+    if (!session) {
+        if (body) body.innerHTML = `<tr><td colspan="4">No active academic session is available.</td></tr>`;
+        if (totalCard) totalCard.textContent = "—";
+        if (maleCard) maleCard.textContent = "—";
+        if (femaleCard) femaleCard.textContent = "—";
+        if (sessionCard) sessionCard.textContent = "—";
+        return;
+    }
 
     const { data: records, error } = await supabaseClient.from("academic_records")
         .select("class_no, students(gender)").eq("session_id", session.id);

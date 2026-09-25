@@ -5,10 +5,10 @@
 function resetPrintState(){
     if(printStudentSearch) printStudentSearch.value="";
     if(printStudentInfo) printStudentInfo.textContent="No student selected.";
-    if(printStudentSelect) printStudentSelect.innerHTML=`<option value="">Select student</option>`;
+    if(printStudentSelect) printStudentSelect.innerHTML=`<option value="">Please Select</option>`;
     if(printClass) printClass.value="";
     if(printExam) printExam.value="";
-    if(printSession) printSession.value="";
+    if(printSession){ const active=sessions.find(s=>s.is_active); printSession.value=active?String(active.id):""; }
     printStudents=[]; printSubjects=[]; printMarks={};
     if(printClassInfo) printClassInfo.textContent="Select session, class and examination.";
 }
@@ -20,6 +20,8 @@ function populatePrintSessions() {
     if (!printSession) return;
     const ordered = [...sessions].sort((a, b) => (typeof academicYearStartNumber === "function" ? academicYearStartNumber(a.session_name) : Number(String(a.session_name).slice(0, 4))) - (typeof academicYearStartNumber === "function" ? academicYearStartNumber(b.session_name) : Number(String(b.session_name).slice(0, 4))) || Number(a.id) - Number(b.id));
     printSession.innerHTML = `<option value="">Please Select</option>` + ordered.map(s => `<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("");
+    const active = sessions.find(s => s.is_active);
+    printSession.value = active ? String(active.id) : "";
 }
 
 function printClassName(n){ return className(Number(n)); }
@@ -67,9 +69,9 @@ function filterPrintStudents(){
             String(r.roll_no??"").toLowerCase().includes(q);
     });
     printStudentSelect.innerHTML=list.length
-        ? `<option value="">${q ? "Select student" : "Select student"}${list.length>1 ? ` (${list.length})` : ""}</option>` +
+        ? `<option value="">Please Select${list.length>1 ? ` (${list.length})` : ""}</option>` +
           list.map(r=>`<option value="${r.id}">${escapeHtml(r.students?.student_name||"")}</option>`).join("")
-        : `<option value="">No matching student</option>`;
+        : `<option value="">Please Select</option><option value="" disabled>No matching student</option>`;
 
     // Automatically select an exact match, or the only matching student.
     if(list.length){

@@ -53,6 +53,8 @@ function populateAttendanceSessions() {
     if (!attendanceSession) return;
     const ordered = [...sessions].sort((a, b) => (typeof academicYearStartNumber === "function" ? academicYearStartNumber(a.session_name) : Number(String(a.session_name).slice(0, 4))) - (typeof academicYearStartNumber === "function" ? academicYearStartNumber(b.session_name) : Number(String(b.session_name).slice(0, 4))) || Number(a.id) - Number(b.id));
     attendanceSession.innerHTML = `<option value="">Please Select</option>` + ordered.map(s => `<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("");
+    const active = sessions.find(s => s.is_active);
+    attendanceSession.value = active ? String(active.id) : "";
 }
 
 function renderAttendanceMonthButtons() {
