@@ -8,7 +8,7 @@ async function updateDashboardCounts() {
     const maleCard = document.getElementById("dashboardMaleStudents");
     const femaleCard = document.getElementById("dashboardFemaleStudents");
     const sessionCard = document.getElementById("dashboardAcademicSession");
-    const session = sessions.find(x => x.is_active);
+    const session = sessions.find(x => x.is_active) || null;
     if (!session) {
         if (body) body.innerHTML = `<tr><td colspan="4">No active academic session is available.</td></tr>`;
         if (totalCard) totalCard.textContent = "—";
