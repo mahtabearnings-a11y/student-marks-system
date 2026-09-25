@@ -1531,3 +1531,21 @@ table th {
 table td {
     font-size: 12pt;
 }
+
+/* ===== Typography + academic-year status refinements ===== */
+body { font-size: 12pt; }
+label, input, select, textarea { font-size: 12pt; }
+button, .btn { font-size: 11pt; }
+.btn-small { font-size: 11pt; }
+.nav-btn { font-size: 12pt; }
+table { font-size: 12pt; }
+th { font-size: 14pt; }
+.dashboard-card, .stat-card { font-size: 14pt; }
+.section-title, .section-heading { font-size: 14pt; }
+.marks-input { font-size: 12pt; }
+.marks-error { font-size: 12pt; }
+.attendance-table { font-size: 12pt; }
+.promotion-message, .promotion-note { font-size: 12pt; }
+.recycle-bin-table, .recycle-bin-note, .recycle-bin-status { font-size: 12pt; }
+.login-page-credit, .topbar-credit { font-size: 12pt; }
+.academic-year-status-active { color: #15803d; font-weight: 700; }
