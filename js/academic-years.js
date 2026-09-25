@@ -156,7 +156,7 @@ function renderAcademicYears() {
             if (session.is_closed) {
                 const verified = await requireAdminPasswordForAction({
                     title: "Edit Closed Academic Year",
-                    message: `${session.session_name} is closed. Enter your Recycle Bin permanent-deletion password to edit its details.`,
+                    message: `${session.session_name} is closed. Enter your password to edit its details.`,
                     actionLabel: "Unlock & Edit"
                 });
                 if (!verified) return;
@@ -230,7 +230,7 @@ async function createOrUpdateAcademicYear() {
             if (current?.is_closed && !hasAcademicSessionEditUnlock(editingAcademicYearId)) {
                 const verified = await requireAdminPasswordForAction({
                     title: "Edit Closed Academic Year",
-                    message: `${current.session_name} is closed. Enter your Recycle Bin permanent-deletion password to save these changes.`,
+                    message: `${current.session_name} is closed. Enter your password to save these changes.`,
                     actionLabel: "Save Changes"
                 });
                 if (!verified) return;

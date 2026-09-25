@@ -378,7 +378,7 @@ function showAdminPasswordDialog({
 
 async function requireAdminPasswordForAction({
     title = "Password Verification",
-    message = "Enter your Recycle Bin permanent-deletion password to continue.",
+    message = "Enter your password to continue.",
     actionLabel = "Continue"
 } = {}) {
     if (currentRole !== "admin") {
@@ -392,7 +392,7 @@ async function requireAdminPasswordForAction({
 
         if (!password) {
             if (adminPasswordError) {
-                adminPasswordError.textContent = "Please enter the Recycle Bin permanent-deletion password.";
+                adminPasswordError.textContent = "Please enter your password.";
                 adminPasswordError.classList.remove("hidden");
             }
             continue;
@@ -429,7 +429,7 @@ async function ensureAcademicSessionEditable(sessionId, action = "edit this acad
 
     const verified = await requireAdminPasswordForAction({
         title: "Academic Year Locked",
-        message: `${session.session_name || "This academic year"} is closed. Enter your Recycle Bin permanent-deletion password to ${action}. The unlock lasts for 30 minutes in this session.`,
+        message: `${session.session_name || "This academic year"} is closed. Enter your password to ${action}. The unlock lasts for 30 minutes in this session.`,
         actionLabel: "Unlock"
     });
 

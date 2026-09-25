@@ -25,6 +25,8 @@ let promotionHistoryRows = [];
 function populatePromotionSessions(){
     if(!promotionSession) return;
     promotionSession.innerHTML = `<option value="">Please Select</option>` + sortAcademicSessions(sessions).map(s=>`<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.session_name)}</option>`).join("");
+    const active = sessions.find(s => s.is_active);
+    promotionSession.value = active ? String(active.id) : "";
 }
 
 function sortAcademicSessions(list) {
@@ -157,7 +159,7 @@ function openPromotionReview(){
         recordId:r.id,studentProfileId:r.student_profile_id,name:r.students?.student_name||"",rank:r.rank,
         status:defaultPromotionStatus(sourceClass),
         classNo:sourceClass===8?8:sourceClass+1,
-        rollNo:sourceClass===8?"":i+1
+        rollNo:sourceClass===8?"":r.rank
     }));
     renderPromotionReview();
     promotionListCard.classList.add("hidden");
@@ -170,7 +172,7 @@ function openPromotionReview(){
 function renderPromotionReview(){
     const sourceClass=Number(promotionClass.value);
     const classOptions=Array.from({length:8},(_,i)=>`<option value="${i+1}">Class ${className(i+1).replace(/^Class\s*/i,"")}</option>`).join("");
-    promotionReviewContainer.innerHTML=`<table class="promotion-table"><thead><tr><th>Student</th><th>Rank</th><th>Status</th><th>Proposed Class</th><th>Proposed Roll</th></tr></thead><tbody>${promotionReviewRows.map((r,i)=>{
+    promotionReviewContainer.innerHTML=`<table class="promotion-table"><thead><tr><th>Student</th><th>Rank</th><th>Status</th><th>Proposed Class</th><th>Proposed Roll (Class Rank)</th></tr></thead><tbody>${promotionReviewRows.map((r,i)=>{
         const opts=sourceClass===8
             ? `<option value="8" selected>Class VIII – Completed</option>`
             : classOptions.replace(`value="${r.classNo}"`,`value="${r.classNo}" selected`);
@@ -212,12 +214,8 @@ async function confirmPromotion(){
         : `Confirm promotion for ${promotionReviewRows.length} selected student${promotionReviewRows.length===1?"":"s"} to ${next.session_name}? A new academic record will be created for each selected student.`;
     if(!confirm(message))return;
 
-    const passwordVerified = await requireAdminPasswordForAction({
-        title: "Confirm Promotion",
-        message: `Enter your Recycle Bin permanent-deletion password to finalize this promotion batch from ${source?.session_name || "the selected academic year"}.`,
-        actionLabel: "Confirm Promotion"
-    });
-    if(!passwordVerified) return;
+    // The confirmation step does not require a second password prompt.
+    // Protected Promotion/Academic Year actions use the shared Recycle Bin password instead.
 
     confirmPromotionButton.disabled=true;
     try{
@@ -230,7 +228,7 @@ async function confirmPromotion(){
             roll_no: row.status === "Left School" ? null : (row.rollNo === "" ? null : Number(row.rollNo))
         }));
 
-        const { data, error } = await supabaseClient.rpc("promote_students_batch", {
+        const { data, error } = await supabaseClient.rpc("promote_students_batch_v2", {
             p_source_session_id: sourceSessionId,
             p_destination_session_id: sourceClass === 8 ? null : Number(next.id),
             p_rows: rows,
@@ -317,17 +315,20 @@ function formatPromotionDate(value){
 
 async function revertPromotionBatch(batchId){
     if(!batchId) return;
-    const verified = await requireAdminPasswordForAction({
-        title: "Revert Promotion",
-        message: "Enter your Recycle Bin permanent-deletion password to revert this promotion batch. The new academic records will be removed only when they contain no Marks or Attendance.",
-        actionLabel: "Revert Promotion"
-    });
-    if(!verified) return;
-
     if(!confirm("Revert this promotion batch? Historical academic records from the previous year will not be changed.")) return;
 
+    const password = await requestRecycleBinSecurityPassword({
+        title: "Revert Promotion",
+        message: "Enter the Recycle Bin permanent-deletion password to revert this promotion batch. The new academic records will be removed only when they contain no Marks or Attendance.",
+        actionLabel: "Revert Promotion"
+    });
+    if(password === null) return;
+
     try {
-        const {error} = await supabaseClient.rpc("revert_promotion_batch", {p_batch_id: batchId});
+        const {error} = await supabaseClient.rpc("revert_promotion_batch_with_recycle_password", {
+            p_batch_id: batchId,
+            p_password: password
+        });
         if(error) throw error;
         showToast("Promotion batch reverted successfully.", "success");
         await loadSessions();
@@ -336,7 +337,8 @@ async function revertPromotionBatch(batchId){
         await loadStudents();
         if (typeof updateDashboardCounts === "function") await updateDashboardCounts();
     } catch(error) {
-        showToast(error.message || "Promotion could not be reverted.", "error");
+        const message = String(error?.message || "");
+        showToast(/incorrect|wrong|password/i.test(message) ? "Wrong Recycle Bin password. Please enter the correct password." : (message || "Promotion could not be reverted."), "error");
     }
 }
 
@@ -351,7 +353,7 @@ if(refreshPromotionHistoryButton)refreshPromotionHistoryButton.addEventListener(
 function resetPromotionState(){
     const active = sessions.find(s => s.is_active);
     if (promotionSession) promotionSession.value = active ? String(active.id) : (sessions[0] ? String(sessions[0].id) : "");
-    if (promotionClass) promotionClass.value = "1";
+    if (promotionClass) promotionClass.value = "";
     if (promotionSort) promotionSort.value = "";
     promotionStudents = [];
     promotionReviewRows = [];
