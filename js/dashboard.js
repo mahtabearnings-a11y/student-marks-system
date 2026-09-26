@@ -62,6 +62,9 @@ async function updateDashboardCounts() {
         }).join('');
     }
 
+    // Percentages continue to use only records with a recognized gender,
+    // while the donut center shows the true total student count. This prevents
+    // blank/unspecified gender records from making 260 students appear as 256.
     const genderTotal = totals.male + totals.female;
     const malePercent = genderTotal ? Math.round((totals.male / genderTotal) * 100) : 0;
     const femalePercent = genderTotal ? 100 - malePercent : 0;
@@ -69,7 +72,7 @@ async function updateDashboardCounts() {
     const genderTotalEl = document.getElementById('dashboardGenderTotal');
     const malePercentEl = document.getElementById('dashboardMalePercent');
     const femalePercentEl = document.getElementById('dashboardFemalePercent');
-    if (genderTotalEl) genderTotalEl.textContent = genderTotal;
+    if (genderTotalEl) genderTotalEl.textContent = totals.total;
     if (malePercentEl) malePercentEl.textContent = `${malePercent}%`;
     if (femalePercentEl) femalePercentEl.textContent = `${femalePercent}%`;
     if (donut) donut.style.background = `conic-gradient(#2e73cc 0deg ${malePercent * 3.6}deg, #7aa9e6 ${malePercent * 3.6}deg 360deg)`;
