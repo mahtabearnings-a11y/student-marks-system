@@ -149,6 +149,19 @@ function resultSummaryHtml(calc, rank){
     </div>`;
 }
 
+function resultSignatureHtml(){
+    return `<div class="result-signatures">
+        <div class="result-signature-box">
+            <div class="result-signature-line"></div>
+            <div class="result-signature-label">Class Teacher's Signature</div>
+        </div>
+        <div class="result-signature-box">
+            <div class="result-signature-line"></div>
+            <div class="result-signature-label">Headmaster's Signature</div>
+        </div>
+    </div>`;
+}
+
 function resultHtml(record,pageNo,totalPages){
     const s=record.students||{}, c=calcPrintRecord(record);
     const rank=calcRank(record);
@@ -165,6 +178,7 @@ function resultHtml(record,pageNo,totalPages){
             ${resultInfoHtml(record,s)}
             <table class="result-table result-table-standard"><colgroup><col class="serial-col"><col class="subject-col"><col class="marks-col"><col class="full-col"></colgroup><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table>
             ${resultSummaryHtml(c,rank)}
+            ${resultSignatureHtml()}
         </div>`;
     }
     const markHeader=`<th>Half-Yearly / 50</th><th>Annual / 50</th><th>Full Marks</th>`;
@@ -179,6 +193,7 @@ function resultHtml(record,pageNo,totalPages){
         ${resultInfoHtml(record,s)}
         <table class="result-table final-result-table"><colgroup><col class="serial-col"><col class="subject-col"><col class="marks-col"><col class="marks-col"><col class="full-col"></colgroup><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table>
         ${resultSummaryHtml(c,rank)}
+        ${resultSignatureHtml()}
     </div>`;
 }
 function calcRank(record){ const ranked=printStudents.map(r=>({r,c:calcPrintRecord(r)})).sort((a,b)=>b.c.total-a.c.total||b.c.pct-a.c.pct||Number(a.r.roll_no??999999)-Number(b.r.roll_no??999999)); return ranked.findIndex(x=>x.r.id===record.id)+1; }
