@@ -294,7 +294,6 @@ function renderStudents() {
                 No students found for the selected filters.
             </div>`;
 
-        setupFrozenTableHeader(studentTableContainer);
         return;
 
     }
@@ -481,7 +480,6 @@ function renderStudents() {
     studentTableContainer.innerHTML =
         html;
 
-    setupFrozenTableHeader(studentTableContainer);
 
 }
 

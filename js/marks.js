@@ -228,14 +228,12 @@ function renderMarksGrid() {
     if (!marksRecords.length) {
         marksRecordCount.textContent = "0 students";
         marksTableContainer.innerHTML = `<div class="empty-state">No students found for ${escapeHtml(className(Number(marksClass.value)))} in the selected session.</div>`;
-        setupFrozenTableHeader(marksTableContainer);
         return;
     }
 
     if (!marksSubjects.length) {
         marksRecordCount.textContent = `${marksRecords.length} students`;
         marksTableContainer.innerHTML = `<div class="empty-state">No subjects are configured for this class.</div>`;
-        setupFrozenTableHeader(marksTableContainer);
         return;
     }
 
@@ -263,7 +261,6 @@ function renderMarksGrid() {
 
     marksTableContainer.innerHTML = `<table class="marks-table"><thead><tr><th class="sticky-roll">Roll</th><th class="sticky-name">Student Name</th>${head}<th>Total</th><th>Percentage</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table>`;
 
-    setupFrozenTableHeader(marksTableContainer);
 
     marksTableContainer.querySelectorAll(".marks-input").forEach(input => {
         input.addEventListener("input", async () => {
