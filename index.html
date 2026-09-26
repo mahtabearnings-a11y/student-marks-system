@@ -75,101 +75,75 @@ body:not(.auth-ready) #appPage {
 
 <div id="appPage" class="hidden">
 
-    <header class="topbar">
+    <div class="app-layout">
 
-        <div>
-            <div class="school-title">
-                U.M.S SASAULI URDU
+        <aside class="sidebar" aria-label="Main navigation">
+            <div class="sidebar-brand">
+                <img src="school-logo.png" alt="U.M.S Sasauli Urdu School Logo">
+                <div>
+                    <div class="sidebar-school-title">U.M.S SASAULI URDU</div>
+                    <div class="sidebar-school-subtitle">Student Management System</div>
+                </div>
             </div>
 
-            <div class="school-subtitle">
-                Student Marks Management System
+            <nav class="navbar" aria-label="Primary navigation">
+
+                <button class="nav-btn active" data-section="dashboard">
+                    <span class="nav-icon" aria-hidden="true">⌂</span><span>Dashboard</span>
+                </button>
+
+                <button class="nav-btn" data-section="students">
+                    <span class="nav-icon" aria-hidden="true">♙</span><span>Students</span>
+                </button>
+
+                <button class="nav-btn" data-section="marks">
+                    <span class="nav-icon" aria-hidden="true">▤</span><span>Marks</span>
+                </button>
+
+                <button class="nav-btn" data-section="attendance">
+                    <span class="nav-icon" aria-hidden="true">◫</span><span>Attendance</span>
+                </button>
+
+                <button class="nav-btn" data-section="promotion">
+                    <span class="nav-icon" aria-hidden="true">↗</span><span>Promotion</span>
+                </button>
+
+                <button id="recycleBinNavButton" class="nav-btn hidden" data-section="recycleBin">
+                    <span class="nav-icon" aria-hidden="true">▢</span><span>Recycle Bin</span>
+                </button>
+
+                <button class="nav-btn" data-section="backup">
+                    <span class="nav-icon" aria-hidden="true">↥</span><span>Backup</span>
+                </button>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-footer-label">Academic Session</div>
+                <div class="sidebar-footer-value" id="sidebarAcademicSession">—</div>
             </div>
-            
-        </div>
+        </aside>
 
-        <div class="user-area">
+        <div class="app-body">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div class="topbar-search" role="search" aria-label="Search">
+                        <span class="topbar-search-icon" aria-hidden="true">⌕</span>
+                        <span class="topbar-search-text">Search students, roll no., class...</span>
+                    </div>
+                </div>
 
-            <span id="userEmail"
-                  class="user-email"></span>
-
-            <span id="roleBadge"
-                  class="role-badge"></span>
-
-            <button
-                id="logoutButton"
-                class="logout-btn">
-
-                Logout
-
-            </button>
-
-        </div>
-
-    </header>
-
-
-    <nav class="navbar">
-
-        <button
-            class="nav-btn active"
-            data-section="dashboard">
-
-            Dashboard
-
-        </button>
-
-        <button
-            class="nav-btn"
-            data-section="students">
-
-            Students
-
-        </button>
-
-        <button
-            id="recycleBinNavButton"
-            class="nav-btn hidden"
-            data-section="recycleBin">
-
-            Recycle Bin
-
-        </button>
-
-        <button
-            class="nav-btn"
-            data-section="marks">
-
-            Marks
-
-        </button>
-
-        <button
-            class="nav-btn"
-            data-section="attendance">
-
-            Attendance
-
-        </button>
-
-        <button
-            class="nav-btn"
-            data-section="promotion">
-
-            Promotion
-
-        </button>
-
-        <button
-            class="nav-btn"
-            data-section="backup">
-
-            Backup
-
-        </button>
-
-    </nav>
-
+                <div class="user-area">
+                    <button type="button" class="theme-placeholder" aria-label="Theme">☼</button>
+                    <button type="button" class="theme-placeholder" aria-label="Dark mode">◐</button>
+                    <span class="user-avatar" aria-hidden="true">MR</span>
+                    <div class="user-details">
+                        <span id="userEmail" class="user-email"></span>
+                        <span id="roleBadge" class="role-badge"></span>
+                    </div>
+                    <button id="logoutButton" class="logout-btn">Logout</button>
+                </div>
+            </header>
 
     <main class="main-content">
 
