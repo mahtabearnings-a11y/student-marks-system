@@ -1549,3 +1549,62 @@ th { font-size: 14pt; }
 .recycle-bin-table, .recycle-bin-note, .recycle-bin-status { font-size: 12pt; }
 .login-page-credit, .topbar-credit { font-size: 12pt; }
 .academic-year-status-active { color: #15803d; font-weight: 700; }
+
+/* =========================
+   SHARED ATTENDANCE WORKING DAYS
+========================= */
+.attendance-working-days-panel{
+    margin-top:14px;
+    padding:12px 14px;
+    border:1px solid #dbe3ee;
+    border-radius:10px;
+    background:#fbfdff;
+}
+.attendance-working-days-heading{
+    font-size:14pt;
+    font-weight:700;
+    color:#123b73;
+    margin-bottom:9px;
+}
+.attendance-working-days-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(125px,1fr));
+    gap:10px;
+}
+.attendance-working-day-item{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+.attendance-working-day-item label{
+    font-size:12pt;
+    font-weight:700;
+    color:#475569;
+}
+.attendance-working-day-input{
+    width:100%;
+    min-height:40px;
+    box-sizing:border-box;
+    text-align:center;
+    font-size:12pt;
+    border:1px solid #cbd5e1;
+    border-radius:8px;
+    padding:7px 8px;
+    background:#fff;
+}
+.attendance-working-day-input:focus{outline:2px solid #7aa7d9;outline-offset:0}
+.attendance-working-days-note,.attendance-working-days-empty{
+    margin-top:9px;
+    color:#64748b;
+    font-size:12pt;
+}
+.promotion-select-all-label{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-size:12pt;
+    font-weight:700;
+    color:#334155;
+    white-space:nowrap;
+}
+.promotion-select-all-label input{width:18px;height:18px;accent-color:#2563eb}
