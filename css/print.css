@@ -860,3 +860,16 @@
     margin-bottom: 3mm !important;
   }
 }
+
+
+/* =========================================================
+   PRINT TYPOGRAPHY — RESULTS & CLASS MARKS FOLIO
+   All result/report-card and class-folio print text uses
+   Times New Roman, independent of the website UI font.
+========================================================= */
+@media print {
+  .result-page,
+  .result-page * {
+    font-family: "Times New Roman", Times, serif !important;
+  }
+}
