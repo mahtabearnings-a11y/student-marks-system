@@ -870,7 +870,7 @@
 @media print {
   .result-logo-wrap {
     left: 1.5mm !important;
-    top: 31% !important;
+    top: calc(47% - 1mm) !important;
     width: 35mm !important;
     height: 35mm !important;
     transform: translateY(-50%) !important;
@@ -886,104 +886,5 @@
     object-position: center !important;
     display: block !important;
     background: transparent !important;
-  }
-}
-
-
-/* =========================================================
-   STUDENT RESULT — HEADER / SIGNATURE / TYPOGRAPHY FINAL
-   Logo is vertically centered in the header space between
-   the outer top border and the horizontal divider.
-========================================================= */
-@media print {
-  .result-page,
-  .result-page * {
-    font-family: "Times New Roman", Times, serif !important;
-  }
-
-  .result-logo-wrap {
-    top: 50% !important;
-  }
-
-  .result-signatures {
-    width: 100% !important;
-    margin-top: 25mm !important;
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 25mm !important;
-    align-items: end !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  .result-signature-box {
-    min-width: 0 !important;
-    text-align: center !important;
-  }
-
-  .result-signature-line {
-    width: 70% !important;
-    margin: 0 auto 2.5mm !important;
-    border-top: 1pt solid #3f3f3f !important;
-    height: 0 !important;
-  }
-
-  .result-signature-label {
-    font-size: 11pt !important;
-    line-height: 1.15 !important;
-    font-weight: 700 !important;
-    color: #17365d !important;
-  }
-}
-
-
-/* =========================================================
-   RESULT ATTENDANCE + SIGNATURE FINAL POSITION
-   Attendance follows Mother's Name. Signatures sit just above
-   the bottom report-card border.
-========================================================= */
-@media print {
-  .result-attendance-item {
-    align-items:start !important;
-  }
-
-  .result-attendance-item b {
-    white-space:normal !important;
-    line-height:1.12 !important;
-  }
-
-  .result-signatures {
-    position:absolute !important;
-    left:5.5mm !important;
-    right:5.5mm !important;
-    bottom:7mm !important;
-    width:auto !important;
-    margin:0 !important;
-    padding:0 !important;
-    display:grid !important;
-    grid-template-columns:1fr 1fr !important;
-    gap:25mm !important;
-    align-items:end !important;
-    page-break-inside:avoid !important;
-    break-inside:avoid !important;
-  }
-
-  .result-signature-box {
-    text-align:center !important;
-  }
-
-  .result-signature-line {
-    width:70% !important;
-    margin:0 auto 2mm !important;
-    border-top:1pt solid #3f3f3f !important;
-    height:0 !important;
-  }
-
-  .result-signature-label {
-    font-family:"Times New Roman", Times, serif !important;
-    font-size:11pt !important;
-    line-height:1.1 !important;
-    font-weight:700 !important;
-    color:#17365d !important;
   }
 }
