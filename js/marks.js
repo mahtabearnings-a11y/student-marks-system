@@ -96,6 +96,13 @@ async function loadMarksGrid() {
 
     syncPrintDataFromMarks();
     renderMarksGrid();
+
+    // Remember the context that the loaded grid represents. Context changes
+    // should not themselves make the Marks section dirty.
+    if (marksSession) marksSession.dataset.loadedValue = marksSession.value;
+    if (marksClass) marksClass.dataset.loadedValue = marksClass.value;
+    if (marksExam) marksExam.dataset.loadedValue = marksExam.value;
+
     captureMarksSavedSnapshot();
     marksLoading = false;
 }
@@ -135,12 +142,9 @@ function getMarksSnapshot() {
         });
     });
 
-    return JSON.stringify({
-        session: String(marksSession.value || ""),
-        classNo: Number(marksClass.value || 0),
-        exam,
-        values
-    });
+    // The dirty-state snapshot represents MARK DATA ONLY. The selected
+    // session/class/examination are navigation context, not unsaved data.
+    return JSON.stringify(values);
 }
 
 function captureMarksSavedSnapshot() {
@@ -381,6 +385,7 @@ async function handleMarksContextChange(control, previousValue) {
     const proceeded = await protectUnsavedChanges("marks", async () => {
         control.value = nextValue;
         await loadMarksGrid();
+        control.dataset.loadedValue = nextValue;
     });
 
     if (!proceeded) {
@@ -389,15 +394,18 @@ async function handleMarksContextChange(control, previousValue) {
 }
 
 if (marksSession) marksSession.addEventListener("change", function () {
-    const previous = marksSavedSnapshot ? JSON.parse(marksSavedSnapshot).session : this.value;
+    // The selector itself is not editable data, but the current mark grid
+    // may still contain unsaved edits. handleMarksContextChange restores the
+    // current context while protectUnsavedChanges checks only mark values.
+    const previous = this.dataset.loadedValue ?? this.value;
     handleMarksContextChange(this, previous);
 });
 if (marksClass) marksClass.addEventListener("change", function () {
-    const previous = marksSavedSnapshot ? JSON.parse(marksSavedSnapshot).classNo : Number(this.value);
-    handleMarksContextChange(this, String(previous));
+    const previous = this.dataset.loadedValue ?? this.value;
+    handleMarksContextChange(this, previous);
 });
 if (marksExam) marksExam.addEventListener("change", function () {
-    const previous = marksSavedSnapshot ? JSON.parse(marksSavedSnapshot).exam : this.value;
+    const previous = this.dataset.loadedValue ?? this.value;
     handleMarksContextChange(this, previous);
 });
 if (marksSort) marksSort.addEventListener("change", () => { renderMarksGrid(); filterPrintStudents(); });
