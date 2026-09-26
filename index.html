@@ -290,21 +290,18 @@ body:not(.auth-ready) #appPage {
             id="studentsSection"
             class="app-section hidden">
 
-            <div class="page-header">
+            <div class="page-header students-page-header">
 
-                <div>
-
+                <div class="students-page-title">
+                    <div class="students-page-kicker">Student Management</div>
                     <h2>Students</h2>
-
-
+                    <p>View, search, sort, and manage student records for the selected academic session.</p>
                 </div>
 
                 <button
                     id="addStudentButton"
-                    class="btn btn-primary">
-
-                    + Add Student
-
+                    class="btn btn-primary students-add-button">
+                    <span aria-hidden="true">+</span> Add Student
                 </button>
 
             </div>
@@ -312,7 +309,15 @@ body:not(.auth-ready) #appPage {
 
             <!-- FILTERS -->
 
-            <div class="card filter-card">
+            <div class="card filter-card students-filter-card">
+
+                <div class="students-filter-heading">
+                    <div>
+                        <h3>Find &amp; Filter Students</h3>
+                        <p>Use the controls below to narrow the student list.</p>
+                    </div>
+                    <span class="students-filter-badge">Live filters</span>
+                </div>
 
                 <div class="filter-grid">
 
@@ -438,16 +443,17 @@ body:not(.auth-ready) #appPage {
 
             <!-- TABLE -->
 
-            <div class="card table-card">
+            <div class="card table-card students-table-card">
 
-                <div class="table-top">
+                <div class="table-top students-table-top">
 
-                    <div
-                        id="studentRecordCount"
-                        class="record-count">
-
-                        Loading students...
-
+                    <div class="students-table-title">
+                        <div class="students-table-title-main">Student Records</div>
+                        <div
+                            id="studentRecordCount"
+                            class="record-count">
+                            Loading students...
+                        </div>
                     </div>
 
                     <button
