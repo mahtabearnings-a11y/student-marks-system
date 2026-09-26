@@ -46,66 +46,107 @@ function formatPrintAttendance(recordId){
 async function loadPrintAttendanceData(){
     printAttendanceTotals = {};
     printAttendancePeriod = getPrintAttendancePeriod(printExam?.value || "Half-Yearly");
-    const sessionId = Number(printSession?.value);
-    const ids = (printStudents || []).map(r => Number(r.id)).filter(Number.isFinite);
-    if(!sessionId || !ids.length || typeof supabaseClient === "undefined") return;
+
+    // Keep academic record IDs exactly as returned by Supabase. Do not coerce
+    // them to Number because some installations may use UUID/text IDs.
+    const ids = (printStudents || [])
+        .map(r => r?.id)
+        .filter(id => id !== undefined && id !== null && String(id) !== "");
+
+    if(!ids.length || typeof supabaseClient === "undefined") return;
 
     const months = getPrintAttendanceMonthRange(printExam?.value || "Half-Yearly");
     const workingByMonth = {};
     const presentByRecord = {};
-    let hasAny = false;
+    const hasRecordMonth = {};
+
+    // Use the selected print session when available. This is the Marks-page
+    // session and is normally the exact session of the printed results.
+    const sessionId = printSession?.value ? String(printSession.value) : String(printStudents[0]?.session_id || "");
 
     try {
-        const { data: workingRows, error: workingError } = await supabaseClient
-            .from("monthly_working_days")
-            .select("month_no, working_days")
-            .eq("session_id", sessionId)
-            .in("month_no", months);
-        if(!workingError){
-            (workingRows || []).forEach(row => {
-                const monthNo = Number(row.month_no);
-                const days = row.working_days == null ? null : Number(row.working_days);
-                if(Number.isFinite(days)){ workingByMonth[monthNo] = Math.max(0, days); hasAny = true; }
-            });
+        if(sessionId){
+            const { data: workingRows, error: workingError } = await supabaseClient
+                .from("monthly_working_days")
+                .select("month_no, working_days")
+                .eq("session_id", sessionId)
+                .in("month_no", months);
+
+            if(!workingError){
+                (workingRows || []).forEach(row => {
+                    const monthNo = Number(row.month_no);
+                    const days = row.working_days == null ? null : Number(row.working_days);
+                    if(Number.isFinite(days)) workingByMonth[monthNo] = Math.max(0, days);
+                });
+            }
         }
 
+        // Pull the actual student attendance records. The Attendance page
+        // stores present_days per academic_record_id and month_no.
         const { data: attendanceRows, error: attendanceError } = await supabaseClient
             .from("monthly_attendance")
             .select("academic_record_id, month_no, present_days, working_days")
             .in("academic_record_id", ids)
             .in("month_no", months);
+
         if(!attendanceError){
             (attendanceRows || []).forEach(row => {
                 const rid = String(row.academic_record_id);
                 const monthNo = Number(row.month_no);
                 if(!months.includes(monthNo)) return;
+
+                if(!hasRecordMonth[rid]) hasRecordMonth[rid] = {};
+                hasRecordMonth[rid][monthNo] = true;
+
+                const rowWorking = row.working_days == null ? null : Number(row.working_days);
+                if(Number.isFinite(rowWorking) && workingByMonth[monthNo] === undefined){
+                    workingByMonth[monthNo] = Math.max(0, rowWorking);
+                }
+
                 const present = row.present_days == null ? null : Number(row.present_days);
-                const working = row.working_days == null ? null : Number(row.working_days);
-                if(Number.isFinite(working) && workingByMonth[monthNo] === undefined) workingByMonth[monthNo] = Math.max(0, working);
-                if(Number.isFinite(present)) {
+                if(Number.isFinite(present)){
                     if(!presentByRecord[rid]) presentByRecord[rid] = {};
                     presentByRecord[rid][monthNo] = Math.max(0, present);
-                    hasAny = true;
                 }
             });
         }
     } catch(e) {
-        // Printing should still work even if attendance cannot be loaded.
+        // Printing must continue even when attendance data cannot be fetched.
     }
 
     ids.forEach(id => {
-        let working = 0, present = 0;
+        const rid = String(id);
+        let working = 0;
+        let present = 0;
+        let hasAny = false;
+
         months.forEach(monthNo => {
-            working += Number(workingByMonth[monthNo] || 0);
-            present += Number(presentByRecord[String(id)]?.[monthNo] || 0);
+            const monthWorking = Number(workingByMonth[monthNo] || 0);
+            const monthPresent = presentByRecord[rid]?.[monthNo];
+
+            working += monthWorking;
+            if(Number.isFinite(monthPresent)){
+                present += monthPresent;
+                hasAny = true;
+            } else if(hasRecordMonth[rid]?.[monthNo]) {
+                // A stored row with a null present value is still attendance
+                // data, but contributes zero present days.
+                hasAny = true;
+            }
         });
+
+        // If Working Days exist for the selected period, that is also useful
+        // attendance context even before a student has any present-day row.
+        if(!hasAny && working > 0) hasAny = true;
+
         present = Math.min(present, working || present);
         const absent = Math.max(0, working - present);
-        const hasRecordData = months.some(monthNo => presentByRecord[String(id)]?.[monthNo] !== undefined);
-        printAttendanceTotals[String(id)] = {
-            working, present, absent,
+        printAttendanceTotals[rid] = {
+            working,
+            present,
+            absent,
             pct: working ? (present / working) * 100 : 0,
-            hasAny: hasAny && hasRecordData
+            hasAny
         };
     });
 }
