@@ -320,6 +320,51 @@ logoutButton.addEventListener(
 ========================================================= */
 
 let lastActivityTimestamp = 0;
+let inactivityCountdownInterval = null;
+const sessionTimerElement = document.getElementById("sessionTimer");
+
+function formatInactivityTime(milliseconds) {
+
+    const totalSeconds = Math.max(
+        0,
+        Math.ceil(milliseconds / 1000)
+    );
+
+    const minutes = String(
+        Math.floor(totalSeconds / 60)
+    ).padStart(2, "0");
+
+    const seconds = String(
+        totalSeconds % 60
+    ).padStart(2, "0");
+
+    return `${minutes}:${seconds}`;
+
+}
+
+
+function updateInactivityDisplay() {
+
+    if (!sessionTimerElement) {
+        return;
+    }
+
+    if (!currentUser || !lastActivityTimestamp) {
+        sessionTimerElement.textContent = "15:00";
+        return;
+    }
+
+    const elapsed =
+        Date.now() - lastActivityTimestamp;
+
+    const remaining =
+        Math.max(0, INACTIVITY_LIMIT - elapsed);
+
+    sessionTimerElement.textContent =
+        formatInactivityTime(remaining);
+
+}
+
 
 function resetInactivityTimer(force = false) {
 
@@ -328,48 +373,53 @@ function resetInactivityTimer(force = false) {
     }
 
     const now = Date.now();
+
     if (!force && now - lastActivityTimestamp < 1000) {
         return;
     }
+
     lastActivityTimestamp = now;
 
+    updateInactivityDisplay();
 
     clearTimeout(
         inactivityTimer
     );
 
+    inactivityTimer = setTimeout(
+        async function() {
 
-    inactivityTimer =
-        setTimeout(
-            async function() {
+            inactivityTimer = null;
 
-                inactivityTimer = null;
+            // No warning and no unsaved-change prompt: the session
+            // expires automatically after 15 minutes of inactivity.
+            if (sessionTimerElement) {
+                sessionTimerElement.textContent = "00:00";
+            }
 
-                const continueLogout = async () => {
-                    await supabaseClient.auth.signOut();
-                    showLogin();
-                    showLoginError("You have been logged out because of 15 minutes of inactivity.");
-                };
+            stopInactivityTimer();
 
-                // Never discard an active Marks/Attendance edit silently when
-                // the inactivity timeout expires. Give the same Save & Leave /
-                // Leave Without Saving / Cancel protection used by navigation.
-                const protected = await protectUnsavedChanges(activeSection, continueLogout);
-                if (!protected && currentUser) {
-                    // The user chose Cancel, so restart the 15-minute timer.
-                    resetInactivityTimer(true);
-                }
+            await supabaseClient.auth.signOut();
+            showLogin();
 
-            },
-            INACTIVITY_LIMIT
-        );
+        },
+        INACTIVITY_LIMIT
+    );
 
 }
 
 
 function startInactivityTimer() {
 
+    stopInactivityTimer();
+
     resetInactivityTimer(true);
+
+    inactivityCountdownInterval =
+        setInterval(
+            updateInactivityDisplay,
+            1000
+        );
 
 }
 
@@ -383,7 +433,18 @@ function stopInactivityTimer() {
     inactivityTimer =
         null;
 
+    clearInterval(
+        inactivityCountdownInterval
+    );
+
+    inactivityCountdownInterval =
+        null;
+
     lastActivityTimestamp = 0;
+
+    if (sessionTimerElement) {
+        sessionTimerElement.textContent = "15:00";
+    }
 
 }
 
