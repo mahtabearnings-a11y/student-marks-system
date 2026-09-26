@@ -888,3 +888,63 @@
     background: transparent !important;
   }
 }
+
+
+/* =========================================================
+   RESULT/FOLIO PRINT CORRECTION
+   - Preserve the approved logo position above; do not override it here.
+   - Force Times New Roman throughout printed Results and Mark Folios.
+   - Restore the signature lines at the bottom of each Student Result.
+   - Keep attendance in separate student-information rows.
+========================================================= */
+@media print {
+  .result-page,
+  .result-page * {
+    font-family: "Times New Roman", Times, serif !important;
+  }
+
+  .result-signatures {
+    position: absolute !important;
+    left: 10mm !important;
+    right: 10mm !important;
+    bottom: 6mm !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 24mm !important;
+    align-items: end !important;
+    z-index: 3 !important;
+  }
+
+  .result-signature-box {
+    min-width: 0 !important;
+    text-align: center !important;
+  }
+
+  .result-signature-line {
+    width: 52mm !important;
+    max-width: 100% !important;
+    margin: 0 auto 1.4mm !important;
+    border-top: 1pt solid #333 !important;
+    height: 0 !important;
+  }
+
+  .result-signature-label {
+    margin: 0 !important;
+    font-size: 11pt !important;
+    line-height: 1.05 !important;
+    font-weight: 700 !important;
+    color: #18345c !important;
+    white-space: nowrap !important;
+  }
+
+  .result-attendance-item,
+  .result-attendance-period,
+  .result-attendance-row {
+    min-width: 0 !important;
+  }
+
+  .result-attendance-period span,
+  .result-attendance-row span {
+    text-align: left !important;
+  }
+}
