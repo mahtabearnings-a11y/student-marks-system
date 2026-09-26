@@ -75,75 +75,80 @@ body:not(.auth-ready) #appPage {
 
 <div id="appPage" class="hidden">
 
-    <div class="app-layout">
+    <div class="app-shell">
 
-        <aside class="sidebar" aria-label="Main navigation">
-            <div class="sidebar-brand">
-                <img src="school-logo.png" alt="U.M.S Sasauli Urdu School Logo">
-                <div>
-                    <div class="sidebar-school-title">U.M.S SASAULI URDU</div>
-                    <div class="sidebar-school-subtitle">Student Management System</div>
+        <header class="topbar">
+
+            <div class="topbar-brand">
+                <img src="app-logo.svg" class="app-logo" alt="UMS Sasauli Urdu">
+                <div class="topbar-brand-text">
+                    <div class="school-title">U.M.S SASAULI URDU</div>
+                    <div class="school-subtitle">Student Management System</div>
                 </div>
             </div>
 
-            <nav class="navbar" aria-label="Primary navigation">
-
-                <button class="nav-btn active" data-section="dashboard">
-                    <span class="nav-icon" aria-hidden="true">⌂</span><span>Dashboard</span>
-                </button>
-
-                <button class="nav-btn" data-section="students">
-                    <span class="nav-icon" aria-hidden="true">♙</span><span>Students</span>
-                </button>
-
-                <button class="nav-btn" data-section="marks">
-                    <span class="nav-icon" aria-hidden="true">▤</span><span>Marks</span>
-                </button>
-
-                <button class="nav-btn" data-section="attendance">
-                    <span class="nav-icon" aria-hidden="true">◫</span><span>Attendance</span>
-                </button>
-
-                <button class="nav-btn" data-section="promotion">
-                    <span class="nav-icon" aria-hidden="true">↗</span><span>Promotion</span>
-                </button>
-
-                <button id="recycleBinNavButton" class="nav-btn hidden" data-section="recycleBin">
-                    <span class="nav-icon" aria-hidden="true">▢</span><span>Recycle Bin</span>
-                </button>
-
-                <button class="nav-btn" data-section="backup">
-                    <span class="nav-icon" aria-hidden="true">↥</span><span>Backup</span>
-                </button>
-
-            </nav>
-
-            <div class="sidebar-footer">
-                <div class="sidebar-footer-label">Academic Session</div>
-                <div class="sidebar-footer-value" id="sidebarAcademicSession">—</div>
+            <div class="topbar-search" role="search" aria-label="Search">
+                <span class="topbar-search-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.2 4.2"></path></svg>
+                </span>
+                <span class="topbar-search-text">Search students, roll no., class...</span>
             </div>
-        </aside>
 
-        <div class="app-body">
-            <header class="topbar">
-                <div class="topbar-left">
-                    <div class="topbar-search" role="search" aria-label="Search">
-                        <span class="topbar-search-icon" aria-hidden="true">⌕</span>
-                        <span class="topbar-search-text">Search students, roll no., class...</span>
-                    </div>
+            <div class="user-area">
+                <button type="button" class="theme-placeholder" aria-label="Theme">
+                    <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="4.1"></circle><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.55 1.55M17.85 17.85l1.55 1.55M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.55-1.55M17.85 6.15l1.55-1.55"></path></svg>
+                </button>
+                <button type="button" class="theme-placeholder" aria-label="Dark mode">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M14.9 3.2a7.9 7.9 0 1 0 5.9 13.1A8.2 8.2 0 0 1 14.9 3.2Z"></path></svg>
+                </button>
+                <span class="user-avatar" aria-hidden="true">MR</span>
+                <div class="user-details">
+                    <span id="userEmail" class="user-email"></span>
+                    <span id="roleBadge" class="role-badge"></span>
                 </div>
+                <button id="logoutButton" class="logout-btn">Logout</button>
+            </div>
 
-                <div class="user-area">
-                    <button type="button" class="theme-placeholder" aria-label="Theme">☼</button>
-                    <button type="button" class="theme-placeholder" aria-label="Dark mode">◐</button>
-                    <span class="user-avatar" aria-hidden="true">MR</span>
-                    <div class="user-details">
-                        <span id="userEmail" class="user-email"></span>
-                        <span id="roleBadge" class="role-badge"></span>
-                    </div>
-                    <button id="logoutButton" class="logout-btn">Logout</button>
-                </div>
-            </header>
+        </header>
+
+        <nav class="navbar" aria-label="Primary navigation">
+
+            <button class="nav-btn active" data-section="dashboard">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3.5 10.7 12 3.8l8.5 6.9V20a1 1 0 0 1-1 1h-5.2v-5.1h-4.6V21H4.5a1 1 0 0 1-1-1z"></path><path d="M8.2 11.2h7.6"></path></svg></span>
+                <span>Dashboard</span>
+            </button>
+
+            <button class="nav-btn" data-section="students">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="8.2" r="3.1"></circle><path d="M3.7 19.8c.4-3.1 2.3-5 5.3-5s4.9 1.9 5.3 5"></path><path d="M15.1 6.1a3 3 0 0 1 4.2 2.8 3 3 0 0 1-2.2 2.9M16 15.2c2.3.4 3.7 1.8 4.2 4"></path></svg></span>
+                <span>Students</span>
+            </button>
+
+            <button class="nav-btn" data-section="marks">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 7.8h7M8.5 11.5h7M8.5 15.2h4.2"></path></svg></span>
+                <span>Marks</span>
+            </button>
+
+            <button class="nav-btn" data-section="attendance">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="4" y="5.5" width="16" height="14.5" rx="2"></rect><path d="M8 3.5v4M16 3.5v4M4 9.5h16M8 13h2M12 13h2M16 13h0M8 16.5h2M12 16.5h2"></path></svg></span>
+                <span>Attendance</span>
+            </button>
+
+            <button class="nav-btn" data-section="promotion">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 17.5 17.5 6M9.5 6H18v8.5"></path><path d="M5 20h13.5"></path></svg></span>
+                <span>Promotion</span>
+            </button>
+
+            <button id="recycleBinNavButton" class="nav-btn hidden" data-section="recycleBin">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5.5 7h13M9 7V4.5h6V7M8 10.5v7M12 10.5v7M16 10.5v7"></path><path d="m6.5 7 .8 13h9.4l.8-13"></path></svg></span>
+                <span>Recycle Bin</span>
+            </button>
+
+            <button class="nav-btn" data-section="backup">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 4v10"></path><path d="m8 10 4 4 4-4"></path><path d="M5 19.5h14"></path></svg></span>
+                <span>Backup</span>
+            </button>
+
+        </nav>
 
     <main class="main-content">
 
@@ -849,6 +854,8 @@ body:not(.auth-ready) #appPage {
 
 
     </main>
+
+    </div>
 
 </div>
 
