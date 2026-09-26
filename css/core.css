@@ -564,69 +564,6 @@ table {
     min-width: 1050px;
 }
 
-/* Shared data-table treatment: Students, Marks and Attendance */
-.student-table,
-.marks-table,
-.attendance-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    background: #fff;
-}
-
-.student-table th,
-.student-table td,
-.marks-table th,
-.marks-table td,
-.attendance-table th,
-.attendance-table td {
-    border-right: 1px solid #dbe3ee;
-    border-bottom: 1px solid #dbe3ee;
-    white-space: nowrap;
-}
-
-.student-table th,
-.marks-table th,
-.attendance-table th {
-    background: #eef4fb;
-    color: #123b73;
-    font-size: 14px;
-    padding: 9px 8px;
-    position: sticky;
-    top: 0;
-    z-index: 5;
-}
-
-.student-table td,
-.marks-table td,
-.attendance-table td {
-    font-size: 12pt;
-    padding: 9px 8px;
-}
-
-.student-table tbody tr:hover td,
-.marks-table tbody tr:hover td,
-.attendance-table tbody tr:hover td {
-    background: #f8fafc;
-}
-
-.student-table th:first-child,
-.student-table td:first-child,
-.marks-table th:first-child,
-.marks-table td:first-child,
-.attendance-table th:first-child,
-.attendance-table td:first-child {
-    border-left: 0;
-}
-
-.student-table th:last-child,
-.student-table td:last-child,
-.marks-table th:last-child,
-.marks-table td:last-child,
-.attendance-table th:last-child,
-.attendance-table td:last-child {
-    border-right: 0;
-}
-
 th {
     background: #f8fafc;
     color: #374151;
@@ -1228,7 +1165,7 @@ tbody tr:hover {
 
 .marks-grid-wrapper{display:block;width:100%;max-width:100%;overflow-x:auto;overflow-y:clip;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;border:1px solid #dbe3ee;border-radius:10px;background:#fff}
 .marks-table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;font-size:13px;background:#fff}
-.marks-table th,.marks-table td{border-right:1px solid #dbe3ee;border-bottom:1px solid #dbe3ee;padding:9px 8px;text-align:center;white-space:nowrap}
+.marks-table th,.marks-table td{border-right:1px solid #dbe3ee;border-bottom:1px solid #dbe3ee;padding:7px 8px;text-align:center;white-space:nowrap}
 .marks-table th:first-child,.marks-table td:first-child{border-left:0}
 .marks-table tr:first-child th{border-top:0}
 .marks-table th{background:#eef4fb;color:#123b73;position:sticky;top:0;z-index:10;font-size:14px}
@@ -1262,35 +1199,6 @@ tbody tr:hover {
 .dashboard-overview-table{min-width:0 !important;width:100% !important}
 .dashboard-overview-table th,.dashboard-overview-table td{text-align:center}
 .dashboard-overview-table th:nth-child(2){text-align:center}
-.student-table {
-    min-width: 1200px;
-}
-.student-table th:nth-child(1),
-.student-table td:nth-child(1) {
-    position: sticky;
-    left: 0;
-    z-index: 7;
-    background: #fff;
-    min-width: 58px;
-    width: 58px;
-    text-align: center;
-}
-.student-table th:nth-child(2),
-.student-table td:nth-child(2) {
-    position: sticky;
-    left: 58px;
-    z-index: 7;
-    background: #fff;
-    min-width: 125px;
-    width: 125px;
-    text-align: left;
-    box-shadow: 2px 0 4px rgba(0,0,0,.06);
-}
-.student-table th:nth-child(1),
-.student-table th:nth-child(2) {
-    background: #eef4fb;
-    z-index: 9;
-}
 .attendance-grid-wrapper{width:100%;overflow:auto;-webkit-overflow-scrolling:touch;max-height:65vh}
 .attendance-table{min-width:980px;border-collapse:separate;border-spacing:0}
 .attendance-table th,.attendance-table td{white-space:nowrap}
@@ -1300,7 +1208,7 @@ tbody tr:hover {
 .attendance-table th:nth-child(1),.attendance-table th:nth-child(2){background:#eef4fb;z-index:9}
 .attendance-table .attendance-input{background:#fff}
 .attendance-table .attendance-input:focus{outline:2px solid #7aa7d9}
-@media(max-width:700px){.student-table th:nth-child(2),.student-table td:nth-child(2){left:58px;min-width:115px;width:115px}.student-table th:nth-child(1),.student-table td:nth-child(1){min-width:58px;width:58px}.topbar-credit{font-size:10px}.dashboard-overview-table{font-size:12px}.attendance-grid-wrapper{max-height:62vh}.attendance-table th:nth-child(2),.attendance-table td:nth-child(2){left:58px;min-width:155px;width:155px}.attendance-table th:nth-child(1),.attendance-table td:nth-child(1){min-width:58px;width:58px}}
+@media(max-width:700px){.topbar-credit{font-size:10px}.dashboard-overview-table{font-size:12px}.attendance-grid-wrapper{max-height:62vh}.attendance-table th:nth-child(2),.attendance-table td:nth-child(2){left:58px;min-width:155px;width:155px}.attendance-table th:nth-child(1),.attendance-table td:nth-child(1){min-width:58px;width:58px}}
 
 /* =========================================================
    PROMOTION MODULE
@@ -1700,3 +1608,62 @@ th { font-size: 14pt; }
     white-space:nowrap;
 }
 .promotion-select-all-label input{width:18px;height:18px;accent-color:#2563eb}
+
+/* Students table: match Attendance table treatment without changing table behavior */
+.student-grid-wrapper {
+    width: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    max-height: 65vh;
+}
+.student-table {
+    min-width: 1200px;
+    width: max-content;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+}
+.student-table th,
+.student-table td {
+    border-right: 1px solid #dbe3ee;
+    border-bottom: 1px solid #dbe3ee;
+    white-space: nowrap;
+}
+.student-table th {
+    background: #eef4fb;
+    color: #123b73;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    font-size: 14px;
+    padding: 9px 8px;
+}
+.student-table td {
+    font-size: 12pt;
+    padding: 9px 8px;
+}
+.student-table th.sticky-roll,
+.student-table td.sticky-roll {
+    position: sticky;
+    left: 0;
+    min-width: 58px;
+    width: 58px;
+    text-align: center;
+    z-index: 7;
+    background: #fff;
+}
+.student-table th.sticky-roll { background: #eef4fb; z-index: 9; }
+.student-table tbody tr:hover td { background: #f8fafc; }
+
+/* Marks: retain its functional sticky Roll/Name behavior, but match Attendance visuals */
+.marks-grid-wrapper { max-height: 65vh; overflow: auto; }
+.marks-table th,
+.marks-table td { border-right: 1px solid #dbe3ee; border-bottom: 1px solid #dbe3ee; }
+.marks-table th { background: #eef4fb; color: #123b73; padding: 9px 8px; }
+.marks-table td { padding: 9px 8px; font-size: 12pt; }
+@media(max-width:700px){
+  .student-grid-wrapper { max-height: 62vh; }
+  .student-table th.sticky-roll,
+  .student-table td.sticky-roll { min-width: 58px; width: 58px; }
+  .marks-grid-wrapper { max-height: 62vh; }
+}
