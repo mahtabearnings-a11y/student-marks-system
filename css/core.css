@@ -2010,3 +2010,335 @@ th { font-size: 14pt; }
         padding: 16px 12px 28px;
     }
 }
+
+/* =========================================================
+   STEP 2 — HORIZONTAL APP NAVIGATION
+   Clean horizontal tabs + improved digital app mark/icons.
+========================================================= */
+#appPage {
+    min-height: 100vh;
+    background: #f6f8fc;
+}
+
+.app-shell {
+    min-height: 100vh;
+    width: 100%;
+}
+
+.app-shell .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    min-height: 74px;
+    display: grid;
+    grid-template-columns: minmax(250px, auto) minmax(260px, 1fr) auto;
+    align-items: center;
+    gap: 22px;
+    padding: 12px 28px;
+    background: rgba(255,255,255,.97);
+    color: #16233a;
+    border-bottom: 1px solid #e7ebf2;
+    box-shadow: 0 3px 18px rgba(19,39,69,.05);
+    backdrop-filter: blur(12px);
+}
+
+.topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+}
+
+.app-logo {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    display: block;
+    object-fit: contain;
+}
+
+.topbar-brand-text {
+    min-width: 0;
+}
+
+.app-shell .school-title {
+    color: #123b73;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: .1px;
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+.app-shell .school-subtitle {
+    color: #7b8799;
+    font-size: 11px;
+    margin-top: 3px;
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+.app-shell .topbar-search {
+    width: min(560px, 100%);
+    justify-self: center;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 13px;
+    border: 1px solid #d4ddea;
+    border-radius: 11px;
+    background: #f8fafc;
+    color: #8a97aa;
+}
+
+.app-shell .topbar-search-icon {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    display: inline-flex;
+    color: #64748b;
+}
+
+.app-shell .topbar-search-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.app-shell .topbar-search-text {
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.app-shell .user-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.app-shell .theme-placeholder {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d9e1ed;
+    border-radius: 9px;
+    background: #fff;
+    color: #56657a;
+}
+
+.app-shell .theme-placeholder svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.app-shell .user-avatar {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #334155;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.app-shell .user-details {
+    min-width: 105px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+.app-shell .user-email {
+    color: #16233a;
+    font-size: 12px;
+    font-weight: 700;
+    max-width: 175px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-shell .role-badge {
+    padding: 0;
+    background: transparent;
+    color: #7b8799;
+    font-size: 10px;
+}
+
+.app-shell .logout-btn {
+    margin-left: 2px;
+    border-color: #d4ddea;
+    background: #fff;
+    color: #42536b;
+    padding: 8px 11px;
+    border-radius: 9px;
+}
+
+.app-shell .logout-btn:hover,
+.app-shell .theme-placeholder:hover {
+    background: #f6f8fb;
+}
+
+.app-shell > .navbar {
+    position: sticky;
+    top: 74px;
+    z-index: 35;
+    min-height: 58px;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 22px;
+    overflow-x: auto;
+    background: #fff;
+    border-bottom: 1px solid #e5e9f0;
+    box-shadow: 0 2px 10px rgba(20,40,70,.035);
+    scrollbar-width: thin;
+}
+
+.app-shell > .navbar .nav-btn {
+    min-height: 58px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: #667388;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: color .16s ease, background .16s ease, border-color .16s ease;
+}
+
+.app-shell > .navbar .nav-btn:hover {
+    color: #1d5fd1;
+    background: #f7faff;
+}
+
+.app-shell > .navbar .nav-btn.active {
+    color: #155eef;
+    background: #f4f8ff;
+    border-bottom-color: #155eef;
+}
+
+.app-shell > .navbar .nav-icon {
+    width: 19px;
+    height: 19px;
+    flex: 0 0 19px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: currentColor;
+}
+
+.app-shell > .navbar .nav-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.app-shell .main-content {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 26px 28px 38px;
+}
+
+.app-shell .page-header {
+    margin-bottom: 22px;
+}
+
+.app-shell .page-header h2 {
+    color: #16233a;
+    font-size: 27px;
+    letter-spacing: -.02em;
+}
+
+@media (max-width: 1000px) {
+    .app-shell .topbar {
+        grid-template-columns: minmax(215px, auto) 1fr auto;
+        gap: 14px;
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .app-shell .user-details {
+        display: none;
+    }
+
+    .app-shell > .navbar {
+        justify-content: flex-start;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+@media (max-width: 720px) {
+    .app-shell .topbar {
+        position: static;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "brand actions"
+            "search search";
+        gap: 10px 12px;
+        padding: 12px 14px;
+    }
+
+    .app-shell .topbar-brand { grid-area: brand; }
+    .app-shell .topbar-search { grid-area: search; width: 100%; }
+    .app-shell .user-area { grid-area: actions; }
+
+    .app-shell .school-title { font-size: 15px; }
+    .app-shell .school-subtitle { font-size: 10px; }
+    .app-logo { width: 40px; height: 40px; flex-basis: 40px; }
+
+    .app-shell > .navbar {
+        position: static;
+        min-height: 52px;
+        padding: 0 8px;
+    }
+
+    .app-shell > .navbar .nav-btn {
+        min-height: 52px;
+        padding: 0 12px;
+        font-size: 12px;
+    }
+
+    .app-shell .main-content {
+        padding: 20px 14px 30px;
+    }
+}
+
+@media (max-width: 470px) {
+    .app-shell .theme-placeholder { display: none; }
+    .app-shell .logout-btn { padding: 7px 9px; font-size: 11px; }
+    .app-shell .topbar-search-text { font-size: 12px; }
+}
