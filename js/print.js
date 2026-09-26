@@ -25,133 +25,6 @@ function populatePrintSessions() {
 }
 
 function printClassName(n){ return className(Number(n)); }
-let printAttendanceTotals = {};
-let printAttendancePeriod = "April–September";
-
-function getPrintAttendanceMonthRange(exam){
-    if(exam === "Annual") return [7,8,9,10,11,12];
-    if(exam === "Final") return Array.from({length:12}, (_,i)=>i+1);
-    return [1,2,3,4,5,6];
-}
-
-function getPrintAttendancePeriod(exam){
-    if(exam === "Annual") return "Oct – Mar";
-    if(exam === "Final") return "Apr – Mar";
-    return "Apr – Sept";
-}
-
-function getPrintAttendance(recordId){
-    return printAttendanceTotals[String(recordId)] || {working:0,present:0,absent:0,pct:0,hasAny:false};
-}
-
-async function loadPrintAttendanceData(){
-    printAttendanceTotals = {};
-    printAttendancePeriod = getPrintAttendancePeriod(printExam?.value || "Half-Yearly");
-
-    // Keep academic record IDs exactly as returned by Supabase. Do not coerce
-    // them to Number because some installations may use UUID/text IDs.
-    const ids = (printStudents || [])
-        .map(r => r?.id)
-        .filter(id => id !== undefined && id !== null && String(id) !== "");
-
-    if(!ids.length || typeof supabaseClient === "undefined") return;
-
-    const months = getPrintAttendanceMonthRange(printExam?.value || "Half-Yearly");
-    const workingByMonth = {};
-    const presentByRecord = {};
-    const hasRecordMonth = {};
-
-    // Use the selected print session when available. This is the Marks-page
-    // session and is normally the exact session of the printed results.
-    const sessionId = printSession?.value ? String(printSession.value) : String(printStudents[0]?.session_id || "");
-
-    try {
-        if(sessionId){
-            const { data: workingRows, error: workingError } = await supabaseClient
-                .from("monthly_working_days")
-                .select("month_no, working_days")
-                .eq("session_id", sessionId)
-                .in("month_no", months);
-
-            if(!workingError){
-                (workingRows || []).forEach(row => {
-                    const monthNo = Number(row.month_no);
-                    const days = row.working_days == null ? null : Number(row.working_days);
-                    if(Number.isFinite(days)) workingByMonth[monthNo] = Math.max(0, days);
-                });
-            }
-        }
-
-        // Pull the actual student attendance records. The Attendance page
-        // stores present_days per academic_record_id and month_no.
-        const { data: attendanceRows, error: attendanceError } = await supabaseClient
-            .from("monthly_attendance")
-            .select("academic_record_id, month_no, present_days, working_days")
-            .in("academic_record_id", ids)
-            .in("month_no", months);
-
-        if(!attendanceError){
-            (attendanceRows || []).forEach(row => {
-                const rid = String(row.academic_record_id);
-                const monthNo = Number(row.month_no);
-                if(!months.includes(monthNo)) return;
-
-                if(!hasRecordMonth[rid]) hasRecordMonth[rid] = {};
-                hasRecordMonth[rid][monthNo] = true;
-
-                const rowWorking = row.working_days == null ? null : Number(row.working_days);
-                if(Number.isFinite(rowWorking) && workingByMonth[monthNo] === undefined){
-                    workingByMonth[monthNo] = Math.max(0, rowWorking);
-                }
-
-                const present = row.present_days == null ? null : Number(row.present_days);
-                if(Number.isFinite(present)){
-                    if(!presentByRecord[rid]) presentByRecord[rid] = {};
-                    presentByRecord[rid][monthNo] = Math.max(0, present);
-                }
-            });
-        }
-    } catch(e) {
-        // Printing must continue even when attendance data cannot be fetched.
-    }
-
-    ids.forEach(id => {
-        const rid = String(id);
-        let working = 0;
-        let present = 0;
-        let hasAny = false;
-
-        months.forEach(monthNo => {
-            const monthWorking = Number(workingByMonth[monthNo] || 0);
-            const monthPresent = presentByRecord[rid]?.[monthNo];
-
-            working += monthWorking;
-            if(Number.isFinite(monthPresent)){
-                present += monthPresent;
-                hasAny = true;
-            } else if(hasRecordMonth[rid]?.[monthNo]) {
-                // A stored row with a null present value is still attendance
-                // data, but contributes zero present days.
-                hasAny = true;
-            }
-        });
-
-        // If Working Days exist for the selected period, that is also useful
-        // attendance context even before a student has any present-day row.
-        if(!hasAny && working > 0) hasAny = true;
-
-        present = Math.min(present, working || present);
-        const absent = Math.max(0, working - present);
-        printAttendanceTotals[rid] = {
-            working,
-            present,
-            absent,
-            pct: working ? (present / working) * 100 : 0,
-            hasAny
-        };
-    });
-}
-
 
 function printGrade(p){ return gradeFromPercentage(p); }
 
@@ -251,11 +124,6 @@ function resultHeaderHtml(){
 
 function resultInfoHtml(record, student){
     const name = String(student.student_name || "");
-    const a = getPrintAttendance(record.id);
-    const attendanceValue = (a.hasAny || a.working > 0) ? String(a.working) : "—";
-    const presentValue = (a.hasAny || a.working > 0) ? String(a.present) : "—";
-    const absentValue = (a.hasAny || a.working > 0) ? String(a.absent) : "—";
-    const pctValue = (a.hasAny || a.working > 0) ? `${a.pct.toFixed(2)}%` : "—";
     return `<div class="result-info">
         <div class="result-info-column">
             <div class="result-info-item"><b>PEN / Student ID:</b><span>${escapeHtml(student.student_id||"")}</span></div>
@@ -267,11 +135,6 @@ function resultInfoHtml(record, student){
         <div class="result-info-column">
             <div class="result-info-item"><b>Father's Name:</b><span class="long-value">${escapeHtml(student.father_name||"")}</span></div>
             <div class="result-info-item"><b>Mother's Name:</b><span class="long-value">${escapeHtml(student.mother_name||"")}</span></div>
-            <div class="result-info-item result-attendance-period"><b>Attendance:</b><span>${escapeHtml(printAttendancePeriod)}</span></div>
-            <div class="result-info-item result-attendance-row"><b>Working Days:</b><span>${escapeHtml(attendanceValue)}</span></div>
-            <div class="result-info-item result-attendance-row"><b>Present:</b><span>${escapeHtml(presentValue)}</span></div>
-            <div class="result-info-item result-attendance-row"><b>Absent:</b><span>${escapeHtml(absentValue)}</span></div>
-            <div class="result-info-item result-attendance-row"><b>Attendance %:</b><span>${escapeHtml(pctValue)}</span></div>
         </div>
     </div>`;
 }
@@ -283,19 +146,6 @@ function resultSummaryHtml(calc, rank){
         <div class="result-summary-card"><span>Grade</span><strong>${escapeHtml(calc.grade||"")}</strong></div>
         <div class="result-summary-card"><span>Class Rank</span><strong>#${rank}</strong></div>
         <div class="result-summary-card"><span>Result</span><strong>${escapeHtml(result)}</strong></div>
-    </div>`;
-}
-
-function resultSignatureHtml(){
-    return `<div class="result-signatures">
-        <div class="result-signature-box">
-            <div class="result-signature-line"></div>
-            <div class="result-signature-label">Class Teacher's Signature</div>
-        </div>
-        <div class="result-signature-box">
-            <div class="result-signature-line"></div>
-            <div class="result-signature-label">Headmaster's Signature</div>
-        </div>
     </div>`;
 }
 
@@ -315,22 +165,20 @@ function resultHtml(record,pageNo,totalPages){
             ${resultInfoHtml(record,s)}
             <table class="result-table result-table-standard"><colgroup><col class="serial-col"><col class="subject-col"><col class="marks-col"><col class="full-col"></colgroup><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table>
             ${resultSummaryHtml(c,rank)}
-            ${resultSignatureHtml()}
         </div>`;
     }
-    const markHeader=`<th>Half-Yearly<br>/ 50</th><th>Annual<br>/ 50</th><th>Full Marks</th>`;
+    const markHeader=`<th>Half-Yearly / 50</th><th>Annual / 50</th><th>Full Marks</th>`;
     const rows=printSubjects.map((sub,index)=>{
         const hv=getPrintMark(record.id,sub.id,"Half-Yearly"), av=getPrintMark(record.id,sub.id,"Annual");
         return `<tr><td class="serial-cell">${index+1}</td><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${hv??""}</td><td>${av??""}</td><td>100</td></tr>`;
     }).join("");
-    const tableHeader=`<tr><th>Sl.<br>No.</th><th>Subject</th>${markHeader}</tr>`;
+    const tableHeader=`<tr><th>Sl. No.</th><th>Subject</th>${markHeader}</tr>`;
     const summaryRows=`<tr class="result-total-row"><th colspan="2">Total</th><td>${c.total}</td><td></td><td>${c.max}</td></tr>`;
     return `<div class="result-page">
         ${resultHeaderHtml()}
         ${resultInfoHtml(record,s)}
         <table class="result-table final-result-table"><colgroup><col class="serial-col"><col class="subject-col"><col class="marks-col"><col class="marks-col"><col class="full-col"></colgroup><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table>
         ${resultSummaryHtml(c,rank)}
-        ${resultSignatureHtml()}
     </div>`;
 }
 function calcRank(record){ const ranked=printStudents.map(r=>({r,c:calcPrintRecord(r)})).sort((a,b)=>b.c.total-a.c.total||b.c.pct-a.c.pct||Number(a.r.roll_no??999999)-Number(b.r.roll_no??999999)); return ranked.findIndex(x=>x.r.id===record.id)+1; }
@@ -379,16 +227,14 @@ function getPrintSortedStudents(){
     });
 }
 
-async function printOneStudent(){
+function printOneStudent(){
     const r=printStudents.find(x=>String(x.id)===String(printStudentSelect.value));
     if(!r){showToast("Please select a student.","error");return;}
-    await loadPrintAttendanceData();
     const studentName=(r.students?.student_name||"Student").trim();
     openPrint(resultHtml(r,1,1), `${studentName} Marks Result`);
 }
-async function printAllStudents(){
+function printAllStudents(){
     if(!printStudents.length){showToast("No students found.","error");return;}
-    await loadPrintAttendanceData();
     const ordered=getPrintSortedStudents();
     const total=ordered.length;
     const classLabel=printClassName(Number(printClass.value));
@@ -409,7 +255,7 @@ function autoFitFolioTable(table){
     // columns keep practical widths and all subject columns share the rest.
     const printableWidth = 194;
     const fixed = {
-        serial: 8,
+        serial: 10,
         roll: 10,
         name: 55,
         total: 14,
@@ -453,7 +299,7 @@ function printClassFolio(){
         const subjectLabel=escapeHtml(s.subject_name).replace(/\s+/g,"<br>");
         return `<th class="folio-subject-head folio-rotated-head"><div class="folio-subject-name-wrap"><span class="folio-subject-name">${subjectLabel}</span></div><small>${printExam.value==="Final"?100:50}</small></th>`;
     }).join("");
-    const slHead='<th class="folio-rotated-head"><span class="folio-head-label">Sl.</span></th>';
+    const slHead='<th class="folio-rotated-head"><span class="folio-head-label">Sl.<br>No.</span></th>';
     const rollHead='<th class="folio-rotated-head"><span class="folio-head-label">Roll</span></th>';
     const nameHead='<th class="folio-rotated-head"><span class="folio-head-label">Student Name</span></th>';
     const totalHead='<th class="folio-rotated-head"><span class="folio-head-label">Total</span></th>';
