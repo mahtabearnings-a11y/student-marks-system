@@ -571,6 +571,7 @@ function destroyFrozenTableHeader(container) {
     if (!state) return;
 
     window.removeEventListener("scroll", state.update, true);
+    document.removeEventListener("scroll", state.update, true);
     window.removeEventListener("resize", state.update, true);
     window.removeEventListener("orientationchange", state.update, true);
     container.removeEventListener("scroll", state.update, true);
@@ -639,7 +640,14 @@ function setupFrozenTableHeader(containerOrId) {
         const clonedCells = Array.from(clonedRow?.children || []);
         const headerRect = headerRow.getBoundingClientRect();
 
-        host.style.left = `${containerRect.left}px`;
+        /* Use document coordinates instead of viewport-fixed coordinates.
+           This remains aligned when Android desktop-mode/browser zoom changes
+           the visual viewport. */
+        const vv = window.visualViewport;
+        const pageX = window.scrollX + (vv ? vv.offsetLeft : 0);
+        const pageY = window.scrollY + (vv ? vv.offsetTop : 0);
+        host.style.left = `${Math.max(0, containerRect.left + pageX)}px`;
+        host.style.top = `${Math.max(0, pageY)}px`;
         host.style.width = `${Math.max(0, container.clientWidth)}px`;
         host.style.height = `${Math.max(1, headerRect.height)}px`;
 
@@ -742,6 +750,7 @@ function setupFrozenTableHeader(containerOrId) {
     }
 
     window.addEventListener("scroll", update, true);
+    document.addEventListener("scroll", update, true);
     window.addEventListener("resize", update, true);
     window.addEventListener("orientationchange", update, true);
     container.addEventListener("scroll", update, true);

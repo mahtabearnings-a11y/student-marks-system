@@ -85,58 +85,42 @@ function renderAttendanceMonthButtons() {
 function renderAttendanceWorkingDaysInputs() {
     if (!attendanceWorkingDaysContainer) return;
     if (!attendanceSelectedMonths.length) {
-        attendanceWorkingDaysContainer.innerHTML = `<div class="attendance-working-days-empty">Select month(s) above to enter Working Days once per month.</div>`;
+        attendanceWorkingDaysContainer.innerHTML = `<div class="attendance-working-days-empty">Select month(s) above to enter Working Days once per month. Use Save Attendance to save changes.</div>`;
         return;
     }
     attendanceWorkingDaysContainer.innerHTML = attendanceSelectedMonths.map(monthNo => `
         <div class="attendance-working-day-item">
             <label for="attendanceWorkingDay_${monthNo}">${attendanceMonthNames[monthNo - 1]}</label>
-            <input id="attendanceWorkingDay_${monthNo}" class="attendance-working-day-input" type="text" inputmode="numeric" autocomplete="off" pattern="\d*" maxlength="2" value="${attendanceWorkingDays[monthNo] ?? ""}" data-working-month="${monthNo}" aria-label="Working Days for ${attendanceMonthNames[monthNo - 1]}">
+            <input id="attendanceWorkingDay_${monthNo}" class="attendance-working-day-input" type="text" inputmode="numeric" autocomplete="off" pattern="\\d*" maxlength="2" value="${attendanceWorkingDays[monthNo] ?? ""}" data-working-month="${monthNo}" aria-label="Working Days for ${attendanceMonthNames[monthNo - 1]}">
         </div>
     `).join("");
     attendanceWorkingDaysContainer.querySelectorAll("input[data-working-month]").forEach(input => {
         const monthNo = Number(input.dataset.workingMonth);
         input.max = String(attendanceMaxDays(monthNo));
-        input.title = `Maximum ${attendanceMaxDays(monthNo)} working days for ${attendanceMonthNames[monthNo - 1]}.`;
+        input.title = `Maximum ${attendanceMaxDays(monthNo)} working days for ${attendanceMonthNames[monthNo - 1]}. Changes are saved with Save Attendance.`;
         input.addEventListener("input", async () => {
-            const previous = attendanceWorkingDays[monthNo];
             if (isAcademicSessionClosed(attendanceSession.value) && !hasAcademicSessionEditUnlock(attendanceSession.value)) {
                 const allowed = await ensureAcademicSessionEditable(attendanceSession.value, "edit Attendance");
                 if (!allowed) {
-                    input.value = previous === undefined ? "" : String(previous);
+                    input.value = attendanceWorkingDays[monthNo] === undefined ? "" : String(attendanceWorkingDays[monthNo]);
                     return;
                 }
             }
             const raw = String(input.value ?? "").trim();
             if (raw === "") {
-                const hasPresent = attendanceStudents.some(record => attendanceData[`${record.id}_${monthNo}`]?.present_days !== undefined);
-                if (hasPresent) {
-                    input.value = previous === undefined ? "" : String(previous);
-                    showToast(`Clear Present Days for ${attendanceMonthNames[monthNo]} before clearing Working Days.`, "error");
-                    return;
-                }
                 delete attendanceWorkingDays[monthNo];
-                captureAttendanceDirtyStateOnly();
-                return;
+            } else {
+                /* Do not validate against Present Days while typing. A user must
+                   be able to change 29 -> 2 -> 21 without triggering a false
+                   error. Full Working Days validation happens on Save. */
+                const n = Number(raw);
+                attendanceWorkingDays[monthNo] = Number.isFinite(n) ? n : raw;
             }
-            const n = Number(raw);
-            const max = attendanceMaxDays(monthNo);
-            const maxPresent = attendanceStudents.reduce((maxValue, record) => {
-                const value = Number(attendanceData[`${record.id}_${monthNo}`]?.present_days);
-                return Number.isFinite(value) ? Math.max(maxValue, value) : maxValue;
-            }, 0);
-            if (!Number.isInteger(n) || n < 0 || n > max || n < maxPresent) {
-                input.value = previous === undefined ? "" : String(previous);
-                showToast(n < maxPresent ? `Working Days cannot be less than existing Present Days (${maxPresent}).` : `Working Days for ${attendanceMonthNames[monthNo]} must be between 0 and ${max}.`, "error");
-                return;
-            }
-            attendanceWorkingDays[monthNo] = n;
             setAttendanceInputLimits();
             renderAttendanceTable();
         });
     });
 }
-
 function captureAttendanceDirtyStateOnly() {
     renderAttendanceWorkingDaysInputs();
 }
@@ -426,7 +410,7 @@ async function saveAttendance({ reload = true } = {}) {
         return false;
     } finally {
         attendanceSaveButton.disabled = false;
-        attendanceSaveButton.textContent = "Save Attendance";
+        attendanceSaveButton.textContent = "Save Attendance & Working Days";
     }
 }
 
