@@ -4512,3 +4512,57 @@ table td {
         box-sizing: border-box;
     }
 }
+
+/* =========================================================
+   STEP 14 — ANDROID DESKTOP-VIEW ACTION COLUMN
+   Keep the Android desktop/landscape table experience as
+   convenient as the real desktop view. This targets only
+   wide touch/coarse-pointer layouts, leaving normal phone
+   portrait/tablet responsive behaviour unchanged.
+========================================================= */
+@media (min-width: 900px) and (pointer: coarse) {
+    /* Student actions: History / Edit / Left / Delete stay visible. */
+    .app-shell .student-table th:last-child,
+    .app-shell .student-table td:last-child {
+        position: sticky;
+        right: 0;
+        z-index: 12;
+        background: #fff;
+        box-shadow: -5px 0 12px rgba(20, 40, 70, .10);
+        min-width: 190px;
+    }
+
+    .app-shell .student-table th:last-child {
+        background: #eef5ff;
+        z-index: 15;
+    }
+
+    .app-shell .student-table td:last-child .actions {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 6px;
+        align-items: center;
+        justify-content: flex-start;
+        white-space: nowrap;
+    }
+
+    /* Academic-year and promotion-history action columns. */
+    .app-shell .academic-years-table th:last-child,
+    .app-shell .academic-years-table td:last-child,
+    .app-shell .promotion-history-table th:last-child,
+    .app-shell .promotion-history-table td:last-child {
+        position: sticky;
+        right: 0;
+        z-index: 12;
+        background: #fff;
+        box-shadow: -5px 0 12px rgba(20, 40, 70, .10);
+        white-space: nowrap;
+        min-width: 150px;
+    }
+
+    .app-shell .academic-years-table th:last-child,
+    .app-shell .promotion-history-table th:last-child {
+        background: #eef5ff;
+        z-index: 15;
+    }
+}
