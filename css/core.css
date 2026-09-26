@@ -2858,3 +2858,224 @@ table td {
         font-size: 11pt;
     }
 }
+
+
+/* =========================================================
+   STEP 9 — STUDENTS PAGE REFINEMENT
+   Visual-only improvements; existing student logic unchanged.
+========================================================= */
+.app-shell .students-page-header {
+    align-items: flex-end;
+    margin-bottom: 18px;
+}
+
+.students-page-title {
+    min-width: 0;
+}
+
+.students-page-kicker {
+    margin-bottom: 4px;
+    color: #5a79a5;
+    font-size: 11pt;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.app-shell .students-page-title h2 {
+    margin: 0;
+    color: #16233a;
+    font-size: 24pt;
+    line-height: 1.08;
+}
+
+.students-page-title p {
+    margin: 7px 0 0;
+    color: #6c7b91;
+    font-size: 12pt;
+    line-height: 1.45;
+}
+
+.students-add-button {
+    min-height: 44px;
+    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    white-space: nowrap;
+    box-shadow: 0 6px 14px rgba(21,94,239,.16);
+}
+
+.students-add-button > span {
+    font-size: 17pt;
+    line-height: 1;
+    font-weight: 400;
+}
+
+.app-shell .students-filter-card {
+    padding: 20px;
+    margin-bottom: 16px;
+    border-color: #dfe7f1;
+    border-radius: 15px;
+    box-shadow: 0 5px 18px rgba(23,43,77,.045);
+}
+
+.students-filter-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.students-filter-heading h3 {
+    margin: 0;
+    color: #173b69;
+    font-size: 15pt;
+}
+
+.students-filter-heading p {
+    margin: 4px 0 0;
+    color: #7b8798;
+    font-size: 11pt;
+}
+
+.students-filter-badge {
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    border: 1px solid #cfe0f6;
+    border-radius: 999px;
+    background: #f4f8ff;
+    color: #37679e;
+    font-size: 10pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.app-shell .students-filter-card .filter-grid {
+    gap: 14px;
+}
+
+.app-shell .students-filter-card .filter-item label {
+    display: block;
+    margin-bottom: 7px;
+    color: #44556f;
+    font-size: 12pt;
+    font-weight: 700;
+}
+
+.app-shell .students-filter-card .filter-item input,
+.app-shell .students-filter-card .filter-item select {
+    min-height: 44px;
+    border: 1px solid #d3dce8;
+    border-radius: 9px;
+    background: #fbfdff;
+    color: #23344e;
+    font-size: 12pt;
+}
+
+.app-shell .students-filter-card .filter-item input:focus,
+.app-shell .students-filter-card .filter-item select:focus {
+    border-color: #76a6e4;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.09);
+}
+
+.app-shell .students-table-card {
+    overflow: hidden;
+    border-radius: 15px;
+    border-color: #dfe7f1;
+    box-shadow: 0 5px 18px rgba(23,43,77,.045);
+}
+
+.app-shell .students-table-top {
+    min-height: 66px;
+    padding: 13px 18px;
+    background: #fbfdff;
+}
+
+.students-table-title-main {
+    color: #173b69;
+    font-size: 15pt;
+    font-weight: 800;
+}
+
+.app-shell .students-table-top .record-count {
+    margin-top: 3px;
+    color: #7a8799;
+    font-size: 11pt;
+}
+
+.app-shell .students-table-top .btn-small {
+    min-height: 38px;
+    padding: 7px 12px;
+}
+
+.app-shell .student-grid-wrapper {
+    max-height: 66vh;
+    scrollbar-width: thin;
+}
+
+.app-shell .student-table th {
+    background: #eef5ff;
+    color: #244d7c;
+    border-right-color: #d7e2ef;
+    border-bottom-color: #d7e2ef;
+    padding: 12px 10px;
+    font-size: 13pt;
+    font-weight: 800;
+}
+
+.app-shell .student-table td {
+    color: #40536d;
+    padding: 11px 10px;
+    font-size: 13pt;
+}
+
+.app-shell .student-table tbody tr:nth-child(odd) td {
+    background: #ffffff;
+}
+
+.app-shell .student-table tbody tr:nth-child(even) td {
+    background: #fbfdff;
+}
+
+.app-shell .student-table tbody tr:hover td {
+    background: #f2f7ff;
+}
+
+.app-shell .student-table td strong {
+    color: #1d3557;
+    font-weight: 800;
+}
+
+@media (max-width: 760px) {
+    .app-shell .students-page-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .students-add-button {
+        align-self: flex-start;
+    }
+
+    .students-filter-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 560px) {
+    .app-shell .students-page-title h2 { font-size: 20pt; }
+    .students-page-title p { font-size: 11pt; }
+    .students-filter-heading h3 { font-size: 14pt; }
+    .students-filter-heading p { font-size: 10.5pt; }
+    .app-shell .students-filter-card .filter-item label { font-size: 11pt; }
+    .app-shell .students-filter-card .filter-item input,
+    .app-shell .students-filter-card .filter-item select { font-size: 11.5pt; }
+    .students-table-title-main { font-size: 14pt; }
+    .app-shell .students-table-top .record-count { font-size: 10.5pt; }
+}
