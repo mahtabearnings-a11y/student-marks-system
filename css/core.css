@@ -2318,7 +2318,7 @@ th { font-size: 14pt; }
 
     .app-shell .school-title { font-size: 15px; }
     .app-shell .school-subtitle { font-size: 10px; }
-    .app-logo { width: 40px; height: 40px; flex-basis: 40px; }
+    .app-logo { width: 60px; height: auto; max-height: 56px; flex-basis: 60px; }
 
     .app-shell > .navbar {
         position: static;
@@ -2368,10 +2368,13 @@ th { font-size: 14pt; }
 
 /* Use the real school emblem in the header and keep it crisp and balanced. */
 .app-shell .app-logo {
-    width: 58px;
-    height: 58px;
-    flex: 0 0 58px;
+    width: 82px;
+    height: auto;
+    max-height: 72px;
+    flex: 0 0 82px;
+    aspect-ratio: auto;
     object-fit: contain;
+    object-position: center;
     display: block;
     filter: drop-shadow(0 3px 6px rgba(15, 23, 42, 0.10));
 }
