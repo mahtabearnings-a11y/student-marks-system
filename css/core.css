@@ -2385,3 +2385,272 @@ th { font-size: 14pt; }
         min-width: 126px;
     }
 }
+
+/* =========================================================
+   STEP 6 — DASHBOARD REFINEMENT
+========================================================= */
+.app-shell .dashboard-welcome {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 18px;
+    padding: 24px 26px;
+    border: 1px solid #dbe7f6;
+    border-radius: 16px;
+    background: linear-gradient(120deg, #f7fbff 0%, #eef6ff 58%, #f8fbff 100%);
+    box-shadow: 0 5px 18px rgba(23, 43, 77, .045);
+    overflow: hidden;
+}
+
+.app-shell .dashboard-welcome::after {
+    content: "";
+    position: absolute;
+    width: 210px;
+    height: 210px;
+    right: -80px;
+    top: -120px;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, .07);
+}
+
+.dashboard-welcome-kicker {
+    color: #4b6b96;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.app-shell .dashboard-welcome h2 {
+    margin: 0;
+    color: #152e55;
+    font-size: 28px;
+    line-height: 1.12;
+}
+
+.dashboard-welcome p {
+    margin: 7px 0 0;
+    color: #5c6e87;
+    font-size: 14px;
+}
+
+.dashboard-welcome-mark {
+    position: relative;
+    z-index: 1;
+    width: 72px;
+    height: 72px;
+    flex: 0 0 72px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: rgba(255,255,255,.84);
+    border: 1px solid #d7e5f5;
+    color: #2f72ca;
+}
+
+.dashboard-welcome-mark svg {
+    width: 43px;
+    height: 43px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.app-shell .dashboard-grid {
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.app-shell .dashboard-card {
+    min-height: 118px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px;
+    border: 1px solid #e0e7f0;
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 5px 16px rgba(23, 43, 77, .04);
+}
+
+.dashboard-card-icon {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+}
+
+.dashboard-card-icon svg {
+    width: 27px;
+    height: 27px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.dashboard-card-copy { min-width: 0; }
+
+.app-shell .dashboard-card .number {
+    margin: 0 0 3px;
+    color: #162c4f;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+
+.app-shell .dashboard-card .label {
+    color: #31445f;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.dashboard-card-note {
+    margin-top: 6px;
+    color: #8995a7;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.dashboard-card-blue .dashboard-card-icon {
+    background: #eaf3ff;
+    color: #2670d8;
+}
+
+.dashboard-card-green .dashboard-card-icon {
+    background: #eaf8f0;
+    color: #1d9a63;
+}
+
+.dashboard-card-rose .dashboard-card-icon {
+    background: #fff0f3;
+    color: #dc5a76;
+}
+
+.dashboard-card-amber .dashboard-card-icon {
+    background: #fff7e8;
+    color: #cc8a18;
+}
+
+.dashboard-session-number {
+    font-size: 23px !important;
+    white-space: nowrap;
+}
+
+.dashboard-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.dashboard-section-heading h3 {
+    margin: 0;
+    color: #173b69;
+    font-size: 17px;
+}
+
+.dashboard-section-heading p {
+    margin: 4px 0 0;
+    color: #7b8798;
+    font-size: 11px;
+}
+
+.dashboard-section-badge {
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    border: 1px solid #d7e5f5;
+    border-radius: 999px;
+    background: #f6faff;
+    color: #37659a;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.app-shell .dashboard-overview {
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.app-shell .dashboard-overview-table thead th {
+    background: #f2f7fd;
+    color: #31557e;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 12px 10px;
+}
+
+.app-shell .dashboard-overview-table tbody td {
+    padding: 11px 10px;
+    border-bottom: 1px solid #edf1f6;
+    color: #40536d;
+    font-size: 12px;
+}
+
+.app-shell .dashboard-overview-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.app-shell .dashboard-overview-table tbody tr:hover td {
+    background: #f8fbff;
+}
+
+.app-shell .dashboard-overview-table .dashboard-group-row td {
+    background: #f7fbff;
+    color: #234a78;
+    font-weight: 700;
+}
+
+@media (max-width: 800px) {
+    .app-shell .dashboard-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .app-shell .dashboard-welcome {
+        padding: 20px;
+    }
+
+    .app-shell .dashboard-welcome h2 {
+        font-size: 23px;
+    }
+
+    .dashboard-welcome-mark {
+        width: 58px;
+        height: 58px;
+        flex-basis: 58px;
+    }
+
+    .dashboard-welcome-mark svg {
+        width: 34px;
+        height: 34px;
+    }
+
+    .app-shell .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .app-shell .dashboard-card {
+        min-height: 100px;
+    }
+
+    .dashboard-section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
