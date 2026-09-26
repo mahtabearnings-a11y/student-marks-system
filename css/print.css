@@ -412,3 +412,245 @@
     print-color-adjust:exact;
   }
 }
+
+/* =========================================================
+   REPORT CARD FINAL PORTRAIT REFINEMENT
+   Matches the approved reference layout while using the
+   existing school-logo-polished.png asset.
+========================================================= */
+@page {
+  size: A4 portrait;
+  margin: 10mm;
+}
+
+@page result-card {
+  size: A4 portrait;
+  margin: 10mm;
+}
+
+@media print {
+  body {
+    margin:0 !important;
+    padding:0 !important;
+    background:#fff !important;
+  }
+
+  #printDocumentHost,
+  .print-document {
+    width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:visible !important;
+    background:#fff !important;
+  }
+
+  .result-page {
+    page:result-card !important;
+    box-sizing:border-box !important;
+    width:100% !important;
+    min-height:277mm !important;
+    margin:0 !important;
+    padding:5mm 5.5mm 6mm !important;
+    border:1.2pt solid #244e86 !important;
+    color:#18345c !important;
+    background:#fff !important;
+    break-inside:avoid-page !important;
+    page-break-inside:avoid !important;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+
+  .result-page + .result-page {
+    break-before:page !important;
+    page-break-before:always !important;
+  }
+
+  .result-header-top {
+    display:flex !important;
+    position:relative !important;
+    align-items:center !important;
+    justify-content:center !important;
+    min-height:38mm !important;
+    width:100% !important;
+  }
+
+  .result-logo-wrap {
+    position:absolute !important;
+    left:1mm !important;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+    width:38mm !important;
+    height:38mm !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    overflow:hidden !important;
+    background:#fff !important;
+  }
+
+  .result-school-logo {
+    width:100% !important;
+    height:100% !important;
+    object-fit:contain !important;
+    display:block !important;
+  }
+
+  .result-header-text {
+    min-width:0 !important;
+    width:100% !important;
+    padding:0 15mm !important;
+    text-align:center !important;
+  }
+
+  .result-header h1 {
+    margin:0 !important;
+    font-family:Georgia,"Times New Roman",serif !important;
+    font-size:24pt !important;
+    line-height:1.05 !important;
+    font-weight:800 !important;
+    color:#164a91 !important;
+    text-align:center !important;
+    letter-spacing:.15pt !important;
+  }
+
+  .result-estd {
+    margin-top:1mm !important;
+    font-size:11.5pt !important;
+    line-height:1.1 !important;
+    font-weight:800 !important;
+    color:#b48313 !important;
+    letter-spacing:.7pt !important;
+    text-align:center !important;
+  }
+
+  .result-location {
+    margin-top:1mm !important;
+    font-size:11pt !important;
+    line-height:1.1 !important;
+    color:#3b5874 !important;
+    text-align:center !important;
+  }
+
+  .result-divider {
+    width:100% !important;
+    height:0 !important;
+    margin:1.5mm 0 3mm !important;
+    border-top:1.2pt solid #274f85 !important;
+  }
+
+  .result-title {
+    width:80mm !important;
+    margin:0 auto 3mm !important;
+    padding:1.8mm 3mm !important;
+    border:1pt solid #1f579b !important;
+    background:#e7f0ff !important;
+    color:#173d78 !important;
+    font-family:Georgia,"Times New Roman",serif !important;
+    font-size:17.5pt !important;
+    line-height:1.05 !important;
+    font-weight:800 !important;
+    text-align:center !important;
+  }
+
+  .result-session-row {
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:8mm !important;
+    padding:0 1mm 4mm !important;
+    font-size:11.5pt !important;
+    line-height:1.2 !important;
+    color:#17365d !important;
+  }
+  .result-session-row span { text-align:center !important; }
+
+  .result-info {
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    width:100% !important;
+    margin:0 0 4mm !important;
+    border:1pt solid #506b85 !important;
+    background:#fff !important;
+  }
+  .result-info-column {
+    min-width:0 !important;
+    padding:2.5mm 4mm !important;
+    box-sizing:border-box !important;
+  }
+  .result-info-column + .result-info-column { border-left:1pt solid #506b85 !important; }
+  .result-info-item {
+    display:grid !important;
+    grid-template-columns:37mm minmax(0,1fr) !important;
+    gap:2mm !important;
+    align-items:start !important;
+    min-width:0 !important;
+    padding:1mm 0 !important;
+    font-size:11.2pt !important;
+    line-height:1.18 !important;
+  }
+  .result-info-item b { white-space:nowrap !important; color:#173b68 !important; font-weight:800 !important; }
+  .result-info-item span { min-width:0 !important; white-space:normal !important; overflow-wrap:anywhere !important; word-break:normal !important; }
+  .student-name-value { font-size:12.2pt !important; font-weight:800 !important; }
+
+  .result-table {
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    border-collapse:collapse !important;
+    table-layout:fixed !important;
+    font-size:11.2pt !important;
+  }
+  .result-table th,
+  .result-table td {
+    box-sizing:border-box !important;
+    border:1pt solid #5a728c !important;
+    padding:2.8mm 2.2mm !important;
+    line-height:1.15 !important;
+    vertical-align:middle !important;
+    text-align:center !important;
+    overflow-wrap:anywhere !important;
+  }
+  .result-table th { background:#dbe9ff !important; color:#173d73 !important; font-size:11.5pt !important; font-weight:800 !important; }
+  .result-table td.subject,
+  .result-table th:nth-child(2) { text-align:left !important; }
+  .result-table td.subject { font-weight:600 !important; }
+
+  .result-table .serial-col { width:15mm !important; }
+  .result-table .subject-col { width:90mm !important; }
+  .result-table .marks-col { width:37mm !important; }
+  .result-table .full-col { width:37mm !important; }
+
+  .final-result-table .serial-col { width:12mm !important; }
+  .final-result-table .subject-col { width:65mm !important; }
+  .final-result-table .marks-col { width:34mm !important; }
+  .final-result-table .full-col { width:34mm !important; }
+
+  .result-total-row th,
+  .result-total-row td {
+    background:#edf3f9 !important;
+    color:#102f59 !important;
+    font-weight:800 !important;
+    font-size:12pt !important;
+  }
+  .result-total-row th { text-align:center !important; }
+
+  .result-summary-grid {
+    display:grid !important;
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    width:100% !important;
+    margin-top:4mm !important;
+  }
+  .result-summary-card {
+    min-height:18mm !important;
+    box-sizing:border-box !important;
+    border:1pt solid #506b85 !important;
+    background:#f4f8fd !important;
+    padding:2.5mm 2mm !important;
+    text-align:center !important;
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+  }
+  .result-summary-card + .result-summary-card { border-left:0 !important; }
+  .result-summary-card span { margin-bottom:1.2mm !important; font-size:10pt !important; line-height:1.05 !important; font-weight:800 !important; color:#4c6076 !important; }
+  .result-summary-card strong { font-size:14pt !important; line-height:1.05 !important; color:#163d73 !important; font-weight:800 !important; overflow-wrap:anywhere !important; }
+}
