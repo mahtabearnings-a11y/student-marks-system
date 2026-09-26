@@ -4639,3 +4639,59 @@ table td {
     .dashboard-donut{width:140px;height:140px}
     .dashboard-donut-center strong{font-size:21px}
 }
+
+
+/* =========================================================
+   SCHOOL LOGO POSITION — CLEAN TRANSPARENT EMBLEM
+   Uses the shared school-logo-polished.png asset on the
+   sign-in page and the main application header.
+========================================================= */
+
+.login-school-logo {
+    width: 128px !important;
+    height: 128px !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    margin: 0 auto 16px !important;
+    display: block !important;
+    background: transparent !important;
+}
+
+.app-shell .topbar-brand {
+    gap: 12px;
+    align-items: center;
+}
+
+.app-shell .app-logo {
+    width: 68px !important;
+    height: 68px !important;
+    max-height: 68px !important;
+    flex: 0 0 68px !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    display: block !important;
+    background: transparent !important;
+    filter: drop-shadow(0 2px 5px rgba(15, 23, 42, 0.08));
+}
+
+@media (max-width: 850px) {
+    .login-school-logo {
+        width: 112px !important;
+        height: 112px !important;
+    }
+}
+
+@media (max-width: 520px) {
+    .login-school-logo {
+        width: 100px !important;
+        height: 100px !important;
+        margin-bottom: 14px !important;
+    }
+
+    .app-shell .app-logo {
+        width: 60px !important;
+        height: 60px !important;
+        max-height: 60px !important;
+        flex-basis: 60px !important;
+    }
+}

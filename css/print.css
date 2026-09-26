@@ -863,13 +863,28 @@
 
 
 /* =========================================================
-   PRINT TYPOGRAPHY — RESULTS & CLASS MARKS FOLIO
-   All result/report-card and class-folio print text uses
-   Times New Roman, independent of the website UI font.
+   RESULT LOGO POSITION — CLEAN TRANSPARENT EMBLEM
+   Keep the seal clearly inside the report-card frame while
+   leaving the divider fully visible beneath it.
 ========================================================= */
 @media print {
-  .result-page,
-  .result-page * {
-    font-family: "Times New Roman", Times, serif !important;
+  .result-logo-wrap {
+    left: 1.5mm !important;
+    top: 31% !important;
+    width: 35mm !important;
+    height: 35mm !important;
+    transform: translateY(-50%) !important;
+    overflow: visible !important;
+    background: transparent !important;
+    z-index: 5 !important;
+  }
+
+  .result-school-logo {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    display: block !important;
+    background: transparent !important;
   }
 }
