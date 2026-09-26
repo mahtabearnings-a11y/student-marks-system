@@ -52,5 +52,26 @@ async function updateDashboardCounts() {
     if(maleCard) maleCard.textContent = totals.male;
     if(femaleCard) femaleCard.textContent = totals.female;
     if(sessionCard) sessionCard.textContent = session.session_name;
+
+    const bars = document.getElementById('dashboardClassBars');
+    if (bars) {
+        const maxTotal = Math.max(...classStats.map(g => g.total), 1);
+        bars.innerHTML = classStats.map(g => {
+            const width = Math.round((g.total / maxTotal) * 100);
+            return `<div class="dashboard-bar-row"><span class="dashboard-bar-label">${g.label}</span><div class="dashboard-bar-track"><div class="dashboard-bar-fill" style="width:${width}%"></div></div><span class="dashboard-bar-value">${g.total}</span></div>`;
+        }).join('');
+    }
+
+    const genderTotal = totals.male + totals.female;
+    const malePercent = genderTotal ? Math.round((totals.male / genderTotal) * 100) : 0;
+    const femalePercent = genderTotal ? 100 - malePercent : 0;
+    const donut = document.getElementById('dashboardGenderDonut');
+    const genderTotalEl = document.getElementById('dashboardGenderTotal');
+    const malePercentEl = document.getElementById('dashboardMalePercent');
+    const femalePercentEl = document.getElementById('dashboardFemalePercent');
+    if (genderTotalEl) genderTotalEl.textContent = genderTotal;
+    if (malePercentEl) malePercentEl.textContent = `${malePercent}%`;
+    if (femalePercentEl) femalePercentEl.textContent = `${femalePercent}%`;
+    if (donut) donut.style.background = `conic-gradient(#2e73cc 0deg ${malePercent * 3.6}deg, #7aa9e6 ${malePercent * 3.6}deg 360deg)`;
 }
 
