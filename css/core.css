@@ -1658,3 +1658,355 @@ th { font-size: 14pt; }
   .student-table td.sticky-roll { min-width: 58px; width: 58px; }
   .marks-grid-wrapper { max-height: 62vh; }
 }
+
+
+/* =========================================================
+   STEP 1 — CLEAN APP SHELL
+   Visual shell only. Existing module/data styles remain intact.
+========================================================= */
+#appPage {
+    min-height: 100vh;
+    background: #f6f8fc;
+}
+
+.app-layout {
+    min-height: 100vh;
+    display: flex;
+}
+
+.sidebar {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    width: 238px;
+    min-width: 238px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #16365f 0%, #112f54 100%);
+    color: #fff;
+    padding: 18px 12px 14px;
+    box-shadow: 10px 0 30px rgba(15, 42, 76, .08);
+    z-index: 30;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 4px 8px 22px;
+}
+
+.sidebar-brand img {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 8px rgba(0,0,0,.15));
+}
+
+.sidebar-school-title {
+    font-size: 15px;
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: .1px;
+}
+
+.sidebar-school-subtitle {
+    margin-top: 4px;
+    color: rgba(255,255,255,.72);
+    font-size: 10px;
+    line-height: 1.25;
+}
+
+.sidebar .navbar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 2px 0 0;
+    margin: 0;
+    overflow-x: visible;
+    border: 0;
+    background: transparent;
+}
+
+.sidebar .nav-btn {
+    width: 100%;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: rgba(255,255,255,.78);
+    padding: 11px 13px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    border-bottom: 0;
+    transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+
+.sidebar .nav-btn:hover {
+    background: rgba(255,255,255,.08);
+    color: #fff;
+}
+
+.sidebar .nav-btn.active {
+    color: #fff;
+    background: linear-gradient(90deg, #1976ea 0%, #256fe0 100%);
+    box-shadow: 0 7px 18px rgba(22, 105, 219, .22);
+}
+
+.nav-icon {
+    width: 20px;
+    min-width: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+    opacity: .96;
+}
+
+.sidebar-footer {
+    margin-top: 16px;
+    padding: 13px 12px 5px;
+    border-top: 1px solid rgba(255,255,255,.12);
+}
+
+.sidebar-footer-label {
+    color: rgba(255,255,255,.56);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.sidebar-footer-value {
+    margin-top: 4px;
+    color: rgba(255,255,255,.92);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.app-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.app-body > .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    min-height: 72px;
+    padding: 12px 28px;
+    background: rgba(255,255,255,.96);
+    color: #16233a;
+    border-bottom: 1px solid #e7ebf2;
+    box-shadow: 0 2px 14px rgba(19, 39, 69, .045);
+    backdrop-filter: blur(10px);
+}
+
+.topbar-left {
+    flex: 1;
+    min-width: 180px;
+}
+
+.topbar-search {
+    width: min(500px, 100%);
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 13px;
+    border: 1px solid #cfdae9;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #8290a4;
+}
+
+.topbar-search-icon {
+    color: #64748b;
+    font-size: 21px;
+    transform: rotate(-15deg);
+}
+
+.topbar-search-text {
+    font-size: 13px;
+}
+
+.app-body .user-area {
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.theme-placeholder {
+    width: 35px;
+    height: 35px;
+    border: 1px solid #d9e1ed;
+    border-radius: 9px;
+    background: #fff;
+    color: #56657a;
+    font-size: 16px;
+}
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #334155;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.user-details {
+    min-width: 105px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+.app-body .user-email {
+    color: #16233a;
+    font-size: 13px;
+    font-weight: 700;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-body .role-badge {
+    padding: 0;
+    background: transparent;
+    color: #7b8799;
+    font-size: 11px;
+}
+
+.app-body .logout-btn {
+    margin-left: 4px;
+    border-color: #d4ddea;
+    background: #fff;
+    color: #42536b;
+    padding: 8px 11px;
+}
+
+.app-body .logout-btn:hover {
+    background: #f6f8fb;
+}
+
+.app-body .main-content {
+    max-width: 100%;
+    padding: 26px 28px 36px;
+}
+
+.app-body .page-header {
+    margin-bottom: 22px;
+}
+
+.app-body .page-header h2 {
+    color: #16233a;
+    font-size: 27px;
+    letter-spacing: -.02em;
+}
+
+.app-body .card,
+.app-body .dashboard-card,
+.app-body .context-card {
+    border-color: #e6ebf2;
+    border-radius: 14px;
+    box-shadow: 0 5px 18px rgba(23, 43, 77, .045);
+}
+
+.app-body .dashboard-grid {
+    gap: 14px;
+}
+
+.app-body .dashboard-card {
+    padding: 18px;
+}
+
+.app-body .dashboard-card .number {
+    color: #185ed8;
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        width: 205px;
+        min-width: 205px;
+    }
+
+    .app-body > .topbar {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .app-body .main-content {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+}
+
+@media (max-width: 700px) {
+    .app-layout {
+        display: block;
+    }
+
+    .sidebar {
+        position: static;
+        width: 100%;
+        min-width: 0;
+        height: auto;
+        padding: 12px 10px 10px;
+    }
+
+    .sidebar-brand {
+        padding: 2px 6px 12px;
+    }
+
+    .sidebar .navbar {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+
+    .sidebar .nav-btn {
+        width: auto;
+        min-width: max-content;
+        min-height: 42px;
+        padding: 9px 12px;
+    }
+
+    .sidebar-footer {
+        display: none;
+    }
+
+    .app-body > .topbar {
+        position: static;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .topbar-left,
+    .topbar-search {
+        width: 100%;
+    }
+
+    .app-body .user-area {
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .app-body .main-content {
+        padding: 16px 12px 28px;
+    }
+}
