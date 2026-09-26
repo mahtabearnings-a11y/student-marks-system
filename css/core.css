@@ -3079,3 +3079,232 @@ table td {
     .students-table-title-main { font-size: 14pt; }
     .app-shell .students-table-top .record-count { font-size: 10.5pt; }
 }
+
+
+/* =========================================================
+   STEP 10 — MARKS PAGE CLEANUP
+   Visual-only improvements. Existing IDs and behavior remain unchanged.
+========================================================= */
+#marksSection .marks-page-header {
+    margin-bottom: 20px;
+    align-items: flex-end;
+}
+
+#marksSection .marks-page-title h2 {
+    margin: 2px 0 5px;
+    color: #123b73;
+    font-size: 24pt;
+    line-height: 1.1;
+    font-weight: 800;
+}
+
+#marksSection .marks-page-kicker {
+    color: #2b6cb0;
+    font-size: 11pt;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+#marksSection .marks-page-title p {
+    margin: 0;
+    color: #68778d;
+    font-size: 13pt;
+    line-height: 1.45;
+}
+
+#marksSection .marks-filter-card,
+#marksSection .marks-print-card,
+#marksSection .marks-table-card {
+    border: 1px solid #dfe7f1;
+    border-radius: 15px;
+    box-shadow: 0 5px 18px rgba(23,43,77,.045);
+    overflow: hidden;
+}
+
+#marksSection .marks-filter-card {
+    padding: 18px;
+}
+
+#marksSection .marks-filter-heading,
+#marksSection .marks-card-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+#marksSection .marks-filter-heading h3,
+#marksSection .marks-card-heading h3 {
+    margin: 0 0 4px;
+    color: #173b69;
+    font-size: 15pt;
+    font-weight: 800;
+}
+
+#marksSection .marks-filter-heading p,
+#marksSection .marks-card-heading p {
+    margin: 0;
+    color: #77859a;
+    font-size: 11.5pt;
+    line-height: 1.45;
+}
+
+#marksSection .marks-filter-badge {
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    border: 1px solid #cfe0f5;
+    border-radius: 999px;
+    background: #f1f7ff;
+    color: #2863a4;
+    font-size: 10.5pt;
+    font-weight: 800;
+}
+
+#marksSection .marks-filter-card .filter-grid {
+    gap: 14px;
+}
+
+#marksSection .marks-filter-card .filter-item label,
+#marksSection .marks-print-card .filter-item label {
+    display: block;
+    margin-bottom: 7px;
+    color: #44556f;
+    font-size: 13pt;
+    font-weight: 700;
+}
+
+#marksSection .marks-filter-card .filter-item select,
+#marksSection .marks-print-card .filter-item input,
+#marksSection .marks-print-card .filter-item select {
+    min-height: 45px;
+    border: 1px solid #d3dce8;
+    border-radius: 9px;
+    background: #fbfdff;
+    color: #23344e;
+    font-size: 13pt;
+}
+
+#marksSection .marks-filter-card .filter-item select:focus,
+#marksSection .marks-print-card .filter-item input:focus,
+#marksSection .marks-print-card .filter-item select:focus {
+    border-color: #76a6e4;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.09);
+    outline: none;
+}
+
+#marksSection .marks-print-card {
+    padding: 18px;
+}
+
+#marksSection .marks-print-controls {
+    gap: 14px;
+}
+
+#marksSection .print-student-preview {
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 9px 11px;
+    border: 1px solid #d8e1ec;
+    border-radius: 9px;
+    background: #f8fafc;
+    color: #53657d;
+    font-size: 12.5pt;
+}
+
+#marksSection .print-actions {
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#marksSection .print-actions .btn {
+    min-height: 42px;
+    padding: 9px 14px;
+    font-size: 12pt;
+}
+
+#marksSection .record-count {
+    color: #718096;
+    font-size: 12pt;
+}
+
+#marksSection .marks-table-top {
+    min-height: 62px;
+    padding: 12px 16px;
+    background: #fbfdff;
+}
+
+#marksSection .marks-table-top .btn {
+    min-height: 42px;
+    padding: 9px 14px;
+    font-size: 12pt;
+}
+
+#marksSection .marks-grid-wrapper {
+    border: 0;
+    border-top: 1px solid #dfe7f1;
+    border-radius: 0 0 15px 15px;
+    scrollbar-width: thin;
+}
+
+#marksSection .marks-table th {
+    background: #eef5ff;
+    color: #244d7c;
+    border-right-color: #d7e2ef;
+    border-bottom-color: #d7e2ef;
+    padding: 12px 10px;
+    font-size: 14pt;
+    font-weight: 800;
+}
+
+#marksSection .marks-table td {
+    color: #40536d;
+    padding: 10px;
+    font-size: 13pt;
+}
+
+#marksSection .marks-table tbody tr:nth-child(odd) td {
+    background: #ffffff;
+}
+
+#marksSection .marks-table tbody tr:nth-child(even) td {
+    background: #fbfdff;
+}
+
+#marksSection .marks-table tbody tr:hover td {
+    background: #f2f7ff;
+}
+
+#marksSection .marks-input {
+    min-height: 40px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    font-size: 13pt;
+}
+
+@media (max-width: 820px) {
+    #marksSection .marks-page-title h2 { font-size: 21pt; }
+    #marksSection .marks-page-title p { font-size: 12pt; }
+    #marksSection .marks-filter-heading,
+    #marksSection .marks-card-heading { flex-direction: column; }
+    #marksSection .marks-filter-badge { align-self: flex-start; }
+    #marksSection .marks-print-controls { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 560px) {
+    #marksSection .marks-page-title h2 { font-size: 20pt; }
+    #marksSection .marks-filter-card,
+    #marksSection .marks-print-card { padding: 14px; }
+    #marksSection .marks-filter-heading h3,
+    #marksSection .marks-card-heading h3 { font-size: 14pt; }
+    #marksSection .marks-filter-heading p,
+    #marksSection .marks-card-heading p { font-size: 10.5pt; }
+    #marksSection .marks-filter-card .filter-item label,
+    #marksSection .marks-print-card .filter-item label { font-size: 11.5pt; }
+    #marksSection .marks-filter-card .filter-item select,
+    #marksSection .marks-print-card .filter-item input,
+    #marksSection .marks-print-card .filter-item select { font-size: 11.5pt; }
+}
