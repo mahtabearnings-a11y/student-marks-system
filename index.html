@@ -17,24 +17,6 @@ body:not(.auth-ready) #loginPage,
 body:not(.auth-ready) #appPage {
     visibility: hidden;
 }
-
-.session-timer {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 50px;
-    height: 34px;
-    padding: 0 9px;
-    box-sizing: border-box;
-    border: 1px solid #d4ddea;
-    border-radius: 9px;
-    background: #f8fafc;
-    color: #123b73;
-    font-size: 12px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-}
 </style>
 
 </head>
@@ -105,21 +87,30 @@ body:not(.auth-ready) #appPage {
                 </div>
             </div>
 
-            <div class="topbar-search" role="search" aria-label="Search">
+            <div class="topbar-search" role="search" aria-label="Global student search">
                 <span class="topbar-search-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" focusable="false"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.2 4.2"></path></svg>
                 </span>
-                <span class="topbar-search-text">Search students, roll no., class...</span>
+                <input
+                    id="globalSearchInput"
+                    class="global-search-input"
+                    type="search"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="Search students, roll no., class..."
+                    aria-label="Search students, roll number, class, or ID"
+                    aria-controls="globalSearchResults"
+                    aria-expanded="false">
+                <div id="globalSearchResults" class="global-search-results hidden" role="listbox" aria-label="Search results"></div>
             </div>
 
             <div class="user-area">
-                <button type="button" class="theme-placeholder" aria-label="Theme">
+                <button id="lightModeButton" type="button" class="theme-placeholder" aria-label="Light mode" aria-pressed="true">
                     <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="4.1"></circle><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.55 1.55M17.85 17.85l1.55 1.55M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.55-1.55M17.85 6.15l1.55-1.55"></path></svg>
                 </button>
-                <button type="button" class="theme-placeholder" aria-label="Dark mode">
+                <button id="darkModeButton" type="button" class="theme-placeholder" aria-label="Dark mode" aria-pressed="false">
                     <svg viewBox="0 0 24 24" focusable="false"><path d="M14.9 3.2a7.9 7.9 0 1 0 5.9 13.1A8.2 8.2 0 0 1 14.9 3.2Z"></path></svg>
                 </button>
-                <span id="sessionTimer" class="session-timer" aria-label="Session timer">15:00</span>
                 <span class="user-avatar" aria-hidden="true">MR</span>
                 <div class="user-details">
                     <span id="userEmail" class="user-email"></span>
@@ -1523,6 +1514,7 @@ body:not(.auth-ready) #appPage {
 <script src="js/backup.js"></script>
 <script src="js/print.js"></script>
 <script src="js/app.js"></script>
+<script src="js/ui-enhancements.js"></script>
 
 
 
