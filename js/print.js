@@ -29,18 +29,19 @@ let printAttendanceTotals = {};
 let printAttendancePeriod = "April–September";
 
 function getPrintAttendanceMonthRange(exam){
-    return exam === "Final" ? Array.from({length:12}, (_,i)=>i+1) : [1,2,3,4,5,6];
+    if(exam === "Annual") return [7,8,9,10,11,12];
+    if(exam === "Final") return Array.from({length:12}, (_,i)=>i+1);
+    return [1,2,3,4,5,6];
 }
 
 function getPrintAttendancePeriod(exam){
-    return exam === "Final" ? "April–March" : "April–September";
+    if(exam === "Annual") return "Oct – Mar";
+    if(exam === "Final") return "Apr – Mar";
+    return "Apr – Sept";
 }
 
-
-function formatPrintAttendance(recordId){
-    const a = printAttendanceTotals[String(recordId)];
-    if(!a || !a.hasAny || !a.working) return "—";
-    return `${a.present} Present / ${a.working} Working Days | ${a.absent} Absent | ${a.pct.toFixed(2)}%`;
+function getPrintAttendance(recordId){
+    return printAttendanceTotals[String(recordId)] || {working:0,present:0,absent:0,pct:0,hasAny:false};
 }
 
 async function loadPrintAttendanceData(){
@@ -250,6 +251,11 @@ function resultHeaderHtml(){
 
 function resultInfoHtml(record, student){
     const name = String(student.student_name || "");
+    const a = getPrintAttendance(record.id);
+    const attendanceValue = (a.hasAny || a.working > 0) ? String(a.working) : "—";
+    const presentValue = (a.hasAny || a.working > 0) ? String(a.present) : "—";
+    const absentValue = (a.hasAny || a.working > 0) ? String(a.absent) : "—";
+    const pctValue = (a.hasAny || a.working > 0) ? `${a.pct.toFixed(2)}%` : "—";
     return `<div class="result-info">
         <div class="result-info-column">
             <div class="result-info-item"><b>PEN / Student ID:</b><span>${escapeHtml(student.student_id||"")}</span></div>
@@ -261,7 +267,11 @@ function resultInfoHtml(record, student){
         <div class="result-info-column">
             <div class="result-info-item"><b>Father's Name:</b><span class="long-value">${escapeHtml(student.father_name||"")}</span></div>
             <div class="result-info-item"><b>Mother's Name:</b><span class="long-value">${escapeHtml(student.mother_name||"")}</span></div>
-            <div class="result-info-item result-attendance-item"><b>Attendance (${escapeHtml(printAttendancePeriod)}):</b><span class="long-value">${escapeHtml(formatPrintAttendance(record.id))}</span></div>
+            <div class="result-info-item result-attendance-period"><b>Attendance:</b><span>${escapeHtml(printAttendancePeriod)}</span></div>
+            <div class="result-info-item result-attendance-row"><b>Working Days:</b><span>${escapeHtml(attendanceValue)}</span></div>
+            <div class="result-info-item result-attendance-row"><b>Present:</b><span>${escapeHtml(presentValue)}</span></div>
+            <div class="result-info-item result-attendance-row"><b>Absent:</b><span>${escapeHtml(absentValue)}</span></div>
+            <div class="result-info-item result-attendance-row"><b>Attendance %:</b><span>${escapeHtml(pctValue)}</span></div>
         </div>
     </div>`;
 }
