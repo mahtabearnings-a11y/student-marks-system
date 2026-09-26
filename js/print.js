@@ -26,29 +26,21 @@ function populatePrintSessions() {
 
 function printClassName(n){ return className(Number(n)); }
 let printAttendanceTotals = {};
-let printAttendancePeriod = "Apr – Sept";
+let printAttendancePeriod = "April–September";
 
 function getPrintAttendanceMonthRange(exam){
-    if(exam === "Final") return Array.from({length:12}, (_,i)=>i+1);
-    if(exam === "Annual") return [7,8,9,10,11,12];
-    return [1,2,3,4,5,6]; // Half-Yearly
+    return exam === "Final" ? Array.from({length:12}, (_,i)=>i+1) : [1,2,3,4,5,6];
 }
 
 function getPrintAttendancePeriod(exam){
-    if(exam === "Final") return "Apr – Mar";
-    if(exam === "Annual") return "Oct – Mar";
-    return "Apr – Sept"; // Half-Yearly
+    return exam === "Final" ? "April–March" : "April–September";
 }
 
 
-function getPrintAttendance(recordId){
-    return printAttendanceTotals[String(recordId)] || {
-        working: 0,
-        present: 0,
-        absent: 0,
-        pct: 0,
-        hasAny: false
-    };
+function formatPrintAttendance(recordId){
+    const a = printAttendanceTotals[String(recordId)];
+    if(!a || !a.hasAny || !a.working) return "—";
+    return `${a.present} Present / ${a.working} Working Days | ${a.absent} Absent | ${a.pct.toFixed(2)}%`;
 }
 
 async function loadPrintAttendanceData(){
@@ -269,11 +261,7 @@ function resultInfoHtml(record, student){
         <div class="result-info-column">
             <div class="result-info-item"><b>Father's Name:</b><span class="long-value">${escapeHtml(student.father_name||"")}</span></div>
             <div class="result-info-item"><b>Mother's Name:</b><span class="long-value">${escapeHtml(student.mother_name||"")}</span></div>
-            <div class="result-info-item result-attendance-period"><b>Attendance:</b><span>${escapeHtml(printAttendancePeriod)}</span></div>
-            <div class="result-info-item result-attendance-row"><b>Working Days:</b><span>${getPrintAttendance(record.id).working || "—"}</span></div>
-            <div class="result-info-item result-attendance-row"><b>Present:</b><span>${getPrintAttendance(record.id).present || "—"}</span></div>
-            <div class="result-info-item result-attendance-row"><b>Absent:</b><span>${getPrintAttendance(record.id).absent || "—"}</span></div>
-            <div class="result-info-item result-attendance-row"><b>Attendance %:</b><span>${getPrintAttendance(record.id).hasAny && getPrintAttendance(record.id).working ? getPrintAttendance(record.id).pct.toFixed(2) + "%" : "—"}</span></div>
+            <div class="result-info-item result-attendance-item"><b>Attendance (${escapeHtml(printAttendancePeriod)}):</b><span class="long-value">${escapeHtml(formatPrintAttendance(record.id))}</span></div>
         </div>
     </div>`;
 }
@@ -320,7 +308,7 @@ function resultHtml(record,pageNo,totalPages){
             ${resultSignatureHtml()}
         </div>`;
     }
-    const markHeader=`<th>Half-Yearly / 50</th><th>Annual / 50</th><th>Full Marks</th>`;
+    const markHeader=`<th>Half-Yearly<br>/ 50</th><th>Annual<br>/ 50</th><th>Full Marks</th>`;
     const rows=printSubjects.map((sub,index)=>{
         const hv=getPrintMark(record.id,sub.id,"Half-Yearly"), av=getPrintMark(record.id,sub.id,"Annual");
         return `<tr><td class="serial-cell">${index+1}</td><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${hv??""}</td><td>${av??""}</td><td>100</td></tr>`;
