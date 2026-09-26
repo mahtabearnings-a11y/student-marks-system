@@ -861,114 +861,175 @@
   }
 }
 
-
 /* =========================================================
-   RESULT LOGO POSITION — CLEAN TRANSPARENT EMBLEM
-   Keep the seal clearly inside the report-card frame while
-   leaving the divider fully visible beneath it.
+   CLASS MARKS FOLIO — MS WORD STYLE REFINEMENT
+   Applies ONLY to the Class Marks Folio.
+   Student Result / Report Card is intentionally untouched.
 ========================================================= */
 @media print {
-  .result-logo-wrap {
-    left: 1.5mm !important;
-    top: calc(47% - 1mm) !important;
-    width: 35mm !important;
-    height: 35mm !important;
-    transform: translateY(-50%) !important;
-    overflow: visible !important;
-    background: transparent !important;
-    z-index: 5 !important;
+  .folio-print {
+    page:folio !important;
+    border:0 !important;
+    padding:0 !important;
+    margin:0 !important;
+    min-height:0 !important;
+    color:#1f2f46 !important;
+    font-family:"Times New Roman", Times, serif !important;
+    background:#fff !important;
   }
 
-  .result-school-logo {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
-    object-position: center !important;
-    display: block !important;
-    background: transparent !important;
-  }
-}
-
-
-/* =========================================================
-   RESULT/FOLIO PRINT CORRECTION
-   - Preserve the approved logo position above; do not override it here.
-   - Force Times New Roman throughout printed Results and Mark Folios.
-   - Restore the signature lines at the bottom of each Student Result.
-   - Keep attendance in separate student-information rows.
-========================================================= */
-@media print {
-  .result-page,
-  .result-page * {
-    font-family: "Times New Roman", Times, serif !important;
+  .folio-print,
+  .folio-print * {
+    font-family:"Times New Roman", Times, serif !important;
+    box-sizing:border-box !important;
   }
 
-  .result-signatures {
-    position: absolute !important;
-    left: 10mm !important;
-    right: 10mm !important;
-    bottom: 6mm !important;
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 24mm !important;
-    align-items: end !important;
-    z-index: 3 !important;
+  .folio-print .result-header {
+    margin:0 0 2.5mm !important;
+    padding:0 !important;
+    border:0 !important;
   }
 
-  .result-signature-box {
-    min-width: 0 !important;
-    text-align: center !important;
+  .folio-print .result-header h1 {
+    margin:0 !important;
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:18pt !important;
+    line-height:1.05 !important;
+    color:#174b88 !important;
+    font-weight:700 !important;
   }
 
-  .result-signature-line {
-    width: 52mm !important;
-    max-width: 100% !important;
-    margin: 0 auto 1.4mm !important;
-    border-top: 1pt solid #333 !important;
-    height: 0 !important;
+  .folio-print .result-header h2 {
+    font-family:"Times New Roman", Times, serif !important;
+    margin:0.8mm 0 0 !important;
+    font-size:14pt !important;
+    line-height:1.05 !important;
+    color:#1f3f6f !important;
+    font-weight:700 !important;
   }
 
-  .result-signature-label {
-    margin: 0 !important;
-    font-size: 11pt !important;
-    line-height: 1.05 !important;
-    font-weight: 700 !important;
-    color: #18345c !important;
-    white-space: nowrap !important;
+  .folio-print .result-header .small {
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:10.5pt !important;
+    line-height:1.1 !important;
+    color:#304b68 !important;
+    margin-top:0.8mm !important;
   }
 
-  .result-attendance-item,
-  .result-attendance-period,
-  .result-attendance-row {
-    min-width: 0 !important;
+  .folio-print .result-table {
+    width:194mm !important;
+    max-width:194mm !important;
+    min-width:194mm !important;
+    margin:0 !important;
+    table-layout:fixed !important;
+    border-collapse:collapse !important;
+    border-spacing:0 !important;
+    border:1pt solid #59677a !important;
+    background:#fff !important;
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:10.5pt !important;
   }
 
-  .result-attendance-period span,
-  .result-attendance-row span {
-    text-align: left !important;
-  }
-}
-
-/* =========================================================
-   RESULT THEME FILLS — RESULT ONLY
-   Keep Class Marks Folio completely unchanged.
-   Uses the same soft blue family as the existing school theme.
-========================================================= */
-@media print {
-  .result-page:not(.folio-print) .result-title {
-    background: #dceaff !important;
+  .folio-print .result-table thead {
+    display:table-header-group !important;
   }
 
-  .result-page:not(.folio-print) .result-table thead th {
-    background: #dceaff !important;
+  .folio-print .result-table th,
+  .folio-print .result-table td {
+    border:0.8pt solid #657286 !important;
+    font-family:"Times New Roman", Times, serif !important;
+    text-align:center !important;
+    vertical-align:middle !important;
+    color:#172b45 !important;
   }
 
-  .result-page:not(.folio-print) .result-total-row th,
-  .result-page:not(.folio-print) .result-total-row td {
-    background: #dceaff !important;
+  .folio-print .result-table th {
+    height:24mm !important;
+    padding:1mm 0.8mm !important;
+    background:#dce9f8 !important;
+    color:#174b88 !important;
+    font-size:10.5pt !important;
+    line-height:1.05 !important;
+    font-weight:700 !important;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
   }
 
-  .result-page:not(.folio-print) .result-summary-card {
-    background: #dceaff !important;
+  .folio-print .result-table td {
+    height:9mm !important;
+    padding:1.2mm 1mm !important;
+    background:#fff !important;
+    font-size:10.5pt !important;
+    line-height:1.1 !important;
+  }
+
+  .folio-print .result-table td.name {
+    text-align:left !important;
+    padding-left:2mm !important;
+    padding-right:2mm !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+    word-break:normal !important;
+  }
+
+  /* Subject columns are narrow by design; rotate only the subject names 90°. */
+  .folio-print .result-table th.folio-subject-head {
+    padding:0.5mm 0.4mm !important;
+    position:relative !important;
+    overflow:visible !important;
+  }
+
+  .folio-print .folio-subject-name-wrap {
+    width:100% !important;
+    height:19mm !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    overflow:visible !important;
+    position:relative !important;
+  }
+
+  .folio-print .folio-subject-name {
+    display:inline-block !important;
+    white-space:normal !important;
+    text-align:center !important;
+    line-height:1.02 !important;
+    font-size:10.5pt !important;
+    font-weight:700 !important;
+    color:#174b88 !important;
+    transform:rotate(-90deg) !important;
+    transform-origin:center center !important;
+  }
+
+  .folio-print .folio-subject-head small {
+    display:block !important;
+    margin:0 !important;
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:9.5pt !important;
+    line-height:1 !important;
+    font-weight:700 !important;
+    color:#174b88 !important;
+  }
+
+  /* Keep identity/result headers horizontal and easy to read. */
+  .folio-print .folio-rotated-head:not(.folio-subject-head) .folio-head-label {
+    display:inline-block !important;
+    white-space:normal !important;
+    line-height:1.05 !important;
+  }
+
+  /* Slightly wider serial/roll cells prevent 10, 11, 12... from breaking. */
+  .folio-print .result-table colgroup col:nth-child(1) { width:10mm !important; }
+  .folio-print .result-table colgroup col:nth-child(2) { width:10mm !important; }
+  .folio-print .result-table colgroup col:nth-child(3) { width:55mm !important; }
+  .folio-print .result-table colgroup col:last-child { width:16mm !important; }
+  .folio-print .result-table colgroup col:nth-last-child(2) { width:18mm !important; }
+  .folio-print .result-table colgroup col:nth-last-child(3) { width:14mm !important; }
+
+  /* Keep every subject column equal after the fixed identity/result columns. */
+  .folio-print .result-table th.folio-subject-head,
+  .folio-print .result-table td:nth-child(n+4):nth-last-child(n+4) {
+    padding-left:0.5mm !important;
+    padding-right:0.5mm !important;
   }
 }
