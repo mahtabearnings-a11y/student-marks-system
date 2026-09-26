@@ -9,6 +9,7 @@ const BACKUP_TABLES = [
     "subjects",
     "exam_marks",
     "monthly_attendance",
+    "monthly_working_days",
     "promotion_history",
     "recycle_bin"
 ];
@@ -186,6 +187,7 @@ async function restoreBackupFile(file) {
             "academic_records",
             "exam_marks",
             "monthly_attendance",
+            "monthly_working_days",
             "promotion_history",
             "recycle_bin"
         ];

@@ -59,6 +59,10 @@ async function loadSessions() {
         sessionFilter.value = activeSession ? String(activeSession.id) : "";
     }
 
+    if (classFilter && ![...classFilter.options].some(o => o.value === "all" && o.selected)) {
+        classFilter.value = "all";
+    }
+
     if (typeof updateAcademicSessionProtectionUI === "function") {
         updateAcademicSessionProtectionUI();
     }
@@ -91,10 +95,11 @@ function className(classNo) {
    SECTION NAVIGATION
 ========================================================= */
 function resetStudentsState(){
-    if(sessionFilter) sessionFilter.value="";
-    if(classFilter) classFilter.value="";
-    if(studentSearch) studentSearch.value="";
-    if(studentSort) studentSort.value="rollAsc";
+    const active = sessions.find(s => s.is_active);
+    if(sessionFilter) sessionFilter.value = active ? String(active.id) : "";
+    if(classFilter) classFilter.value = "all";
+    if(studentSearch) studentSearch.value = "";
+    if(studentSort) studentSort.value = "";
 }
 function resetMarksState(){
     marksSavedSnapshot = null;

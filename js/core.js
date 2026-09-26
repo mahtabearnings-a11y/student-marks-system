@@ -277,6 +277,7 @@ const attendanceSort = document.getElementById("attendanceSort");
 const attendanceMonths = document.getElementById("attendanceMonths");
 const attendanceSelectedLabel = document.getElementById("attendanceSelectedLabel");
 const attendanceRecordCount = document.getElementById("attendanceRecordCount");
+const attendanceWorkingDaysContainer = document.getElementById("attendanceWorkingDaysContainer");
 const attendanceTableContainer = document.getElementById("attendanceTableContainer");
 const attendanceSaveButton = document.getElementById("attendanceSaveButton");
 const attendancePrintButton = document.getElementById("attendancePrintButton");
@@ -284,6 +285,7 @@ const attendanceSelectAll = document.getElementById("attendanceSelectAll");
 const attendanceClearMonths = document.getElementById("attendanceClearMonths");
 let attendanceStudents = [];
 let attendanceData = {};
+let attendanceWorkingDays = {};
 let attendanceSelectedMonths = [];
 
 
@@ -570,7 +572,12 @@ function destroyFrozenTableHeader(container) {
 
     window.removeEventListener("scroll", state.update, true);
     window.removeEventListener("resize", state.update, true);
+    window.removeEventListener("orientationchange", state.update, true);
     container.removeEventListener("scroll", state.update, true);
+    if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", state.update, true);
+        window.visualViewport.removeEventListener("scroll", state.update, true);
+    }
 
     if (state.resizeObserver) {
         state.resizeObserver.disconnect();
@@ -736,7 +743,12 @@ function setupFrozenTableHeader(containerOrId) {
 
     window.addEventListener("scroll", update, true);
     window.addEventListener("resize", update, true);
+    window.addEventListener("orientationchange", update, true);
     container.addEventListener("scroll", update, true);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", update, true);
+        window.visualViewport.addEventListener("scroll", update, true);
+    }
 
     const state = {
         host,

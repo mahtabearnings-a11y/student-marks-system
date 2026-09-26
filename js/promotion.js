@@ -17,6 +17,7 @@ const promotionReviewInfo = document.getElementById("promotionReviewInfo");
 const promotionHistoryContainer = document.getElementById("promotionHistoryContainer");
 const promotionHistoryCount = document.getElementById("promotionHistoryCount");
 const refreshPromotionHistoryButton = document.getElementById("refreshPromotionHistoryButton");
+const promotionSelectAll = document.getElementById("promotionSelectAll");
 
 let promotionStudents = [];
 let promotionReviewRows = [];
@@ -124,6 +125,19 @@ function renderPromotionStudents(){
     promotionTableContainer.innerHTML=`<table class="promotion-table"><thead><tr><th>Select</th><th>Current Roll</th><th>Student Name</th><th>Student ID</th><th>Final Total</th><th>%</th><th>Grade</th><th>Rank</th><th>Status</th></tr></thead><tbody>${rows||`<tr><td colspan="9">No students found.</td></tr>`}</tbody></table>`;
     promotionRecordCount.textContent=`${promotionStudents.length} student${promotionStudents.length===1?"":"s"} found`;
     promotionListCard.classList.remove("hidden");
+    if (promotionSelectAll) {
+        promotionSelectAll.checked = promotionStudents.length > 0;
+        promotionSelectAll.indeterminate = false;
+    }
+    promotionTableContainer.querySelectorAll(".promotion-select").forEach(box => {
+        box.addEventListener("change", () => {
+            if (!promotionSelectAll) return;
+            const boxes = [...promotionTableContainer.querySelectorAll(".promotion-select")];
+            const checked = boxes.filter(item => item.checked).length;
+            promotionSelectAll.checked = boxes.length > 0 && checked === boxes.length;
+            promotionSelectAll.indeterminate = checked > 0 && checked < boxes.length;
+        });
+    });
 }
 
 function selectedPromotionStudents(){
@@ -345,6 +359,10 @@ async function revertPromotionBatch(batchId){
 if(promotionSession)promotionSession.addEventListener("change",loadPromotionStudents);
 if(promotionClass)promotionClass.addEventListener("change",loadPromotionStudents);
 if(promotionSort)promotionSort.addEventListener("change",renderPromotionStudents);
+if(promotionSelectAll) promotionSelectAll.addEventListener("change", () => {
+    promotionTableContainer?.querySelectorAll(".promotion-select").forEach(box => { box.checked = promotionSelectAll.checked; });
+    promotionSelectAll.indeterminate = false;
+});
 if(promoteStudentsButton)promoteStudentsButton.addEventListener("click",openPromotionReview);
 if(promotionBackButton)promotionBackButton.addEventListener("click",()=>{promotionReviewCard.classList.add("hidden");promotionListCard.classList.remove("hidden");});
 if(confirmPromotionButton)confirmPromotionButton.addEventListener("click",confirmPromotion);

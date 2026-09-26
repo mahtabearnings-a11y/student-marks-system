@@ -1537,6 +1537,7 @@ window.viewHistory =
             const [
                 marksResult,
                 attendanceResult,
+                workingDaysResult,
                 promotionResult,
                 subjectsResult
             ] = await Promise.all([
@@ -1546,8 +1547,12 @@ window.viewHistory =
                     .in("academic_record_id", recordIds),
                 supabaseClient
                     .from("monthly_attendance")
-                    .select("academic_record_id, month_no, working_days, present_days")
+                    .select("academic_record_id, month_no, present_days")
                     .in("academic_record_id", recordIds),
+                supabaseClient
+                    .from("monthly_working_days")
+                    .select("session_id, month_no, working_days")
+                    .in("session_id", records.map(record => Number(record.session_id))),
                 supabaseClient
                     .from("promotion_history")
                     .select("from_session_id, to_session_id, from_class, to_class, from_roll, to_roll, status")
@@ -1561,6 +1566,7 @@ window.viewHistory =
 
             if (marksResult.error) throw marksResult.error;
             if (attendanceResult.error) throw attendanceResult.error;
+            if (workingDaysResult.error) throw workingDaysResult.error;
             if (promotionResult.error) throw promotionResult.error;
             if (subjectsResult.error) throw subjectsResult.error;
 
@@ -1603,11 +1609,18 @@ window.viewHistory =
                 marksByRecord[row.academic_record_id][exam].push(row);
             });
 
+            const workingDaysBySessionMonth = new Map();
+            (workingDaysResult.data || []).forEach(row => {
+                const key = `${String(row.session_id)}_${Number(row.month_no)}`;
+                workingDaysBySessionMonth.set(key, safeNumber(row.working_days));
+            });
+
             const attendanceByRecord = {};
             attendanceRows.forEach(row => {
                 if (!attendanceByRecord[row.academic_record_id]) attendanceByRecord[row.academic_record_id] = [];
-                const working = safeNumber(row.working_days);
                 const present = safeNumber(row.present_days);
+                const record = recordMap.get(String(row.academic_record_id));
+                const working = record ? workingDaysBySessionMonth.get(`${String(record.session_id)}_${Number(row.month_no)}`) ?? null : null;
                 if (working !== null || present !== null) {
                     attendanceByRecord[row.academic_record_id].push({
                         month: Number(row.month_no),
@@ -1651,130 +1664,57 @@ window.viewHistory =
                 };
             };
 
-            const renderExamSection = (record) => {
-                const examGroups = marksByRecord[record.id] || {};
-                const examNames = Object.keys(examGroups);
-
-                if (!examNames.length) {
-                    return `<div class="history-subsection"><div class="history-section-label">Marks</div><div class="history-muted">No marks recorded.</div></div>`;
-                }
-
-                const sections = [];
-                const renderedExams = new Set();
-
-                const halfRows = examGroups["Half-Yearly"] || examGroups["Half Yearly"];
-                const annualRows = examGroups["Annual"];
-                if (halfRows && annualRows) {
-                    const finalRows = [
-                        ...(halfRows || []).map(row => ({ ...row, _finalComponent: true })),
-                        ...(annualRows || []).map(row => ({ ...row, _finalComponent: true }))
-                    ];
-                    const finalSummary = calculateExamSummary(finalRows, record);
-                    if (finalSummary.rows.length) {
-                        sections.push(`
-                            <div class="history-exam-card">
-                                <div class="history-exam-header">
-                                    <strong>Final</strong>
-                                    <span>${finalSummary.total}/${finalSummary.full} • ${finalSummary.pct === null ? "" : finalSummary.pct.toFixed(2) + "%"} ${finalSummary.grade ? "• Grade " + finalSummary.grade : ""}</span>
-                                </div>
-                                <div class="history-mini-table-wrap">
-                                    <table class="history-mini-table history-marks-table">
-                                        <thead><tr><th>Subject</th><th>Marks</th><th>Full Marks</th></tr></thead>
-                                        <tbody>
-                                            ${(() => {
-                                                const subjectScores = {};
-                                                (halfRows || []).forEach(row => {
-                                                    const subject = subjectMap.get(String(row.subject_id));
-                                                    const key = String(row.subject_id);
-                                                    if (!subjectScores[key]) subjectScores[key] = { subject, half: null, annual: null, full: 0 };
-                                                    subjectScores[key].half = safeNumber(row.marks);
-                                                    subjectScores[key].full += safeNumber(row.full_marks) || 0;
-                                                });
-                                                (annualRows || []).forEach(row => {
-                                                    const subject = subjectMap.get(String(row.subject_id));
-                                                    const key = String(row.subject_id);
-                                                    if (!subjectScores[key]) subjectScores[key] = { subject, half: null, annual: null, full: 0 };
-                                                    subjectScores[key].annual = safeNumber(row.marks);
-                                                    subjectScores[key].full += safeNumber(row.full_marks) || 0;
-                                                });
-                                                return Object.values(subjectScores)
-                                                    .sort((a, b) => Number(a.subject?.display_order ?? 9999) - Number(b.subject?.display_order ?? 9999))
-                                                    .map(item => `<tr><td>${escapeHtml(item.subject?.subject_name || "Subject")}</td><td>${item.half !== null || item.annual !== null ? displayValue((item.half || 0) + (item.annual || 0)) : ""}</td><td>${displayValue(item.full || "")}</td></tr>`)
-                                                    .join("");
-                                            })()}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        `);
-                    }
-                    if (examGroups["Half-Yearly"]) renderedExams.add("Half-Yearly");
-                    if (examGroups["Half Yearly"]) renderedExams.add("Half Yearly");
-                    if (examGroups["Annual"]) renderedExams.add("Annual");
-                }
-
-                examNames.forEach(exam => {
-                    if (renderedExams.has(exam)) return;
-                    const summary = calculateExamSummary(examGroups[exam], record);
-                    if (!summary.rows.length) return;
-                    sections.push(`
-                        <div class="history-exam-card">
-                            <div class="history-exam-header">
-                                <strong>${escapeHtml(exam)}</strong>
-                                <span>${summary.total}/${summary.full} • ${summary.pct === null ? "" : summary.pct.toFixed(2) + "%"} ${summary.grade ? "• Grade " + summary.grade : ""}</span>
-                            </div>
-                            <div class="history-mini-table-wrap">
-                                <table class="history-mini-table history-marks-table">
-                                    <thead><tr><th>Subject</th><th>Marks</th><th>Full Marks</th></tr></thead>
-                                    <tbody>
-                                        ${summary.rows.map(row => {
-                                            const subject = subjectMap.get(String(row.subject_id));
-                                            return `<tr><td>${escapeHtml(subject?.subject_name || "Subject")}</td><td>${displayValue(row.marks)}</td><td>${displayValue(row.full_marks)}</td></tr>`;
-                                        }).join("")}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    `);
+            const calculateSummaryFromRows = rows => {
+                const meaningful = (rows || []).filter(row => row.marks !== null && row.marks !== undefined && row.marks !== "");
+                if (!meaningful.length) return null;
+                let total = 0;
+                let full = 0;
+                meaningful.forEach(row => {
+                    const marks = safeNumber(row.marks);
+                    const fm = safeNumber(row.full_marks);
+                    if (marks !== null) total += marks;
+                    if (fm !== null) full += fm;
                 });
+                const pct = full > 0 ? (total / full) * 100 : null;
+                return { total, full, pct, grade: pct === null ? "" : gradeForHistory(pct) };
+            };
 
-                return `<div class="history-subsection"><div class="history-section-label">Marks</div>${sections.join("")}</div>`;
+            const renderExamSection = record => {
+                const examGroups = marksByRecord[record.id] || {};
+                const halfRows = examGroups["Half-Yearly"] || examGroups["Half Yearly"] || [];
+                const annualRows = examGroups["Annual"] || [];
+                const finalRows = examGroups["Final"] || [];
+                const derivedFinalRows = finalRows.length ? finalRows : [
+                    ...halfRows.map(row => ({ ...row })),
+                    ...annualRows.map(row => ({ ...row }))
+                ];
+                const summaries = [
+                    ["Half-Yearly", calculateSummaryFromRows(halfRows)],
+                    ["Annual", calculateSummaryFromRows(annualRows)],
+                    ["Final", calculateSummaryFromRows(derivedFinalRows)]
+                ];
+                const cards = summaries.map(([label, summary]) => {
+                    if (!summary) return `<div class="history-exam-card"><div class="history-exam-header"><strong>${label}</strong><span>Not Recorded</span></div></div>`;
+                    return `<div class="history-exam-card"><div class="history-exam-header"><strong>${label}</strong><span>Total <strong>${displayValue(summary.total)}</strong> &nbsp;•&nbsp; Percentage <strong>${summary.pct === null ? "" : summary.pct.toFixed(2) + "%"}</strong> &nbsp;•&nbsp; Grade <strong>${escapeHtml(summary.grade)}</strong></span></div></div>`;
+                }).join("");
+                return `<div class="history-subsection"><div class="history-section-label">Marks</div>${cards}</div>`;
             };
 
             const renderAttendanceSection = record => {
                 const rows = (attendanceByRecord[record.id] || []).sort((a, b) => a.month - b.month);
-                if (!rows.length) {
+                const working = [...workingDaysBySessionMonth.entries()]
+                    .filter(([key]) => key.startsWith(`${String(record.session_id)}_`))
+                    .reduce((sum, [, value]) => sum + (value ?? 0), 0);
+                const present = rows.reduce((sum, row) => sum + (row.present ?? 0), 0);
+                if (!working && !rows.length) {
                     return `<div class="history-subsection"><div class="history-section-label">Attendance</div><div class="history-muted">No attendance recorded.</div></div>`;
                 }
-
-                let totalWorking = 0;
-                let totalPresent = 0;
-                rows.forEach(row => {
-                    if (row.working !== null) totalWorking += row.working;
-                    if (row.present !== null) totalPresent += row.present;
-                });
-                const totalPct = totalWorking > 0 ? (totalPresent / totalWorking) * 100 : null;
-
                 return `
                     <div class="history-subsection">
                         <div class="history-section-label">Attendance</div>
                         <div class="history-attendance-summary">
-                            <span><strong>Working:</strong> ${totalWorking}</span>
-                            <span><strong>Present:</strong> ${totalPresent}</span>
-                            <span><strong>Absent:</strong> ${Math.max(0, totalWorking - totalPresent)}</span>
-                            <span><strong>Attendance:</strong> ${totalPct === null ? "" : totalPct.toFixed(2) + "%"}</span>
-                        </div>
-                        <div class="history-mini-table-wrap">
-                            <table class="history-mini-table">
-                                <thead><tr><th>Month</th><th>Working Days</th><th>Present</th><th>Absent</th><th>Attendance %</th></tr></thead>
-                                <tbody>
-                                    ${rows.map(row => {
-                                        const pct = row.working && row.present !== null ? (row.present / row.working) * 100 : null;
-                                        const absent = row.working !== null && row.present !== null ? Math.max(0, row.working - row.present) : null;
-                                        return `<tr><td>${escapeHtml(monthNames[(row.month || 1) - 1] || String(row.month || ""))}</td><td>${displayValue(row.working)}</td><td>${displayValue(row.present)}</td><td>${displayValue(absent)}</td><td>${pct === null ? "" : pct.toFixed(2) + "%"}</td></tr>`;
-                                    }).join("")}
-                                </tbody>
-                            </table>
+                            <span><strong>Working Days (Total):</strong> ${working}</span>
+                            <span><strong>Present Days (Total):</strong> ${present}</span>
                         </div>
                     </div>
                 `;
