@@ -237,6 +237,38 @@ body:not(.auth-ready) #appPage {
                 </div>
             </div>
 
+            <div class="dashboard-analytics-grid">
+                <section class="card dashboard-analytics-card dashboard-class-distribution">
+                    <div class="dashboard-section-heading">
+                        <div>
+                            <h3>Students by Class</h3>
+                            <p>Current student distribution across classes.</p>
+                        </div>
+                        <span class="dashboard-section-badge">Live</span>
+                    </div>
+                    <div class="dashboard-bars" id="dashboardClassBars" aria-label="Students by class chart"></div>
+                </section>
+
+                <section class="card dashboard-analytics-card dashboard-gender-distribution">
+                    <div class="dashboard-section-heading">
+                        <div>
+                            <h3>Gender Distribution</h3>
+                            <p>Student composition for the active academic session.</p>
+                        </div>
+                        <span class="dashboard-section-badge">Overview</span>
+                    </div>
+                    <div class="dashboard-gender-layout">
+                        <div class="dashboard-donut" id="dashboardGenderDonut" aria-label="Gender distribution chart">
+                            <div class="dashboard-donut-center"><strong id="dashboardGenderTotal">—</strong><span>Students</span></div>
+                        </div>
+                        <div class="dashboard-legend">
+                            <div class="dashboard-legend-item"><span class="dashboard-legend-dot dashboard-legend-male"></span><div><strong>Male</strong><span id="dashboardMalePercent">—</span></div></div>
+                            <div class="dashboard-legend-item"><span class="dashboard-legend-dot dashboard-legend-female"></span><div><strong>Female</strong><span id="dashboardFemalePercent">—</span></div></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
             <div class="context-card">
 
                 <h3 style="color:#123b73">
