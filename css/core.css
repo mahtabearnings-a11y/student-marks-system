@@ -1393,17 +1393,6 @@ tbody tr:hover {
 }
 
 
-/* The fixed clone above owns vertical header freezing. Keep only the
-   existing horizontal Roll/Name stickiness on the live Marks table. */
-#marksTableContainer .marks-table th:not(.sticky-roll):not(.sticky-name) {
-    position: static !important;
-    top: auto !important;
-}
-#marksTableContainer .marks-table th.sticky-roll,
-#marksTableContainer .marks-table th.sticky-name {
-    top: auto !important;
-}
-
 /* =========================
    HISTORY REFINEMENTS
 ========================= */
@@ -1635,7 +1624,7 @@ th { font-size: 14pt; }
     position: sticky;
     top: 0;
     z-index: 5;
-    font-size: 14px;
+    font-size: 14pt;
     padding: 9px 8px;
 }
 .student-table td {
@@ -1659,8 +1648,10 @@ th { font-size: 14pt; }
 .marks-grid-wrapper { max-height: 65vh; overflow: auto; }
 .marks-table th,
 .marks-table td { border-right: 1px solid #dbe3ee; border-bottom: 1px solid #dbe3ee; }
-.marks-table th { background: #eef4fb; color: #123b73; padding: 9px 8px; }
+.marks-table th { position: sticky; top: 0; z-index: 5; background: #eef4fb; color: #123b73; padding: 9px 8px; font-size: 14pt; }
 .marks-table td { padding: 9px 8px; font-size: 12pt; }
+.marks-table th.sticky-roll,
+.marks-table th.sticky-name { background: #eef4fb; z-index: 9; }
 @media(max-width:700px){
   .student-grid-wrapper { max-height: 62vh; }
   .student-table th.sticky-roll,
