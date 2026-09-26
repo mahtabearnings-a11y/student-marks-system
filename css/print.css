@@ -654,3 +654,206 @@
   .result-summary-card span { margin-bottom:1.2mm !important; font-size:10pt !important; line-height:1.05 !important; font-weight:800 !important; color:#4c6076 !important; }
   .result-summary-card strong { font-size:14pt !important; line-height:1.05 !important; color:#163d73 !important; font-weight:800 !important; overflow-wrap:anywhere !important; }
 }
+
+/* =========================================================
+   APPROVED REPORT CARD REFINEMENT
+   - A4 portrait
+   - unified section widths
+   - stronger double-style frame
+   - logo overlaps header divider
+   - 12pt minimum body/table typography
+   - summary separators restored
+========================================================= */
+@media print {
+  .result-page {
+    position: relative !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 5.5mm 5.5mm 6mm !important;
+    border: 1.15pt solid #2a2a2a !important;
+    color: #1f3552 !important;
+    background: #fff !important;
+    overflow: visible !important;
+  }
+
+  .result-page::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 2.2mm !important;
+    border: 0.75pt solid #4a4a4a !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+  }
+
+  .result-header,
+  .result-info,
+  .result-table,
+  .result-summary-grid {
+    position: relative !important;
+    z-index: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .result-header-top {
+    min-height: 36mm !important;
+    z-index: 2 !important;
+  }
+
+  .result-logo-wrap {
+    left: 1mm !important;
+    top: 50% !important;
+    width: 37mm !important;
+    height: 37mm !important;
+    transform: translateY(-50%) !important;
+    overflow: visible !important;
+    background: #fff !important;
+    z-index: 5 !important;
+  }
+
+  .result-school-logo {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    display: block !important;
+    background: #fff !important;
+  }
+
+  .result-header-text {
+    padding: 0 18mm !important;
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  .result-divider {
+    position: relative !important;
+    z-index: 1 !important;
+    margin: 1mm 0 2.8mm !important;
+    border-top: 1.15pt solid #2f2f2f !important;
+  }
+
+  /* Normal/supporting type uses 12pt; headings already above 12pt stay larger. */
+  .result-estd,
+  .result-location,
+  .result-session-row,
+  .result-info-item,
+  .result-table,
+  .result-table th,
+  .result-table td,
+  .result-summary-card span {
+    font-size: 12pt !important;
+  }
+
+  .result-info {
+    margin-bottom: 3.2mm !important;
+    border: 1pt solid #3f3f3f !important;
+  }
+
+  .result-info-column {
+    padding: 2.5mm 4mm !important;
+  }
+
+  .result-info-column + .result-info-column {
+    border-left: 1pt solid #3f3f3f !important;
+  }
+
+  .result-info-item {
+    grid-template-columns: 37mm minmax(0, 1fr) !important;
+    gap: 2mm !important;
+    padding: 0.9mm 0 !important;
+    line-height: 1.15 !important;
+  }
+
+  .student-name-value {
+    font-size: 12.2pt !important;
+    line-height: 1.15 !important;
+  }
+
+  /* Use percentage column widths so the marks table can never exceed the
+     exact width of the student-information and summary sections. */
+  .result-table-standard {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+  }
+
+  .result-table-standard .serial-col { width: 9% !important; }
+  .result-table-standard .subject-col { width: 46% !important; }
+  .result-table-standard .marks-col { width: 22.5% !important; }
+  .result-table-standard .full-col { width: 22.5% !important; }
+
+  .final-result-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+  }
+
+  .final-result-table .serial-col { width: 8% !important; }
+  .final-result-table .subject-col { width: 41% !important; }
+  .final-result-table .marks-col { width: 17% !important; }
+  .final-result-table .full-col { width: 17% !important; }
+
+  .result-table th,
+  .result-table td {
+    border-color: #3f3f3f !important;
+    padding: 2.35mm 2.1mm !important;
+    line-height: 1.15 !important;
+  }
+
+  .result-table th {
+    background: #e7f0ff !important;
+  }
+
+  .result-total-row th,
+  .result-total-row td {
+    font-size: 12pt !important;
+    background: #eef3f8 !important;
+    border-color: #3f3f3f !important;
+  }
+
+  .result-summary-grid {
+    width: 100% !important;
+    margin-top: 3.4mm !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .result-summary-card {
+    min-width: 0 !important;
+    min-height: 16.5mm !important;
+    border: 1pt solid #3f3f3f !important;
+    background: #f4f8fd !important;
+    padding: 2.2mm 1.8mm !important;
+  }
+
+  .result-summary-card + .result-summary-card {
+    border-left: 1pt solid #3f3f3f !important;
+  }
+
+  .result-summary-card span {
+    margin-bottom: 1mm !important;
+    line-height: 1.05 !important;
+    color: #4c6076 !important;
+  }
+
+  .result-summary-card strong {
+    font-size: 14pt !important;
+  }
+}
+
+/* Final visual alignment against the approved reference */
+@media print {
+  .result-logo-wrap {
+    top: 55% !important;
+    height: 38mm !important;
+    width: 38mm !important;
+  }
+
+  .result-divider {
+    margin-top: -1.2mm !important;
+    margin-bottom: 3mm !important;
+  }
+}
