@@ -46,17 +46,24 @@ function getPrintMark(recordId,subjectId,exam){
     return v===null||v===undefined?null:Number(v);
 }
 function calcPrintRecord(record){
-    let total=0, entered=0;
+    let total=0, entered=0, complete=true;
     printSubjects.forEach(s=>{
         if(printExam.value==="Final"){
-            const h=getPrintMark(record.id,s.id,"Half-Yearly"), a=getPrintMark(record.id,s.id,"Annual");
-            if(h!==null||a!==null) entered++;
+            const h=getPrintMark(record.id,s.id,"Half-Yearly");
+            const a=getPrintMark(record.id,s.id,"Annual");
+            if(h!==null && a!==null) entered++;
+            else complete=false;
             total+=(h||0)+(a||0);
-        } else { const v=getPrintMark(record.id,s.id,printExam.value); if(v!==null) entered++; total+=v||0; }
+        } else {
+            const v=getPrintMark(record.id,s.id,printExam.value);
+            if(v!==null) entered++;
+            else complete=false;
+            total+=v||0;
+        }
     });
     const max=printSubjects.length*(printExam.value==="Final"?100:50);
     const pct=max?(total/max)*100:0;
-    return {total,pct,max,grade:entered?printGrade(pct):""};
+    return {total,pct,max,grade:entered?printGrade(pct):"",entered,complete};
 }
 function filterPrintStudents(){
     if(!printStudentSelect) return;
@@ -98,14 +105,15 @@ function resultHeaderHtml(){
     const sessionName = escapeHtml(printSession?.options?.[printSession.selectedIndex]?.text || "");
     const examName = escapeHtml(printExam?.value || "");
     return `<div class="result-header">
-        <div class="result-header-brand">
-            <div class="result-logo-wrap"><img src="school-logo.png" alt="U.M.S SASAULI URDU" class="result-school-logo"></div>
+        <div class="result-header-top">
+            <div class="result-logo-wrap"><img src="./school-logo-polished.png" alt="U.M.S SASAULI URDU" class="result-school-logo"></div>
             <div class="result-header-text">
                 <h1>U.M.S SASAULI URDU</h1>
                 <div class="result-estd">ESTD. 1986</div>
                 <div class="result-location">Muzaffarpur, Bihar</div>
             </div>
         </div>
+        <div class="result-divider"></div>
         <div class="result-title">STUDENT RESULT</div>
         <div class="result-session-row">
             <span><b>Academic Session:</b> ${sessionName}</span>
@@ -117,21 +125,27 @@ function resultHeaderHtml(){
 function resultInfoHtml(record, student){
     const name = String(student.student_name || "");
     return `<div class="result-info">
-        <div class="result-info-item"><b>PEN / Student ID</b><span>${escapeHtml(student.student_id||"")}</span></div>
-        <div class="result-info-item"><b>APAAR ID</b><span>${escapeHtml(student.apaar_id||"")}</span></div>
-        <div class="result-info-item"><b>Class</b><span>${escapeHtml(printClassName(record.class_no))}</span></div>
-        <div class="result-info-item result-name-item"><b>Student Name</b><span class="student-name-value">${escapeHtml(name)}</span></div>
-        <div class="result-info-item"><b>Roll Number</b><span>${escapeHtml(record.roll_no??"")}</span></div>
-        <div class="result-info-item"><b>Father's Name</b><span class="long-value">${escapeHtml(student.father_name||"")}</span></div>
-        <div class="result-info-item"><b>Mother's Name</b><span class="long-value">${escapeHtml(student.mother_name||"")}</span></div>
+        <div class="result-info-column">
+            <div class="result-info-item"><b>PEN / Student ID:</b><span>${escapeHtml(student.student_id||"")}</span></div>
+            <div class="result-info-item"><b>APAAR ID:</b><span class="long-value">${escapeHtml(student.apaar_id||"")}</span></div>
+            <div class="result-info-item"><b>Class:</b><span>${escapeHtml(printClassName(record.class_no))}</span></div>
+            <div class="result-info-item"><b>Student Name:</b><span class="student-name-value">${escapeHtml(name)}</span></div>
+            <div class="result-info-item"><b>Roll Number:</b><span>${escapeHtml(record.roll_no??"")}</span></div>
+        </div>
+        <div class="result-info-column">
+            <div class="result-info-item"><b>Father's Name:</b><span class="long-value">${escapeHtml(student.father_name||"")}</span></div>
+            <div class="result-info-item"><b>Mother's Name:</b><span class="long-value">${escapeHtml(student.mother_name||"")}</span></div>
+        </div>
     </div>`;
 }
 
 function resultSummaryHtml(calc, rank){
+    const result = !calc.entered ? "" : (!calc.complete ? "Incomplete" : (calc.grade === "E" ? "Not Passed" : "Passed"));
     return `<div class="result-summary-grid">
         <div class="result-summary-card"><span>Percentage</span><strong>${calc.pct.toFixed(2)}%</strong></div>
         <div class="result-summary-card"><span>Grade</span><strong>${escapeHtml(calc.grade||"")}</strong></div>
         <div class="result-summary-card"><span>Class Rank</span><strong>#${rank}</strong></div>
+        <div class="result-summary-card"><span>Result</span><strong>${escapeHtml(result)}</strong></div>
     </div>`;
 }
 
@@ -140,42 +154,60 @@ function resultHtml(record,pageNo,totalPages){
     const rank=calcRank(record);
     const isFinal=printExam.value==="Final";
     if(!isFinal){
-        const rows=printSubjects.map(sub=>{
+        const rows=printSubjects.map((sub,index)=>{
             const v=getPrintMark(record.id,sub.id,printExam.value);
-            return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${v??""}</td><td>50</td></tr>`;
+            return `<tr><td class="serial-cell">${index+1}</td><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${v??""}</td><td>50</td></tr>`;
         }).join("");
-        const tableHeader=`<tr><th>Subject</th><th>${escapeHtml(printExam.value)} / 50</th><th>Full Marks</th></tr>`;
-        const summaryRows=`<tr class="result-total-row"><th>Total</th><td>${c.total}</td><td>${c.max}</td></tr>`;
+        const tableHeader=`<tr><th>Sl. No.</th><th>Subject</th><th>Obtained Marks</th><th>Full Marks</th></tr>`;
+        const summaryRows=`<tr class="result-total-row"><th colspan="2">Total</th><td>${c.total}</td><td>${c.max}</td></tr>`;
         return `<div class="result-page">
             ${resultHeaderHtml()}
             ${resultInfoHtml(record,s)}
-            <table class="result-table"><colgroup><col class="subject-col"><col class="marks-col"><col class="full-col"></colgroup><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table>
+            <table class="result-table result-table-standard"><colgroup><col class="serial-col"><col class="subject-col"><col class="marks-col"><col class="full-col"></colgroup><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table>
             ${resultSummaryHtml(c,rank)}
         </div>`;
     }
     const markHeader=`<th>Half-Yearly / 50</th><th>Annual / 50</th><th>Full Marks</th>`;
-    const rows=printSubjects.map(sub=>{
+    const rows=printSubjects.map((sub,index)=>{
         const hv=getPrintMark(record.id,sub.id,"Half-Yearly"), av=getPrintMark(record.id,sub.id,"Annual");
-        return `<tr><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${hv??""}</td><td>${av??""}</td><td>100</td></tr>`;
+        return `<tr><td class="serial-cell">${index+1}</td><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${hv??""}</td><td>${av??""}</td><td>100</td></tr>`;
     }).join("");
-    const tableHeader=`<tr><th>Subject</th>${markHeader}</tr>`;
-    const summaryRows=`<tr class="result-total-row"><th>Total</th><td>${c.total}</td><td>${c.max}</td><td></td></tr>`;
+    const tableHeader=`<tr><th>Sl. No.</th><th>Subject</th>${markHeader}</tr>`;
+    const summaryRows=`<tr class="result-total-row"><th colspan="2">Total</th><td>${c.total}</td><td></td><td>${c.max}</td></tr>`;
     return `<div class="result-page">
         ${resultHeaderHtml()}
         ${resultInfoHtml(record,s)}
-        <table class="result-table final-result-table"><colgroup><col class="subject-col"><col class="marks-col"><col class="marks-col"><col class="full-col"></colgroup><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table>
+        <table class="result-table final-result-table"><colgroup><col class="serial-col"><col class="subject-col"><col class="marks-col"><col class="marks-col"><col class="full-col"></colgroup><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table>
         ${resultSummaryHtml(c,rank)}
     </div>`;
 }
 function calcRank(record){ const ranked=printStudents.map(r=>({r,c:calcPrintRecord(r)})).sort((a,b)=>b.c.total-a.c.total||b.c.pct-a.c.pct||Number(a.r.roll_no??999999)-Number(b.r.roll_no??999999)); return ranked.findIndex(x=>x.r.id===record.id)+1; }
 let printTitleBeforeJob="";
+async function waitForPrintAssets(root){
+    const images=[...root.querySelectorAll("img")];
+    await Promise.all(images.map(img=>{
+        if(img.complete) return Promise.resolve();
+        return new Promise(resolve=>{
+            const done=()=>resolve();
+            img.addEventListener("load",done,{once:true});
+            img.addEventListener("error",done,{once:true});
+        });
+    }));
+    if(document.fonts?.ready){
+        try{ await document.fonts.ready; }catch(e){}
+    }
+}
+
 function openPrint(html, suggestedFileName="Student Marks Result"){
     printDocumentHost.innerHTML=`<div class="print-document">${html}</div>`;
     const folioTable=printDocumentHost.querySelector(".folio-print .result-table");
     if(folioTable) autoFitFolioTable(folioTable);
     printTitleBeforeJob=document.title;
     document.title=suggestedFileName;
-    window.print();
+    requestAnimationFrame(async()=>{
+        await waitForPrintAssets(printDocumentHost);
+        setTimeout(()=>window.print(),50);
+    });
 }
 window.addEventListener("afterprint",()=>{ if(printTitleBeforeJob!==""){ document.title=printTitleBeforeJob; printTitleBeforeJob=""; } });
 function getPrintSortedStudents(){
