@@ -948,3 +948,27 @@
     text-align: left !important;
   }
 }
+
+/* =========================================================
+   RESULT THEME FILLS — RESULT ONLY
+   Keep Class Marks Folio completely unchanged.
+   Uses the same soft blue family as the existing school theme.
+========================================================= */
+@media print {
+  .result-page:not(.folio-print) .result-title {
+    background: #dceaff !important;
+  }
+
+  .result-page:not(.folio-print) .result-table thead th {
+    background: #dceaff !important;
+  }
+
+  .result-page:not(.folio-print) .result-total-row th,
+  .result-page:not(.folio-print) .result-total-row td {
+    background: #dceaff !important;
+  }
+
+  .result-page:not(.folio-print) .result-summary-card {
+    background: #dceaff !important;
+  }
+}
