@@ -318,12 +318,12 @@ function resultHtml(record,pageNo,totalPages){
             ${resultSignatureHtml()}
         </div>`;
     }
-    const markHeader=`<th>Half-Yearly / 50</th><th>Annual / 50</th><th>Full Marks</th>`;
+    const markHeader=`<th>Half-Yearly<br>/ 50</th><th>Annual<br>/ 50</th><th>Full Marks</th>`;
     const rows=printSubjects.map((sub,index)=>{
         const hv=getPrintMark(record.id,sub.id,"Half-Yearly"), av=getPrintMark(record.id,sub.id,"Annual");
         return `<tr><td class="serial-cell">${index+1}</td><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${hv??""}</td><td>${av??""}</td><td>100</td></tr>`;
     }).join("");
-    const tableHeader=`<tr><th>Sl. No.</th><th>Subject</th>${markHeader}</tr>`;
+    const tableHeader=`<tr><th>Sl.<br>No.</th><th>Subject</th>${markHeader}</tr>`;
     const summaryRows=`<tr class="result-total-row"><th colspan="2">Total</th><td>${c.total}</td><td></td><td>${c.max}</td></tr>`;
     return `<div class="result-page">
         ${resultHeaderHtml()}
