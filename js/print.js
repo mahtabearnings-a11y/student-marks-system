@@ -25,6 +25,91 @@ function populatePrintSessions() {
 }
 
 function printClassName(n){ return className(Number(n)); }
+let printAttendanceTotals = {};
+let printAttendancePeriod = "April–September";
+
+function getPrintAttendanceMonthRange(exam){
+    return exam === "Final" ? Array.from({length:12}, (_,i)=>i+1) : [1,2,3,4,5,6];
+}
+
+function getPrintAttendancePeriod(exam){
+    return exam === "Final" ? "April–March" : "April–September";
+}
+
+
+function formatPrintAttendance(recordId){
+    const a = printAttendanceTotals[String(recordId)];
+    if(!a || !a.hasAny || !a.working) return "—";
+    return `${a.present} Present / ${a.working} Working Days | ${a.absent} Absent | ${a.pct.toFixed(2)}%`;
+}
+
+async function loadPrintAttendanceData(){
+    printAttendanceTotals = {};
+    printAttendancePeriod = getPrintAttendancePeriod(printExam?.value || "Half-Yearly");
+    const sessionId = Number(printSession?.value);
+    const ids = (printStudents || []).map(r => Number(r.id)).filter(Number.isFinite);
+    if(!sessionId || !ids.length || typeof supabaseClient === "undefined") return;
+
+    const months = getPrintAttendanceMonthRange(printExam?.value || "Half-Yearly");
+    const workingByMonth = {};
+    const presentByRecord = {};
+    let hasAny = false;
+
+    try {
+        const { data: workingRows, error: workingError } = await supabaseClient
+            .from("monthly_working_days")
+            .select("month_no, working_days")
+            .eq("session_id", sessionId)
+            .in("month_no", months);
+        if(!workingError){
+            (workingRows || []).forEach(row => {
+                const monthNo = Number(row.month_no);
+                const days = row.working_days == null ? null : Number(row.working_days);
+                if(Number.isFinite(days)){ workingByMonth[monthNo] = Math.max(0, days); hasAny = true; }
+            });
+        }
+
+        const { data: attendanceRows, error: attendanceError } = await supabaseClient
+            .from("monthly_attendance")
+            .select("academic_record_id, month_no, present_days, working_days")
+            .in("academic_record_id", ids)
+            .in("month_no", months);
+        if(!attendanceError){
+            (attendanceRows || []).forEach(row => {
+                const rid = String(row.academic_record_id);
+                const monthNo = Number(row.month_no);
+                if(!months.includes(monthNo)) return;
+                const present = row.present_days == null ? null : Number(row.present_days);
+                const working = row.working_days == null ? null : Number(row.working_days);
+                if(Number.isFinite(working) && workingByMonth[monthNo] === undefined) workingByMonth[monthNo] = Math.max(0, working);
+                if(Number.isFinite(present)) {
+                    if(!presentByRecord[rid]) presentByRecord[rid] = {};
+                    presentByRecord[rid][monthNo] = Math.max(0, present);
+                    hasAny = true;
+                }
+            });
+        }
+    } catch(e) {
+        // Printing should still work even if attendance cannot be loaded.
+    }
+
+    ids.forEach(id => {
+        let working = 0, present = 0;
+        months.forEach(monthNo => {
+            working += Number(workingByMonth[monthNo] || 0);
+            present += Number(presentByRecord[String(id)]?.[monthNo] || 0);
+        });
+        present = Math.min(present, working || present);
+        const absent = Math.max(0, working - present);
+        const hasRecordData = months.some(monthNo => presentByRecord[String(id)]?.[monthNo] !== undefined);
+        printAttendanceTotals[String(id)] = {
+            working, present, absent,
+            pct: working ? (present / working) * 100 : 0,
+            hasAny: hasAny && hasRecordData
+        };
+    });
+}
+
 
 function printGrade(p){ return gradeFromPercentage(p); }
 
@@ -135,6 +220,7 @@ function resultInfoHtml(record, student){
         <div class="result-info-column">
             <div class="result-info-item"><b>Father's Name:</b><span class="long-value">${escapeHtml(student.father_name||"")}</span></div>
             <div class="result-info-item"><b>Mother's Name:</b><span class="long-value">${escapeHtml(student.mother_name||"")}</span></div>
+            <div class="result-info-item result-attendance-item"><b>Attendance (${escapeHtml(printAttendancePeriod)}):</b><span class="long-value">${escapeHtml(formatPrintAttendance(record.id))}</span></div>
         </div>
     </div>`;
 }
@@ -242,14 +328,16 @@ function getPrintSortedStudents(){
     });
 }
 
-function printOneStudent(){
+async function printOneStudent(){
     const r=printStudents.find(x=>String(x.id)===String(printStudentSelect.value));
     if(!r){showToast("Please select a student.","error");return;}
+    await loadPrintAttendanceData();
     const studentName=(r.students?.student_name||"Student").trim();
     openPrint(resultHtml(r,1,1), `${studentName} Marks Result`);
 }
-function printAllStudents(){
+async function printAllStudents(){
     if(!printStudents.length){showToast("No students found.","error");return;}
+    await loadPrintAttendanceData();
     const ordered=getPrintSortedStudents();
     const total=ordered.length;
     const classLabel=printClassName(Number(printClass.value));
