@@ -2654,3 +2654,109 @@ th { font-size: 14pt; }
         flex-direction: column;
     }
 }
+
+/* =========================
+   STEP 7 — TYPOGRAPHY STANDARDIZATION
+   Keep one font family and slightly increase readable UI sizes.
+========================= */
+html,
+body,
+button,
+input,
+select,
+textarea,
+.nav-btn,
+.btn,
+.btn-small,
+label,
+table {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    font-size: 13pt;
+}
+
+label,
+input,
+select,
+textarea,
+.nav-btn,
+.record-count,
+.user-email,
+.role-badge,
+.creator-credit,
+.login-note,
+.login-page-credit,
+.brand-feature,
+.error-message,
+.promotion-message,
+.promotion-note,
+.attendance-month-btn,
+.attendance-summary-line,
+.attendance-input,
+.marks-table,
+.marks-input,
+.marks-error,
+.promotion-table,
+.history-details,
+.history-student-header p,
+.history-current-badge span,
+.history-current-badge small,
+.history-year-meta,
+.history-current-pill,
+.history-section-label,
+.history-muted,
+.history-exam-header,
+.history-mini-table,
+.history-attendance-summary,
+.history-promotion-item,
+.recycle-bin-table,
+.recycle-bin-note,
+.recycle-bin-status,
+.login-card form label {
+    font-size: 13pt;
+}
+
+.btn,
+.btn-small,
+.login-btn,
+.logout-btn {
+    font-size: 12pt;
+}
+
+.dashboard-card,
+.stat-card,
+.dashboard-overview-table,
+.section-heading,
+.section-title,
+.card > h3,
+.table-top h3,
+.modal-header h3,
+.academic-year-manager-card h3 {
+    font-size: 15pt;
+}
+
+.marks-table th,
+.attendance-table th,
+.promotion-table th,
+.recycle-bin-table th,
+.history-mini-table th,
+.frozen-table-header-sticky-cells .frozen-sticky-header-cell,
+table th {
+    font-size: 14pt;
+}
+
+.marks-table td,
+.attendance-table td,
+.promotion-table td,
+.recycle-bin-table td,
+.history-mini-table td,
+table td {
+    font-size: 13pt;
+}
+
+.marks-input {
+    font-size: 13pt;
+}
+
