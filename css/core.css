@@ -2342,3 +2342,43 @@ th { font-size: 14pt; }
     .app-shell .logout-btn { padding: 7px 9px; font-size: 11px; }
     .app-shell .topbar-search-text { font-size: 12px; }
 }
+
+/* Full-width horizontal navigation: every tab shares the available space evenly. */
+.app-shell > .navbar {
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+    gap: 0;
+    overflow-x: auto;
+}
+
+.app-shell > .navbar .nav-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    border-radius: 0;
+    border-right: 1px solid rgba(148, 163, 184, 0.30);
+    white-space: nowrap;
+}
+
+.app-shell > .navbar .nav-btn:last-child {
+    border-right: 0;
+}
+
+/* Use the real school emblem in the header and keep it crisp and balanced. */
+.app-shell .app-logo {
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 3px 6px rgba(15, 23, 42, 0.10));
+}
+
+@media (max-width: 760px) {
+    .app-shell > .navbar .nav-btn {
+        flex: 0 0 auto;
+        min-width: 126px;
+    }
+}
