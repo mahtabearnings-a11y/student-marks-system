@@ -161,25 +161,74 @@ body:not(.auth-ready) #appPage {
             id="dashboardSection"
             class="app-section">
 
-            <div class="page-header">
-
+            <div class="dashboard-welcome">
                 <div>
-                    <h2>Dashboard</h2>
-
+                    <div class="dashboard-welcome-kicker">U.M.S SASAULI URDU</div>
+                    <h2>Welcome Back!</h2>
+                    <p>Manage your school data easily and efficiently.</p>
                 </div>
-
+                <div class="dashboard-welcome-mark" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" focusable="false">
+                        <path d="M12 13.5 30 10l22 4.5v35L30 53 12 49.5z"></path>
+                        <path d="M30 10v43M18 17.2l12-2.4M42 18.7 52 21M18 27l12-2.5M42 28.5 52 30.5M18 36.8 30 34.3M42 38.2l10 2"></path>
+                    </svg>
+                </div>
             </div>
 
-
             <div class="dashboard-grid">
-                <div class="dashboard-card"><div id="dashboardMaleStudents" class="number">—</div><div class="label">Male Students</div></div>
-                <div class="dashboard-card"><div id="dashboardFemaleStudents" class="number">—</div><div class="label">Female Students</div></div>
-                <div class="dashboard-card"><div id="dashboardTotalStudents" class="number">—</div><div class="label">Total Students</div></div>
-                <div class="dashboard-card"><div id="dashboardAcademicSession" class="number dashboard-session-number">—</div><div class="label">Academic Session</div></div>
+                <div class="dashboard-card dashboard-card-blue">
+                    <div class="dashboard-card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="8" r="3"></circle><path d="M3.7 19.5c.4-3 2.3-4.8 5.3-4.8s4.9 1.8 5.3 4.8"></path><path d="M15 6.2a3 3 0 0 1 3.8 2.8 3 3 0 0 1-2.3 2.9M16 15.4c2.2.5 3.6 1.9 4 4.1"></path></svg>
+                    </div>
+                    <div class="dashboard-card-copy">
+                        <div class="number" id="dashboardTotalStudents">—</div>
+                        <div class="label">Total Students</div>
+                        <div class="dashboard-card-note">Current academic session</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card dashboard-card-green">
+                    <div class="dashboard-card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="8" r="3"></circle><path d="M3.7 19.5c.4-3 2.3-4.8 5.3-4.8s4.9 1.8 5.3 4.8"></path><path d="M15.5 7.2h4M17.5 5.2v4"></path></svg>
+                    </div>
+                    <div class="dashboard-card-copy">
+                        <div class="number" id="dashboardMaleStudents">—</div>
+                        <div class="label">Male Students</div>
+                        <div class="dashboard-card-note">Student records</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card dashboard-card-rose">
+                    <div class="dashboard-card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="8" r="3"></circle><path d="M3.7 19.5c.4-3 2.3-4.8 5.3-4.8s4.9 1.8 5.3 4.8"></path><path d="M15 8.5h5M17.5 6v5"></path></svg>
+                    </div>
+                    <div class="dashboard-card-copy">
+                        <div class="number" id="dashboardFemaleStudents">—</div>
+                        <div class="label">Female Students</div>
+                        <div class="dashboard-card-note">Student records</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card dashboard-card-amber">
+                    <div class="dashboard-card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false"><rect x="4.5" y="5.5" width="15" height="14" rx="2"></rect><path d="M8 3.5v4M16 3.5v4M4.5 9.5h15M8 13h2M12 13h2M8 16.5h2M12 16.5h2"></path></svg>
+                    </div>
+                    <div class="dashboard-card-copy">
+                        <div class="number dashboard-session-number" id="dashboardAcademicSession">—</div>
+                        <div class="label">Academic Session</div>
+                        <div class="dashboard-card-note">Active session</div>
+                    </div>
+                </div>
             </div>
 
             <div class="card dashboard-overview">
-                <h3>Student Overview</h3>
+                <div class="dashboard-section-heading">
+                    <div>
+                        <h3>Student Overview</h3>
+                        <p>Class-wise student distribution for the active academic session.</p>
+                    </div>
+                    <span class="dashboard-section-badge">Overview</span>
+                </div>
                 <div class="table-wrapper">
                     <table class="dashboard-overview-table">
                         <thead><tr><th>Classes</th><th>Total Students</th><th>Male</th><th>Female</th></tr></thead>
