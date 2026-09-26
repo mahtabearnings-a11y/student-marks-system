@@ -307,8 +307,7 @@ body:not(.auth-ready) #appPage {
                         </label>
 
                         <select id="classFilter">
-                            <option value="">Please Select</option>
-                            <option value="all">
+                            <option value="all" selected>
                                 All Classes
                             </option>
 
@@ -696,6 +695,11 @@ body:not(.auth-ready) #appPage {
                         <button type="button" class="btn btn-secondary btn-small" id="attendanceClearMonths">Clear</button>
                         <span id="attendanceSelectedLabel" class="record-count">No months selected.</span>
                     </div>
+                    <div class="attendance-working-days-panel">
+                        <div class="attendance-working-days-heading">Working Days</div>
+                        <div id="attendanceWorkingDaysContainer" class="attendance-working-days-grid"></div>
+                        <div class="attendance-working-days-note">Enter Working Days once for each selected month. The same value applies to every class and every student for that month.</div>
+                    </div>
                 </div>
             </div>
 
@@ -787,7 +791,10 @@ body:not(.auth-ready) #appPage {
                         <h3 style="color:#123b73;margin:0 0 5px">Students for Promotion</h3>
                         <div id="promotionRecordCount" class="record-count"></div>
                     </div>
-                    <button id="promoteStudentsButton" class="btn btn-primary">Promote Students</button>
+                    <div class="print-actions" style="margin-top:0;align-items:center">
+                        <label class="promotion-select-all-label"><input type="checkbox" id="promotionSelectAll"> <span>Select All Students</span></label>
+                        <button id="promoteStudentsButton" class="btn btn-primary">Promote Students</button>
+                    </div>
                 </div>
                 <div id="promotionTableContainer" class="table-wrapper"></div>
             </div>
