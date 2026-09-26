@@ -578,16 +578,22 @@ body:not(.auth-ready) #appPage {
             id="marksSection"
             class="app-section hidden">
 
-            <div class="page-header">
-                <div>
+            <div class="page-header marks-page-header">
+                <div class="marks-page-title">
+                    <div class="marks-page-kicker">Assessment Management</div>
                     <h2>Marks</h2>
-                    <div class="creator-credit">
-                        Enter, view, arrange and print examination marks
-                    </div>
+                    <p>Enter, review, arrange and print examination marks for the selected class.</p>
                 </div>
             </div>
 
-            <div class="card filter-card">
+            <div class="card filter-card marks-filter-card">
+                <div class="marks-filter-heading">
+                    <div>
+                        <h3>Select Examination Details</h3>
+                        <p>Choose the session, class, examination and arrangement before loading marks.</p>
+                    </div>
+                    <span class="marks-filter-badge">Required</span>
+                </div>
                 <div class="filter-grid">
                     <div class="filter-item">
                         <label for="marksSession">Academic Session</label>
@@ -631,9 +637,14 @@ body:not(.auth-ready) #appPage {
                 </div>
             </div>
 
-            <div class="card" style="margin-top:15px">
-                <h3 style="color:#123b73;margin-bottom:12px">Individual Student Result</h3>
-                <div class="print-controls" style="grid-template-columns:1fr 1fr 1.4fr">
+            <div class="card marks-print-card" style="margin-top:15px">
+                <div class="marks-card-heading">
+                    <div>
+                        <h3>Individual Student Result</h3>
+                        <p>Search for one student and prepare an individual result.</p>
+                    </div>
+                </div>
+                <div class="print-controls marks-print-controls" style="grid-template-columns:1fr 1fr 1.4fr">
                     <div class="filter-item">
                         <label for="printStudentSearch">Search Student</label>
                         <input id="printStudentSearch" type="text" placeholder="Student ID / Name / Roll">
@@ -653,16 +664,21 @@ body:not(.auth-ready) #appPage {
                 </div>
             </div>
 
-            <div class="card" style="margin-top:15px">
-                <h3 style="color:#123b73;margin-bottom:12px">Class Marks Folio</h3>
+            <div class="card marks-print-card" style="margin-top:15px">
+                <div class="marks-card-heading">
+                    <div>
+                        <h3>Class Marks Folio</h3>
+                        <p>Print a consolidated marks folio for the selected class and examination.</p>
+                    </div>
+                </div>
                 <p id="printClassInfo" class="record-count">Select session, class and examination.</p>
                 <div class="print-actions">
                     <button id="printClassFolioButton" class="btn btn-primary">Print Class Marks Folio</button>
                 </div>
             </div>
 
-            <div class="card" style="margin-top:15px">
-                <div class="table-top">
+            <div class="card marks-table-card" style="margin-top:15px">
+                <div class="table-top marks-table-top">
                     <div id="marksRecordCount" class="record-count">Select a session and class.</div>
                     <button id="saveMarksButton" class="btn btn-primary">Save All Marks</button>
                 </div>
