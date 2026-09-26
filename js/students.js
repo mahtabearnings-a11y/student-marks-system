@@ -302,7 +302,7 @@ function renderStudents() {
 
     let html = `
 
-        <table>
+        <table class="student-table">
 
             <thead>
 
