@@ -17,6 +17,24 @@ body:not(.auth-ready) #loginPage,
 body:not(.auth-ready) #appPage {
     visibility: hidden;
 }
+
+.session-timer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    height: 34px;
+    padding: 0 9px;
+    box-sizing: border-box;
+    border: 1px solid #d4ddea;
+    border-radius: 9px;
+    background: #f8fafc;
+    color: #123b73;
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
 </style>
 
 </head>
@@ -101,6 +119,7 @@ body:not(.auth-ready) #appPage {
                 <button type="button" class="theme-placeholder" aria-label="Dark mode">
                     <svg viewBox="0 0 24 24" focusable="false"><path d="M14.9 3.2a7.9 7.9 0 1 0 5.9 13.1A8.2 8.2 0 0 1 14.9 3.2Z"></path></svg>
                 </button>
+                <span id="sessionTimer" class="session-timer" aria-label="Session timer">15:00</span>
                 <span class="user-avatar" aria-hidden="true">MR</span>
                 <div class="user-details">
                     <span id="userEmail" class="user-email"></span>
