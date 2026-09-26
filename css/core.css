@@ -4642,56 +4642,373 @@ table td {
 
 
 /* =========================================================
-   SCHOOL LOGO POSITION — CLEAN TRANSPARENT EMBLEM
-   Uses the shared school-logo-polished.png asset on the
-   sign-in page and the main application header.
+   GLOBAL SEARCH + THEME CONTROLS
 ========================================================= */
 
-.login-school-logo {
-    width: 128px !important;
-    height: 128px !important;
-    object-fit: contain !important;
-    object-position: center !important;
-    margin: 0 auto 16px !important;
-    display: block !important;
-    background: transparent !important;
+.app-shell .topbar-search {
+    position: relative;
 }
 
-.app-shell .topbar-brand {
-    gap: 12px;
-    align-items: center;
+.app-shell .global-search-input {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    border: 0;
+    outline: 0;
+    box-shadow: none !important;
+    background: transparent;
+    color: #24354f;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
 }
 
-.app-shell .app-logo {
-    width: 68px !important;
-    height: 68px !important;
-    max-height: 68px !important;
-    flex: 0 0 68px !important;
-    object-fit: contain !important;
-    object-position: center !important;
-    display: block !important;
-    background: transparent !important;
-    filter: drop-shadow(0 2px 5px rgba(15, 23, 42, 0.08));
+.app-shell .global-search-input::placeholder {
+    color: #8a97aa;
+    opacity: 1;
 }
 
-@media (max-width: 850px) {
-    .login-school-logo {
-        width: 112px !important;
-        height: 112px !important;
-    }
+.app-shell .topbar-search:focus-within {
+    border-color: #8bb6ee;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.10);
 }
 
-@media (max-width: 520px) {
-    .login-school-logo {
-        width: 100px !important;
-        height: 100px !important;
-        margin-bottom: 14px !important;
-    }
+.global-search-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    max-height: 360px;
+    overflow-y: auto;
+    padding: 7px;
+    background: #fff;
+    border: 1px solid #d9e2ee;
+    border-radius: 12px;
+    box-shadow: 0 18px 45px rgba(15, 35, 65, .16);
+    z-index: 120;
+}
 
-    .app-shell .app-logo {
-        width: 60px !important;
-        height: 60px !important;
-        max-height: 60px !important;
-        flex-basis: 60px !important;
+.global-search-result,
+.global-search-empty {
+    width: 100%;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    text-align: left;
+    padding: 10px 11px;
+}
+
+.global-search-result {
+    display: block;
+    cursor: pointer;
+}
+
+.global-search-result:hover,
+.global-search-result:focus-visible {
+    background: #f2f7ff;
+    outline: none;
+}
+
+.global-search-result-name {
+    display: block;
+    color: #1d3761;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.global-search-result-meta {
+    display: block;
+    margin-top: 3px;
+    color: #7b8798;
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.global-search-result-id {
+    display: block;
+    margin-top: 2px;
+    color: #9aa5b5;
+    font-size: 10px;
+    line-height: 1.35;
+}
+
+.global-search-empty {
+    color: #7b8798;
+    font-size: 12px;
+}
+
+.app-shell .theme-placeholder {
+    transition: background-color .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
+}
+
+.app-shell .theme-placeholder[aria-pressed="true"] {
+    border-color: #a8c8ef;
+    background: #edf5ff;
+    color: #155eef;
+}
+
+.app-shell .theme-placeholder:hover {
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   DARK MODE
+   The theme is app-only; printed output is controlled by print.css.
+========================================================= */
+
+body.dark-mode #appPage,
+body.dark-mode #appPage .app-shell {
+    background: #0f172a;
+    color: #e5edf8;
+}
+
+body.dark-mode #appPage .app-body,
+body.dark-mode #appPage .main-content {
+    color: #e5edf8;
+}
+
+body.dark-mode #appPage .topbar {
+    background: rgba(15,23,42,.96);
+    color: #e5edf8;
+    border-bottom-color: #273449;
+    box-shadow: 0 2px 14px rgba(0,0,0,.20);
+}
+
+body.dark-mode #appPage .app-shell .topbar-search {
+    background: #111c31;
+    border-color: #33445e;
+    color: #8fa3bd;
+}
+
+body.dark-mode #appPage .app-shell .global-search-input {
+    color: #e8eff9;
+}
+
+body.dark-mode #appPage .app-shell .global-search-input::placeholder {
+    color: #8394ab;
+}
+
+body.dark-mode #appPage .app-shell .topbar-search:focus-within {
+    border-color: #4e83c9;
+    box-shadow: 0 0 0 3px rgba(74,125,196,.16);
+}
+
+body.dark-mode #appPage .global-search-results {
+    background: #111c31;
+    border-color: #34445f;
+    box-shadow: 0 18px 45px rgba(0,0,0,.34);
+}
+
+body.dark-mode #appPage .global-search-result:hover,
+body.dark-mode #appPage .global-search-result:focus-visible {
+    background: #1a2b45;
+}
+
+body.dark-mode #appPage .global-search-result-name {
+    color: #dbeafe;
+}
+
+body.dark-mode #appPage .global-search-result-meta {
+    color: #a7b7cb;
+}
+
+body.dark-mode #appPage .global-search-result-id,
+body.dark-mode #appPage .global-search-empty {
+    color: #7f92ab;
+}
+
+body.dark-mode #appPage .app-shell .theme-placeholder {
+    background: #111c31;
+    border-color: #34445f;
+    color: #b6c5d8;
+}
+
+body.dark-mode #appPage .app-shell .theme-placeholder[aria-pressed="true"] {
+    background: #1a2b45;
+    border-color: #4b78b3;
+    color: #8fc1ff;
+}
+
+body.dark-mode #appPage .app-shell .navbar {
+    background: #111b2e;
+    border-bottom-color: #26344b;
+    box-shadow: 0 2px 10px rgba(0,0,0,.18);
+}
+
+body.dark-mode #appPage .app-shell > .navbar .nav-btn {
+    color: #a7b7cb;
+    border-right-color: rgba(100,116,139,.25);
+}
+
+body.dark-mode #appPage .app-shell > .navbar .nav-btn:hover {
+    background: #18273f;
+}
+
+body.dark-mode #appPage .app-shell > .navbar .nav-btn.active {
+    color: #80b9ff;
+    border-bottom-color: #3b82f6;
+}
+
+body.dark-mode #appPage .app-shell .school-subtitle,
+body.dark-mode #appPage .app-shell .user-email,
+body.dark-mode #appPage .app-shell .role-badge {
+    color: #91a3bb;
+}
+
+body.dark-mode #appPage .app-shell .school-title {
+    color: #eef5ff;
+}
+
+body.dark-mode #appPage .app-shell .logout-btn {
+    background: #111c31;
+    color: #c6d2e1;
+    border-color: #34445f;
+}
+
+body.dark-mode #appPage .app-shell .logout-btn:hover {
+    background: #1a2b45;
+}
+
+body.dark-mode #appPage .page-header h2,
+body.dark-mode #appPage .dashboard-section-heading h3,
+body.dark-mode #appPage .card > h3 {
+    color: #bcd7f8;
+}
+
+body.dark-mode #appPage .creator-credit,
+body.dark-mode #appPage .record-count,
+body.dark-mode #appPage .dashboard-section-heading p,
+body.dark-mode #appPage .dashboard-card-note,
+body.dark-mode #appPage .dashboard-card .label {
+    color: #93a5bc;
+}
+
+body.dark-mode #appPage .card,
+body.dark-mode #appPage .context-card,
+body.dark-mode #appPage .dashboard-card,
+body.dark-mode #appPage .dashboard-overview,
+body.dark-mode #appPage .table-card {
+    background: #111c31;
+    border-color: #27374f;
+    box-shadow: 0 2px 12px rgba(0,0,0,.16);
+}
+
+body.dark-mode #appPage .dashboard-overview,
+body.dark-mode #appPage .dashboard-card {
+    color: #dce6f3;
+}
+
+body.dark-mode #appPage table {
+    color: #dce6f3;
+}
+
+body.dark-mode #appPage th {
+    background: #18263d;
+    color: #cbd8e8;
+    border-bottom-color: #34445f;
+}
+
+body.dark-mode #appPage td {
+    border-bottom-color: #24344b;
+    color: #d6e1ef;
+}
+
+body.dark-mode #appPage tbody tr:hover {
+    background: #17263e;
+}
+
+body.dark-mode #appPage .table-top {
+    border-bottom-color: #27374f;
+}
+
+body.dark-mode #appPage input,
+body.dark-mode #appPage select {
+    background: #111c31;
+    color: #e5edf8;
+    border-color: #33445e;
+}
+
+body.dark-mode #appPage input::placeholder {
+    color: #8293ab;
+}
+
+body.dark-mode #appPage input:focus,
+body.dark-mode #appPage select:focus {
+    border-color: #4e83c9;
+    box-shadow: 0 0 0 3px rgba(74,125,196,.14);
+}
+
+body.dark-mode #appPage .btn-secondary {
+    background: #24334a;
+    color: #d5e0ee;
+}
+
+body.dark-mode #appPage .btn-secondary:hover {
+    background: #2d3f59;
+}
+
+body.dark-mode #appPage .status-badge {
+    background: #25354b;
+    color: #c6d2e1;
+}
+
+body.dark-mode #appPage .empty-state {
+    color: #97a8bd;
+}
+
+body.dark-mode #appPage .dashboard-section-badge {
+    background: #162941;
+    border-color: #2e4664;
+    color: #8fb9ea;
+}
+
+body.dark-mode #appPage .dashboard-welcome {
+    background: linear-gradient(135deg, #132b4a, #10243e);
+    border-color: #2d4664;
+}
+
+body.dark-mode #appPage .context-item {
+    background: #142238;
+    border-color: #273a54;
+    color: #d8e4f2;
+}
+
+body.dark-mode #appPage .modal-overlay {
+    background: rgba(0,0,0,.68);
+}
+
+body.dark-mode #appPage .modal {
+    background: #111c31;
+    color: #dce6f3;
+}
+
+body.dark-mode #appPage .modal-header,
+body.dark-mode #appPage .modal-footer {
+    border-color: #27374f;
+}
+
+body.dark-mode #appPage .modal-header h3 {
+    color: #c4dcf8;
+}
+
+body.dark-mode #appPage .modal-close {
+    color: #8da0b7;
+}
+
+body.dark-mode #appPage .modal-body,
+body.dark-mode #appPage .unsaved-changes-message p {
+    color: #cbd7e7;
+}
+
+body.dark-mode #appPage .toast {
+    background: #17263e;
+    color: #e7eff9;
+    border-color: #304663;
+}
+
+@media (max-width: 720px) {
+    .global-search-results {
+        max-height: 300px;
     }
 }
