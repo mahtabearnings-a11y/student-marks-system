@@ -671,7 +671,7 @@
     width: 100% !important;
     margin: 0 !important;
     padding: 5.5mm 5.5mm 6mm !important;
-    border: 1.15pt solid #2a2a2a !important;
+    border: 0.95pt solid #2b2b2b !important;
     color: #1f3552 !important;
     background: #fff !important;
     overflow: visible !important;
@@ -680,8 +680,11 @@
   .result-page::before {
     content: "" !important;
     position: absolute !important;
-    inset: 2.2mm !important;
-    border: 0.75pt solid #4a4a4a !important;
+    top: 1.8mm !important;
+    right: 1.8mm !important;
+    bottom: 1.8mm !important;
+    left: 1.8mm !important;
+    border: 0.6pt solid #777 !important;
     pointer-events: none !important;
     z-index: 0 !important;
   }
@@ -847,7 +850,7 @@
 /* Final visual alignment against the approved reference */
 @media print {
   .result-logo-wrap {
-    top: 55% !important;
+    top: 40% !important;
     height: 38mm !important;
     width: 38mm !important;
   }
