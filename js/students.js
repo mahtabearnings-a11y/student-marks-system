@@ -302,13 +302,11 @@ function renderStudents() {
 
     let html = `
 
-        <table class="student-table">
-
-            <thead>
+        <div class="student-grid-wrapper"><table class="student-table"><thead>
 
                 <tr>
 
-                    <th>Roll No.</th>
+                    <th class="sticky-roll">Roll No.</th>
 
                     <th>Student ID</th>
 
@@ -345,7 +343,7 @@ function renderStudents() {
 
                 <tr>
 
-                    <td>
+                    <td class="sticky-roll">
                         ${escapeHtml(
                             student.rollNo ?? ""
                         )}
@@ -475,9 +473,7 @@ function renderStudents() {
 
     html += `
 
-            </tbody>
-
-        </table>
+            </tbody></table></div>
 
     `;
 
