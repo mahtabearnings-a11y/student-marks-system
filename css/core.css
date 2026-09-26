@@ -4276,3 +4276,239 @@ table td {
         font-size: 12pt;
     }
 }
+
+/* =========================================================
+   STEP 13 — COMPUTER-ONLY DESKTOP REFINEMENT
+   Applies only to pointer/hover desktops. Android/mobile is
+   intentionally left on the existing responsive design.
+========================================================= */
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+    /* Use the full desktop canvas more effectively. */
+    .app-shell .main-content {
+        width: 100%;
+        max-width: none;
+        box-sizing: border-box;
+        padding: 28px 36px 40px;
+    }
+
+    .app-shell .page-header {
+        margin-bottom: 18px;
+    }
+
+    .app-shell .page-header h2 {
+        font-size: 30px;
+        line-height: 1.12;
+    }
+
+    .app-shell .page-header p,
+    .app-shell .page-header .creator-credit,
+    .app-shell .students-page-title p,
+    .app-shell .marks-page-title p {
+        font-size: 13.5pt;
+        line-height: 1.5;
+    }
+
+    /* Clearer hierarchy immediately below the tabs. */
+    .app-shell .card > h3,
+    .app-shell .table-top h3,
+    .app-shell .section-heading,
+    .app-shell .section-title,
+    .app-shell .students-filter-heading h3,
+    .app-shell .marks-filter-heading h3,
+    .app-shell .marks-card-heading h3,
+    #attendanceSection .attendance-working-days-heading,
+    #promotionSection .table-top h3,
+    #backupSection > .card > .card strong {
+        font-size: 16pt;
+    }
+
+    .students-filter-heading p,
+    .marks-filter-heading p,
+    .marks-card-heading p,
+    .record-count,
+    #attendanceSection .creator-credit,
+    #promotionSection .creator-credit,
+    #recycleBinSection .creator-credit,
+    #backupSection > .card .table-top p {
+        font-size: 12pt;
+        line-height: 1.5;
+    }
+
+    /* Slightly tighter cards: bigger text, less wasted vertical space. */
+    .app-shell .students-filter-card,
+    #marksSection .marks-filter-card,
+    #marksSection .marks-print-card,
+    #attendanceSection .filter-card,
+    #promotionSection > .card.filter-card,
+    #promotionSection .academic-year-manager-card,
+    #backupSection > .card {
+        padding: 18px 20px;
+    }
+
+    .app-shell .students-filter-heading,
+    #marksSection .marks-filter-heading {
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+    }
+
+    .app-shell .filter-grid,
+    #marksSection .marks-filter-card .filter-grid {
+        gap: 12px 16px;
+    }
+
+    .app-shell .filter-item label,
+    #attendanceSection .filter-item label,
+    #promotionSection .filter-item label,
+    #backupSection .card label {
+        font-size: 13pt;
+    }
+
+    .app-shell .filter-item input,
+    .app-shell .filter-item select,
+    #marksSection .marks-filter-card .filter-item select,
+    #marksSection .marks-print-card .filter-item input,
+    #marksSection .marks-print-card .filter-item select,
+    #attendanceSection .filter-item select,
+    #promotionSection .filter-item select,
+    #promotionSection .academic-year-form input,
+    #promotionSection .promotion-controls input,
+    #promotionSection .promotion-controls select {
+        font-size: 13pt;
+        min-height: 44px;
+    }
+
+    .app-shell .btn,
+    .app-shell .btn-small,
+    #backupSection .btn {
+        font-size: 12pt;
+        min-height: 44px;
+    }
+
+    /* Make more rows visible before an internal table scrollbar appears. */
+    .app-shell .student-grid-wrapper,
+    .app-shell .marks-grid-wrapper,
+    #attendanceSection .attendance-grid-wrapper {
+        max-height: 72vh;
+    }
+
+    #promotionSection .table-wrapper,
+    #recycleBinSection .table-wrapper,
+    #backupSection .table-wrapper {
+        max-height: 68vh;
+    }
+
+    /* Student table fills the desktop canvas instead of holding a 1200px floor. */
+    .app-shell .student-table {
+        width: 100%;
+        min-width: 100%;
+        table-layout: auto;
+    }
+
+    /* Marks fills the desktop area while keeping a safe minimum for its subjects. */
+    .app-shell .marks-table {
+        width: max(1100px, 100%);
+        min-width: 1100px;
+    }
+
+    /* Attendance/Promotion still need horizontal room for their many columns. */
+    #attendanceSection .attendance-table {
+        width: max(980px, 100%);
+        min-width: 980px;
+    }
+
+    #promotionSection .promotion-table {
+        width: max(1080px, 100%);
+        min-width: 1080px;
+    }
+
+    #recycleBinSection .recycle-bin-table,
+    .app-shell .promotion-history-table,
+    .app-shell .academic-years-table,
+    .app-shell .history-mini-table {
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* Keep the important student actions available at the right edge. */
+    .app-shell .student-table th:last-child,
+    .app-shell .student-table td:last-child {
+        position: sticky;
+        right: 0;
+        z-index: 4;
+        background: #fff;
+        box-shadow: -4px 0 9px rgba(20, 40, 70, .08);
+    }
+
+    .app-shell .student-table th:last-child {
+        background: #eef5ff;
+        z-index: 10;
+    }
+
+    /* Keep edit/delete/history-style actions easy to reach on desktop. */
+    .app-shell .academic-years-table th:last-child,
+    .app-shell .academic-years-table td:last-child,
+    .app-shell .promotion-history-table th:last-child,
+    .app-shell .promotion-history-table td:last-child {
+        position: sticky;
+        right: 0;
+        background: #fff;
+        box-shadow: -4px 0 9px rgba(20, 40, 70, .08);
+        z-index: 4;
+    }
+
+    .app-shell .academic-years-table th:last-child,
+    .app-shell .promotion-history-table th:last-child {
+        background: #eef5ff;
+        z-index: 10;
+    }
+
+    /* Keep table headers and body text visually proportional on large screens. */
+    .app-shell .student-table th,
+    .app-shell .marks-table th,
+    #attendanceSection .attendance-table th,
+    #promotionSection .promotion-table th,
+    #recycleBinSection .recycle-bin-table th,
+    .app-shell .history-mini-table th {
+        font-size: 14pt;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .app-shell .student-table td,
+    .app-shell .marks-table td,
+    #attendanceSection .attendance-table td,
+    #promotionSection .promotion-table td,
+    #recycleBinSection .recycle-bin-table td,
+    .app-shell .history-mini-table td {
+        font-size: 13pt;
+        padding-top: 9px;
+        padding-bottom: 9px;
+    }
+
+    /* Dashboard retains its established look but gets the same desktop breathing room. */
+    .app-shell .dashboard-welcome {
+        padding: 22px 24px;
+    }
+
+    .app-shell .dashboard-grid {
+        gap: 16px;
+    }
+
+    .app-shell .dashboard-overview {
+        padding: 22px;
+    }
+
+    .app-shell .dashboard-overview-table thead th,
+    .app-shell .dashboard-overview-table tbody td {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    /* Prevent the desktop page from introducing accidental horizontal overflow. */
+    .app-shell,
+    .app-shell .main-content,
+    .app-shell .card,
+    .app-shell .table-card {
+        box-sizing: border-box;
+    }
+}
