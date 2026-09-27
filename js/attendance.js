@@ -11,52 +11,6 @@ function attendanceClassName(n) {
     return className(Number(n));
 }
 
-function getAttendanceDataSnapshot() {
-    // Unsaved state contains ONLY editable attendance data.
-    // Session, class, selected months, sorting, and other UI context are
-    // deliberately excluded so navigation by itself can never be dirty.
-    const presentValues = [];
-    Object.entries(attendanceData).forEach(([key, row]) => {
-        const match = String(key).match(/^(\d+)_(\d+)$/);
-        if (!match) return;
-        const raw = row?.present_days;
-        if (raw === undefined || raw === null || raw === "") return;
-        const value = Number(raw);
-        if (!Number.isFinite(value)) return;
-        presentValues.push([String(match[1]), Number(match[2]), value]);
-    });
-    presentValues.sort((a, b) =>
-        a[0].localeCompare(b[0], undefined, { numeric: true }) || a[1] - b[1]
-    );
-
-    const workingValues = [];
-    Object.entries(attendanceWorkingDays).forEach(([monthNo, value]) => {
-        if (value === undefined || value === null || String(value).trim() === "") return;
-        const numericValue = Number(value);
-        workingValues.push([Number(monthNo), Number.isFinite(numericValue) ? numericValue : String(value)]);
-    });
-    workingValues.sort((a, b) => a[0] - b[0]);
-
-    return JSON.stringify({
-        workingDays: workingValues,
-        present: presentValues
-    });
-}
-
-function captureAttendanceSavedSnapshot() {
-    attendanceSavedSnapshot = getAttendanceDataSnapshot();
-}
-
-function hasUnsavedAttendanceChanges() {
-    if (currentRole !== "admin" || attendanceSavedSnapshot === null) return false;
-    return getAttendanceDataSnapshot() !== attendanceSavedSnapshot;
-}
-
-// The context that was last successfully loaded. This is used only to restore
-// a selector when the user cancels an unsaved-change prompt; it is NOT part of
-// dirty-state detection.
-let attendanceCommittedContext = { session: null, classNo: null };
-
 function populateAttendanceSessions() {
     if (!attendanceSession) return;
     const ordered = [...sessions].sort((a, b) => (typeof academicYearStartNumber === "function" ? academicYearStartNumber(a.session_name) : Number(String(a.session_name).slice(0, 4))) - (typeof academicYearStartNumber === "function" ? academicYearStartNumber(b.session_name) : Number(String(b.session_name).slice(0, 4))) || Number(a.id) - Number(b.id));
@@ -73,20 +27,11 @@ function renderAttendanceMonthButtons() {
     attendanceMonths.querySelectorAll("[data-att-month]").forEach(btn => {
         btn.addEventListener("click", () => {
             const monthNo = Number(btn.dataset.attMonth);
-            const previousMonths = [...attendanceSelectedMonths];
-            const nextMonths = attendanceSelectedMonths.includes(monthNo)
+            attendanceSelectedMonths = attendanceSelectedMonths.includes(monthNo)
                 ? attendanceSelectedMonths.filter(x => x !== monthNo)
                 : [...attendanceSelectedMonths, monthNo].sort((a, b) => a - b);
-            protectUnsavedChanges("attendance", async () => {
-                attendanceSelectedMonths = nextMonths;
-                renderAttendanceMonthButtons();
-                await resetAttendanceGridForSelectionChange();
-            }).then(proceeded => {
-                if (!proceeded) {
-                    attendanceSelectedMonths = previousMonths;
-                    renderAttendanceMonthButtons();
-                }
-            });
+            renderAttendanceMonthButtons();
+            await resetAttendanceGridForSelectionChange();
         });
     });
     if (attendanceSelectedLabel) {
@@ -146,8 +91,7 @@ async function resetAttendanceGridForSelectionChange() {
     renderAttendanceWorkingDaysInputs();
     if (!attendanceSelectedMonths.length) {
         if (attendanceTableContainer) attendanceTableContainer.innerHTML=`<div class="empty-state">Select month(s) to continue.</div>`;
-        captureAttendanceSavedSnapshot();
-        return;
+            return;
     }
     await loadAttendanceGrid();
 }
@@ -338,7 +282,6 @@ async function loadAttendanceGrid() {
     }
     renderAttendanceWorkingDaysInputs();
     renderAttendanceTable();
-    captureAttendanceSavedSnapshot();
     attendanceCommittedContext = {
         session: attendanceSession?.value || null,
         classNo: attendanceClass?.value || null
@@ -419,8 +362,7 @@ async function saveAttendance({ reload = true } = {}) {
             if (error) throw error;
         }
 
-        captureAttendanceSavedSnapshot();
-        showToast("Attendance saved successfully.", "success");
+            showToast("Attendance saved successfully.", "success");
         if (reload) await loadAttendanceGrid();
         return true;
     } catch (error) {
@@ -462,59 +404,18 @@ function resetAttendanceState() {
     attendanceStudents = [];
     attendanceData = {};
     attendanceWorkingDays = {};
-    attendanceSavedSnapshot = null;
     attendanceCommittedContext = { session: attendanceSession?.value || null, classNo: attendanceClass?.value || null };
     renderAttendanceMonthButtons();
     if (attendanceRecordCount) attendanceRecordCount.textContent = "Select session, class and month(s).";
     if (attendanceTableContainer) attendanceTableContainer.innerHTML = `<div class="empty-state">Select session, class and month(s) to load attendance.</div>`;
 }
 
-async function handleAttendanceContextChange(control, contextKey, loader) {
-    const nextValue = String(control.value ?? "");
-    const committedValue = String(attendanceCommittedContext?.[contextKey] ?? nextValue);
-
-    // No attendance data has changed: changing class/session is safe.
-    if (!hasUnsavedAttendanceChanges()) {
-        await loader();
-        return;
-    }
-
-    control.value = committedValue;
-    const proceeded = await protectUnsavedChanges("attendance", async () => {
-        control.value = nextValue;
-        await loader();
-    });
-
-    if (!proceeded) {
-        control.value = committedValue;
-    }
-}
-
-if (attendanceSelectAll) attendanceSelectAll.addEventListener("click", function () {
-    const previousMonths = [...attendanceSelectedMonths];
-    const nextMonths = attendanceMonthNames.map((_, i) => i + 1);
-    protectUnsavedChanges("attendance", async () => {
-        attendanceSelectedMonths = nextMonths;
-        renderAttendanceMonthButtons();
-        await resetAttendanceGridForSelectionChange();
-    }).then(proceeded => { if (!proceeded) { attendanceSelectedMonths = previousMonths; renderAttendanceMonthButtons(); } });
-});
-
-if (attendanceClearMonths) attendanceClearMonths.addEventListener("click", function () {
-    const previousMonths = [...attendanceSelectedMonths];
-    protectUnsavedChanges("attendance", async () => {
-        attendanceSelectedMonths = [];
-        renderAttendanceMonthButtons();
-        await resetAttendanceGridForSelectionChange();
-    }).then(proceeded => { if (!proceeded) { attendanceSelectedMonths = previousMonths; renderAttendanceMonthButtons(); } });
-});
-
 if (attendanceSaveButton) attendanceSaveButton.addEventListener("click", () => saveAttendance());
-if (attendanceSession) attendanceSession.addEventListener("change", function () {
-    handleAttendanceContextChange(this, "session", resetAttendanceGridForSelectionChange);
+if (attendanceSession) attendanceSession.addEventListener("change", async function () {
+    await resetAttendanceGridForSelectionChange();
 });
-if (attendanceClass) attendanceClass.addEventListener("change", function () {
-    handleAttendanceContextChange(this, "classNo", resetAttendanceGridForSelectionChange);
+if (attendanceClass) attendanceClass.addEventListener("change", async function () {
+    await resetAttendanceGridForSelectionChange();
 });
 if (attendanceSort) attendanceSort.addEventListener("change", renderAttendanceTable);
 if (attendancePrintButton) attendancePrintButton.addEventListener("click", printAttendanceSummary);
