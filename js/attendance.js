@@ -25,7 +25,7 @@ function renderAttendanceMonthButtons() {
         <button type="button" class="attendance-month-btn ${attendanceSelectedMonths.includes(i + 1) ? "selected" : ""}" data-att-month="${i + 1}">${month}</button>
     `).join("");
     attendanceMonths.querySelectorAll("[data-att-month]").forEach(btn => {
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", async () => {
             const monthNo = Number(btn.dataset.attMonth);
             attendanceSelectedMonths = attendanceSelectedMonths.includes(monthNo)
                 ? attendanceSelectedMonths.filter(x => x !== monthNo)
