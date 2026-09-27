@@ -1320,3 +1320,26 @@
     opacity: 0.11 !important;
   }
 }
+
+/* =========================================================
+   CLASS MARKS FOLIO — OPAQUE, NEUTRAL CELL SURFACES
+   Keep the watermark behind the folio without letting it reduce
+   the legibility of marks, totals, percentages or grades.
+   Body cells are plain white; the header keeps its approved
+   soft-blue fill. No geometry or column sizing is changed.
+========================================================= */
+@media print {
+  .folio-print .result-table,
+  .folio-print .result-table tbody,
+  .folio-print .result-table tr {
+    background: #fff !important;
+  }
+
+  .folio-print .result-table th {
+    background: #dce9f8 !important;
+  }
+
+  .folio-print .result-table td {
+    background: #fff !important;
+  }
+}
