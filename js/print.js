@@ -355,7 +355,7 @@ async function waitForPrintAssets(root){
 }
 
 function openPrint(html, suggestedFileName="Student Marks Result"){
-    printDocumentHost.innerHTML=`<div class="print-document">${html}</div>`;
+    printDocumentHost.innerHTML=`<div class="print-document"><div class="print-watermark" aria-hidden="true"></div>${html}</div>`;
     const folioTable=printDocumentHost.querySelector(".folio-print .result-table");
     if(folioTable) autoFitFolioTable(folioTable);
     printTitleBeforeJob=document.title;
