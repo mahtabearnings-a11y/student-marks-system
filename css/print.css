@@ -949,6 +949,82 @@
   }
 }
 
+
+/* =========================================================
+   PRINT WATERMARK — RESULT + CLASS MARKS FOLIO
+   Large, faint school emblem behind the printed content only.
+   This does not affect document layout or on-screen pages.
+========================================================= */
+@media print {
+  .print-document {
+    position: relative !important;
+    background: #fff !important;
+  }
+
+  .print-watermark {
+    position: fixed !important;
+    left: 50% !important;
+    top: 43% !important;
+    width: 155mm !important;
+    height: 155mm !important;
+    transform: translate(-50%, -50%) !important;
+    background-image: url("./school-logo-polished.png") !important;
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+    background-size: contain !important;
+    opacity: 0.105 !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Let the fixed watermark sit behind the printable page contents. */
+  .result-page {
+    background: transparent !important;
+  }
+
+  /* Keep the existing fills visually unchanged while allowing the new
+     watermark to remain faintly visible through the printable sections. */
+  .result-info {
+    background: rgba(255,255,255,0.90) !important;
+  }
+
+  .result-table {
+    background: transparent !important;
+  }
+
+  .result-table td {
+    background: rgba(255,255,255,0.88) !important;
+  }
+
+  .result-total-row th,
+  .result-total-row td {
+    background: rgba(238,243,248,0.90) !important;
+  }
+
+  .result-summary-card {
+    background: rgba(244,248,253,0.90) !important;
+  }
+
+  .folio-print .result-table {
+    background: transparent !important;
+  }
+
+  .folio-print .result-table td {
+    background: rgba(255,255,255,0.88) !important;
+  }
+
+  .result-header,
+  .result-info,
+  .result-table,
+  .result-summary-grid,
+  .result-signatures {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+}
+
 /* =========================================================
    RESULT THEME FILLS — RESULT ONLY
    Keep Class Marks Folio completely unchanged.
