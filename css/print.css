@@ -1222,3 +1222,37 @@
     z-index: 0 !important;
   }
 }
+
+
+/* =========================================================
+   FINAL RESULT PRINT TUNING
+   - Slightly enlarge the watermark only.
+   - Restore the agreed 12pt minimum for all small Result text.
+   - Keep the existing hierarchy for larger headings/values.
+========================================================= */
+@media print {
+  .result-page:not(.folio-print)::after {
+    width: 155mm !important;
+    height: 155mm !important;
+  }
+
+  /* Agreed minimum printed type size: 12pt. */
+  .result-page:not(.folio-print) .result-estd,
+  .result-page:not(.folio-print) .result-location,
+  .result-page:not(.folio-print) .result-session-row,
+  .result-page:not(.folio-print) .result-info-item,
+  .result-page:not(.folio-print) .result-table,
+  .result-page:not(.folio-print) .result-table th,
+  .result-page:not(.folio-print) .result-table td,
+  .result-page:not(.folio-print) .result-total-row th,
+  .result-page:not(.folio-print) .result-total-row td,
+  .result-page:not(.folio-print) .result-summary-card span,
+  .result-page:not(.folio-print) .result-signature-label {
+    font-size: 12pt !important;
+  }
+
+  /* Keep the student name slightly more prominent than normal body text. */
+  .result-page:not(.folio-print) .student-name-value {
+    font-size: 13pt !important;
+  }
+}
