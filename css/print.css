@@ -1309,3 +1309,14 @@
     font-size: 13pt !important;
   }
 }
+
+/* =========================================================
+   CLASS MARKS FOLIO WATERMARK — SLIGHT VISIBILITY LIFT
+   Keep the approved watermark size and position unchanged.
+   Only make the folio watermark a little more visible.
+========================================================= */
+@media print {
+  .result-page.folio-print::after {
+    opacity: 0.11 !important;
+  }
+}
