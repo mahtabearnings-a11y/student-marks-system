@@ -1166,3 +1166,27 @@
     padding-right: 0.5mm !important;
   }
 }
+
+/* =========================================================
+   RESULT PRINT WATERMARK
+   Adds only a faint school-logo watermark to each individual
+   printed result page without changing the existing content/layout.
+========================================================= */
+@media print {
+  .result-page::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 43mm !important;
+    left: 50% !important;
+    width: 145mm !important;
+    height: 145mm !important;
+    transform: translateX(-50%) !important;
+    background-image: url("../school-logo-polished.png") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: contain !important;
+    opacity: 0.09 !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+  }
+}
