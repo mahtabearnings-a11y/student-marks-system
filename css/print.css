@@ -975,35 +975,70 @@
 
 
 /* =========================================================
-   CLASS MARKS FOLIO — MS WORD STYLE FINAL REFINEMENT
-   ONLY the Class Marks Folio is affected below.
-   Student Result / Report Card styles remain untouched.
+   CLASS MARKS FOLIO — UNIVERSAL WORD-STYLE FINAL PASS
+   - Universal subject headers with controlled long-name wrapping.
+   - Environmental Science prints as ENV. SC.
+   - Word-style thick outer frame + thinner internal grid.
+   - Long student names may wrap naturally.
+   - Large faint school-logo watermark stays outside document flow.
+   - Student Result / Report Card is untouched.
 ========================================================= */
 @media print {
   .folio-print {
     page: folio !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
     border: 0 !important;
     outline: 0 !important;
     box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    min-height: 0 !important;
+    overflow: visible !important;
     color: #1f2f46 !important;
     font-family: "Times New Roman", Times, serif !important;
     background: #fff !important;
-  }
-
-  /* Remove the inner frame pseudo-element inherited from .result-page. */
-  .folio-print::before {
-    display: none !important;
-    content: none !important;
-    border: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
   }
 
   .folio-print,
   .folio-print * {
     font-family: "Times New Roman", Times, serif !important;
     box-sizing: border-box !important;
+  }
+
+  .folio-print > .result-header,
+  .folio-print > .result-table {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  /* Remove the decorative frame inherited from the generic result-page.
+     The folio table itself provides the complete Word-style outer border. */
+  .folio-print::before {
+    display: none !important;
+    content: none !important;
+    border: 0 !important;
+  }
+
+  .folio-print::after {
+    display: block !important;
+    content: "" !important;
+    position: absolute !important;
+    top: 62mm !important;
+    left: 50% !important;
+    width: 155mm !important;
+    height: 155mm !important;
+    transform: translateX(-50%) !important;
+    background-image: url("../school-logo-polished.png") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: contain !important;
+    opacity: 0.075 !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
   }
 
   .folio-print .result-header {
@@ -1013,58 +1048,10 @@
     box-shadow: none !important;
   }
 
-  /* Keep the folio header composition like the Student Result, but keep the
-     logo absolutely positioned so the table's existing width/flow is not
-     disturbed. */
-  .folio-print .folio-result-header {
-    position: relative !important;
-    min-height: 19mm !important;
-  }
-
-  .folio-print .folio-header-top {
-    position: relative !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-height: 19mm !important;
-    width: 100% !important;
-  }
-
-  .folio-print .folio-logo-wrap {
-    position: absolute !important;
-    left: 0.5mm !important;
-    top: 50% !important;
-    width: 21mm !important;
-    height: 21mm !important;
-    transform: translateY(-50%) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    overflow: visible !important;
-    background: transparent !important;
-    z-index: 2 !important;
-  }
-
-  .folio-print .folio-school-logo {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
-    display: block !important;
-    background: transparent !important;
-  }
-
-  .folio-print .folio-header-text {
-    min-width: 0 !important;
-    width: 100% !important;
-    padding: 0 14mm !important;
-    text-align: center !important;
-  }
-
   .folio-print .result-header h1 {
     margin: 0 !important;
     padding: 0 !important;
     border: 0 !important;
-    font-family: "Times New Roman", Times, serif !important;
     font-size: 18pt !important;
     line-height: 1.05 !important;
     color: #174b88 !important;
@@ -1072,7 +1059,6 @@
   }
 
   .folio-print .result-header h2 {
-    font-family: "Times New Roman", Times, serif !important;
     margin: 0.8mm 0 0 !important;
     font-size: 14pt !important;
     line-height: 1.05 !important;
@@ -1081,24 +1067,23 @@
   }
 
   .folio-print .result-header .small {
-    font-family: "Times New Roman", Times, serif !important;
+    margin-top: 0.8mm !important;
     font-size: 10.5pt !important;
     line-height: 1.1 !important;
     color: #304b68 !important;
-    margin-top: 0.8mm !important;
   }
 
+  /* Word-like grid: heavier outer frame, lighter internal rules. */
   .folio-print .result-table {
     width: 194mm !important;
     max-width: 194mm !important;
     min-width: 194mm !important;
     margin: 0 !important;
     table-layout: fixed !important;
-    border-collapse: collapse !important;
+    border-collapse: separate !important;
     border-spacing: 0 !important;
-    border: 1.3pt solid #657286 !important;
-    background: #fff !important;
-    font-family: "Times New Roman", Times, serif !important;
+    border: 0 !important;
+    background: transparent !important;
     font-size: 10.5pt !important;
   }
 
@@ -1108,33 +1093,36 @@
 
   .folio-print .result-table th,
   .folio-print .result-table td {
-    border: 0.8pt solid #657286 !important;
-    font-family: "Times New Roman", Times, serif !important;
+    border: 0 !important;
+    border-right: 0.75pt solid #657286 !important;
+    border-bottom: 0.75pt solid #657286 !important;
     text-align: center !important;
     vertical-align: middle !important;
     color: #172b45 !important;
   }
 
-  /* Word-like stronger outer frame; keep inner grid lines thinner. */
-  .folio-print .result-table tr:first-child th {
-    border-top: 1.3pt solid #657286 !important;
+  .folio-print .result-table thead tr:first-child th {
+    border-top: 1.35pt solid #657286 !important;
   }
-  .folio-print .result-table tr:last-child td {
-    border-bottom: 1.3pt solid #657286 !important;
-  }
+
   .folio-print .result-table th:first-child,
   .folio-print .result-table td:first-child {
-    border-left: 1.3pt solid #657286 !important;
+    border-left: 1.35pt solid #657286 !important;
   }
+
   .folio-print .result-table th:last-child,
   .folio-print .result-table td:last-child {
-    border-right: 1.3pt solid #657286 !important;
+    border-right: 1.35pt solid #657286 !important;
+  }
+
+  .folio-print .result-table tbody tr:last-child td {
+    border-bottom: 1.35pt solid #657286 !important;
   }
 
   .folio-print .result-table th {
     height: 24mm !important;
     padding: 1mm 0.8mm !important;
-    background: #dce9f8 !important;
+    background: rgba(220, 233, 248, 0.72) !important;
     color: #174b88 !important;
     font-size: 10.5pt !important;
     line-height: 1.05 !important;
@@ -1146,7 +1134,7 @@
   .folio-print .result-table td {
     height: 9mm !important;
     padding: 1.2mm 1mm !important;
-    background: #fff !important;
+    background: rgba(255, 255, 255, 0.82) !important;
     font-size: 10.5pt !important;
     line-height: 1.1 !important;
   }
@@ -1160,21 +1148,22 @@
     word-break: normal !important;
   }
 
-  /* Every subject is rotated 90°. Long compound subjects deliberately use
-     a forced two-line break before rotation, like a Word table label. */
+  /* Every subject header is a contained rotated Word-style label. */
   .folio-print .result-table th.folio-subject-head {
-    padding: 0.5mm 0.4mm !important;
+    height: 24mm !important;
+    padding: 0.5mm 0.3mm !important;
     position: relative !important;
-    overflow: visible !important;
+    overflow: hidden !important;
   }
 
   .folio-print .folio-subject-name-wrap {
     width: 100% !important;
-    height: 19mm !important;
+    height: 18mm !important;
+    min-height: 18mm !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     position: relative !important;
   }
 
@@ -1186,35 +1175,28 @@
     word-break: keep-all !important;
     overflow-wrap: normal !important;
     text-align: center !important;
-    line-height: 1.0 !important;
+    line-height: 1 !important;
     font-size: 10.5pt !important;
     font-weight: 700 !important;
     color: #174b88 !important;
     transform: rotate(-90deg) !important;
     transform-origin: center center !important;
+    flex: 0 0 auto !important;
   }
 
   .folio-print .folio-subject-name br {
     display: block !important;
   }
 
-  .folio-print .folio-subject-head.environmental-science-head .folio-subject-name {
-    font-size: 9.5pt !important;
-    line-height: 1 !important;
-  }
-
-  .folio-print .folio-subject-head.environmental-science-head .folio-subject-name-wrap {
-    height: 19mm !important;
-  }
-
-  .folio-print .folio-subject-head small {
+  .folio-print .folio-subject-full-marks {
     display: block !important;
-    margin: 0 !important;
-    font-family: "Times New Roman", Times, serif !important;
+    margin: 0.4mm 0 0 !important;
     font-size: 9.5pt !important;
     line-height: 1 !important;
     font-weight: 700 !important;
     color: #174b88 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
   }
 
   .folio-print .folio-rotated-head:not(.folio-subject-head) .folio-head-label {
@@ -1223,8 +1205,7 @@
     line-height: 1.05 !important;
   }
 
-  /* Keep serial, roll and result columns wide enough for normal Word-like
-     table labels and double-digit serial numbers. */
+  /* Keep identity/result columns stable; JS distributes the subject columns. */
   .folio-print .result-table colgroup col:nth-child(1) { width: 10mm !important; }
   .folio-print .result-table colgroup col:nth-child(2) { width: 10mm !important; }
   .folio-print .result-table colgroup col:nth-child(3) { width: 55mm !important; }
@@ -1237,6 +1218,11 @@
     padding-left: 0.5mm !important;
     padding-right: 0.5mm !important;
   }
+
+  .folio-page-break {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
 }
 
 /* =========================================================
@@ -1245,8 +1231,6 @@
    printed result page without changing the existing content/layout.
 ========================================================= */
 @media print {
-  /* Keep the page itself white, but let the watermark show through
-     every report-card section instead of being hidden by solid fills. */
   .result-page:not(.folio-print) {
     background: #fff !important;
   }
@@ -1263,8 +1247,6 @@
     background-image: none !important;
   }
 
-  /* Keep the light-blue visual treatment, but make it translucent so the
-     watermark remains visible beneath titles, headings, totals and summary. */
   .result-page:not(.folio-print) .result-title,
   .result-page:not(.folio-print) .result-table thead th,
   .result-page:not(.folio-print) .result-total-row th,
@@ -1277,7 +1259,7 @@
     background: transparent !important;
   }
 
-  .result-page:not(.folio-print)::after {
+  .result-page::after {
     content: "" !important;
     position: absolute !important;
     top: 43mm !important;
@@ -1294,7 +1276,6 @@
     z-index: 0 !important;
   }
 }
-
 
 /* =========================================================
    FINAL RESULT PRINT TUNING
