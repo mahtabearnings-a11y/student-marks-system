@@ -13,22 +13,28 @@ function attendanceClassName(n) {
 
 function getAttendanceSnapshot() {
     if (!attendanceSession || !attendanceClass) return null;
-    const values = [];
-    attendanceStudents.forEach(record => {
-        attendanceSelectedMonths.forEach(monthNo => {
-            const row = attendanceData[`${record.id}_${monthNo}`] || {};
-            const present = row.present_days === undefined || row.present_days === null || row.present_days === ""
-                ? null : Number(row.present_days);
-            if (present === null || Number.isNaN(present)) return;
-            values.push([Number(record.id), Number(monthNo), present]);
-        });
-    });
+
+    /*
+       The selected-month buttons are a view/context choice, not attendance
+       data. They must not make the section appear "unsaved" by themselves.
+       Snapshot the actual attendance values currently loaded in memory,
+       independent of which months are selected.
+    */
+    const values = Object.entries(attendanceData).map(([key, row]) => {
+        const [recordId, monthNo] = key.split("_").map(Number);
+        const present = row?.present_days;
+        return [recordId, monthNo, present === undefined || present === null || present === "" ? null : Number(present)];
+    }).filter(item => item[2] !== null && !Number.isNaN(item[2]));
     values.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-    const workingDays = attendanceSelectedMonths.map(monthNo => [Number(monthNo), attendanceWorkingDays[monthNo] ?? null]);
+
+    const workingDays = Object.entries(attendanceWorkingDays)
+        .map(([monthNo, days]) => [Number(monthNo), days ?? null])
+        .filter(item => item[1] !== undefined && item[1] !== null && item[1] !== "")
+        .sort((a, b) => a[0] - b[0]);
+
     return JSON.stringify({
         session: String(attendanceSession.value || ""),
         classNo: Number(attendanceClass.value || 0),
-        months: [...attendanceSelectedMonths].sort((a, b) => a - b),
         workingDays,
         values
     });
