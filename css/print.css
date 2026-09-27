@@ -1173,6 +1173,38 @@
    printed result page without changing the existing content/layout.
 ========================================================= */
 @media print {
+  /* Keep the page itself white, but let the watermark show through
+     every report-card section instead of being hidden by solid fills. */
+  .result-page:not(.folio-print) {
+    background: #fff !important;
+  }
+
+  .result-page:not(.folio-print) .result-title,
+  .result-page:not(.folio-print) .result-info,
+  .result-page:not(.folio-print) .result-table,
+  .result-page:not(.folio-print) .result-table th,
+  .result-page:not(.folio-print) .result-table td,
+  .result-page:not(.folio-print) .result-total-row th,
+  .result-page:not(.folio-print) .result-total-row td,
+  .result-page:not(.folio-print) .result-summary-card {
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+
+  /* Keep the light-blue visual treatment, but make it translucent so the
+     watermark remains visible beneath titles, headings, totals and summary. */
+  .result-page:not(.folio-print) .result-title,
+  .result-page:not(.folio-print) .result-table thead th,
+  .result-page:not(.folio-print) .result-total-row th,
+  .result-page:not(.folio-print) .result-total-row td,
+  .result-page:not(.folio-print) .result-summary-card {
+    background: rgba(220, 234, 255, 0.72) !important;
+  }
+
+  .result-page:not(.folio-print) .result-table {
+    background: transparent !important;
+  }
+
   .result-page::after {
     content: "" !important;
     position: absolute !important;
