@@ -457,7 +457,12 @@ function formatFolioSubjectLabel(subjectName){
     // on two lines before the 90° rotation.
     if(key === "social science") return "Social<br>Science";
     if(key === "mathematics") return "Mathe<br>matics";
+    if(key === "environmental science") return "Environmental<br>Science";
     return escapeHtml(normalized);
+}
+function folioSubjectClass(subjectName){
+    const key = String(subjectName || "").trim().replace(/\s+/g, " ").toLowerCase();
+    return key === "environmental science" ? " environmental-science-head" : "";
 }
 
 function printClassFolio(){
@@ -465,7 +470,8 @@ function printClassFolio(){
     const ranked=getPrintSortedStudents();
     const heads=printSubjects.map(s=>{
         const subjectLabel=formatFolioSubjectLabel(s.subject_name);
-        return `<th class="folio-subject-head folio-rotated-head"><div class="folio-subject-name-wrap"><span class="folio-subject-name">${subjectLabel}</span></div><small>${printExam.value==="Final"?100:50}</small></th>`;
+        const subjectClass=folioSubjectClass(s.subject_name);
+        return `<th class="folio-subject-head folio-rotated-head${subjectClass}"><div class="folio-subject-name-wrap"><span class="folio-subject-name">${subjectLabel}</span></div><small>${printExam.value==="Final"?100:50}</small></th>`;
     }).join("");
     const slHead='<th class="folio-rotated-head"><span class="folio-head-label">Sl.<br>No.</span></th>';
     const rollHead='<th class="folio-rotated-head"><span class="folio-head-label">Roll</span></th>';
@@ -474,7 +480,7 @@ function printClassFolio(){
     const percentHead='<th class="folio-rotated-head percentage-head"><span class="folio-head-label">%</span></th>';
     const gradeHead='<th class="folio-rotated-head"><span class="folio-head-label">Grade</span></th>';
     const rows=ranked.map((r,i)=>{const c=calcPrintRecord(r);return `<tr><td>${i+1}</td><td>${escapeHtml(r.roll_no??"")}</td><td class="name">${escapeHtml(r.students?.student_name||"")}</td>${printSubjects.map(s=>{let v;if(printExam.value==="Final"){v=(getPrintMark(r.id,s.id,"Half-Yearly")||0)+(getPrintMark(r.id,s.id,"Annual")||0);}else v=getPrintMark(r.id,s.id,printExam.value);return `<td>${v??""}</td>`}).join("")}<td>${c.total}</td><td class="percentage-cell">${c.pct.toFixed(2)}%</td><td>${escapeHtml(c.grade)}</td></tr>`;}).join("");
-    openPrint(`<div class="result-page folio-print"><div class="result-header"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div><table class="result-table"><thead><tr>${slHead}${rollHead}${nameHead}${heads}${totalHead}${percentHead}${gradeHead}</tr></thead><tbody>${rows}</tbody></table></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
+    openPrint(`<div class="result-page folio-print"><div class="result-header folio-result-header"><div class="folio-header-top"><div class="folio-logo-wrap"><img src="./school-logo-polished.png" alt="U.M.S SASAULI URDU" class="folio-school-logo"></div><div class="folio-header-text"><h1>U.M.S SASAULI URDU</h1><h2>Class Marks Folio</h2><div class="small">Academic Session: ${escapeHtml(printSession.options[printSession.selectedIndex]?.text||"")} • ${escapeHtml(printClassName(Number(printClass.value)))} • ${escapeHtml(printExam.value)}</div></div></div></div><table class="result-table"><thead><tr>${slHead}${rollHead}${nameHead}${heads}${totalHead}${percentHead}${gradeHead}</tr></thead><tbody>${rows}</tbody></table></div>`, `${printClassName(Number(printClass.value))} ${printExam.value} Marks Folio`);
 }
 
 if (printStudentSearch) printStudentSearch.addEventListener("input", filterPrintStudents);
