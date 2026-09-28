@@ -72,16 +72,16 @@ function renderAttendanceMonthButtons() {
     attendanceMonths.querySelectorAll("[data-att-month]").forEach(btn => {
         btn.addEventListener("click", async () => {
             const monthNo = Number(btn.dataset.attMonth);
-            const proceeded = await protectUnsavedChanges("attendance", async () => {
-                attendanceSelectedMonths = attendanceSelectedMonths.includes(monthNo)
-                    ? attendanceSelectedMonths.filter(x => x !== monthNo)
-                    : [...attendanceSelectedMonths, monthNo].sort((a, b) => a - b);
-                renderAttendanceMonthButtons();
-                await resetAttendanceGridForSelectionChange();
-            });
 
-            // protectUnsavedChanges handles both the clean and dirty cases.
-            return proceeded;
+            // Month selection is navigation only. It must never trigger the
+            // unsaved-changes validation; that validation is reserved for
+            // leaving the Attendance tab or changing session/class context.
+            attendanceSelectedMonths = attendanceSelectedMonths.includes(monthNo)
+                ? attendanceSelectedMonths.filter(x => x !== monthNo)
+                : [...attendanceSelectedMonths, monthNo].sort((a, b) => a - b);
+
+            renderAttendanceMonthButtons();
+            await resetAttendanceGridForSelectionChange();
         });
     });
     if (attendanceSelectedLabel) {
