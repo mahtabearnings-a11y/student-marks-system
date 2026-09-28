@@ -386,9 +386,9 @@
   }
 
   .final-result-table .serial-col { width: 8% !important; }
-  .final-result-table .subject-col { width: 41% !important; }
-  .final-result-table .marks-col { width: 12.75% !important; }
-  .final-result-table .full-col { width: 12.75% !important; }
+  .final-result-table .subject-col { width: 36% !important; }
+  .final-result-table .marks-col { width: 14% !important; }
+  .final-result-table .full-col { width: 14% !important; }
 
   .result-table th,
   .result-table td {
