@@ -226,25 +226,24 @@ function resultHtml(record,pageNo,totalPages){
             ${resultSignatureHtml()}
         </div>`;
     }
-    const markHeader=`<th>Half-Yearly<br>/ 50</th><th>Annual<br>/ 50</th><th>Full Marks</th>`;
-    const rows=printSubjects.map((sub,index)=>{
+    const markHeader=`<th>Half-Yearly<br>/ 50</th><th>Annual<br>/ 50</th><th>Total<br>/ 100</th><th>Full Marks</th>`;
+    const finalRows=printSubjects.map((sub,index)=>{
         const hv=getPrintMark(record.id,sub.id,"Half-Yearly"), av=getPrintMark(record.id,sub.id,"Annual");
-        return `<tr><td class="serial-cell">${index+1}</td><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${hv??""}</td><td>${av??""}</td><td>100</td></tr>`;
+        const subjectTotal=(hv!==null || av!==null) ? (hv||0)+(av||0) : "";
+        return {index, hv, av, subjectTotal, subject:sub.subject_name};
+    });
+    const rows=finalRows.map(({index,hv,av,subjectTotal,subject})=>{
+        return `<tr><td class="serial-cell">${index+1}</td><td class="subject">${escapeHtml(subject)}</td><td>${hv??""}</td><td>${av??""}</td><td>${subjectTotal}</td><td>100</td></tr>`;
     }).join("");
-    const halfYearlyTotal=printSubjects.reduce((sum,sub)=>{
-        const v=getPrintMark(record.id,sub.id,"Half-Yearly");
-        return sum+(v||0);
-    },0);
-    const annualTotal=printSubjects.reduce((sum,sub)=>{
-        const v=getPrintMark(record.id,sub.id,"Annual");
-        return sum+(v||0);
-    },0);
+    const halfYearlyTotal=finalRows.reduce((sum,row)=>sum+(row.hv||0),0);
+    const annualTotal=finalRows.reduce((sum,row)=>sum+(row.av||0),0);
+    const combinedTotal=finalRows.reduce((sum,row)=>sum+(Number(row.subjectTotal)||0),0);
     const tableHeader=`<tr><th>Sl.<br>No.</th><th>Subject</th>${markHeader}</tr>`;
-    const summaryRows=`<tr class="result-total-row"><th colspan="2">Total</th><td>${halfYearlyTotal}</td><td>${annualTotal}</td><td>${c.max}</td></tr>`;
+    const summaryRows=`<tr class="result-total-row"><th colspan="2">Total</th><td>${halfYearlyTotal}</td><td>${annualTotal}</td><td>${combinedTotal}</td><td>${c.max}</td></tr>`;
     return `<div class="result-page">
         ${resultHeaderHtml()}
         ${resultInfoHtml(record,s)}
-        <table class="result-table final-result-table"><colgroup><col class="serial-col"><col class="subject-col"><col class="marks-col"><col class="marks-col"><col class="full-col"></colgroup><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table>
+        <table class="result-table final-result-table"><colgroup><col class="serial-col"><col class="subject-col"><col class="marks-col"><col class="marks-col"><col class="marks-col"><col class="full-col"></colgroup><thead>${tableHeader}</thead><tbody>${rows}${summaryRows}</tbody></table>
         ${resultSummaryHtml(c,rank)}
         ${resultSignatureHtml()}
     </div>`;
