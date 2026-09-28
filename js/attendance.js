@@ -7,10 +7,8 @@ const attendanceMonthNames = [
     "October","November","December","January","February","March"
 ];
 
-// Dirty-state tracking is based only on editable Present Days cells in the
-// attendance table. Session/class/month/sort controls are navigation context.
-const attendanceOriginallyBlankCells = new Set();
-const attendanceTouchedBlankCells = new Set();
+// Unsaved state is based only on Present Days cells in the attendance table.
+// Session/class/month/sort controls are navigation context, not data changes.
 let attendanceToastTimer = null;
 
 function attendanceCellKey(recordId, monthNo) {
@@ -38,29 +36,11 @@ function getAttendanceTableSnapshot() {
 
 function captureAttendanceSavedSnapshot() {
     attendanceSavedSnapshot = getAttendanceTableSnapshot();
-    attendanceOriginallyBlankCells.clear();
-    attendanceTouchedBlankCells.clear();
-
-    attendanceStudents.forEach(record => {
-        attendanceSelectedMonths.forEach(monthNo => {
-            const key = attendanceCellKey(record.id, monthNo);
-            const value = attendanceData[key]?.present_days;
-            if (value === undefined || value === null || value === "") {
-                attendanceOriginallyBlankCells.add(key);
-            }
-        });
-    });
 }
 
 function hasUnsavedAttendanceChanges() {
     if (currentRole !== "admin" || attendanceSavedSnapshot === null) return false;
-    if (getAttendanceTableSnapshot() !== attendanceSavedSnapshot) return true;
-
-    // A cell that was originally blank is considered touched once the user
-    // edits it. Therefore blank -> 24 -> blank remains an unsaved edit,
-    // while values that return to their original non-blank value
-    // (for example 25 -> 20 -> 25) are clean again.
-    return attendanceTouchedBlankCells.size > 0;
+    return getAttendanceTableSnapshot() !== attendanceSavedSnapshot;
 }
 
 function attendanceShowToast(message, type = "") {
@@ -69,13 +49,11 @@ function attendanceShowToast(message, type = "") {
         if (typeof showToast === "function") showToast(message, type);
         return;
     }
-
     if (attendanceToastTimer) clearTimeout(attendanceToastTimer);
     target.textContent = message;
     target.className = "toast";
     if (type) target.classList.add(type);
     target.classList.remove("hidden");
-
     attendanceToastTimer = setTimeout(() => {
         target.classList.add("hidden");
         attendanceToastTimer = null;
@@ -102,11 +80,18 @@ function renderAttendanceMonthButtons() {
     attendanceMonths.querySelectorAll("[data-att-month]").forEach(btn => {
         btn.addEventListener("click", async () => {
             const monthNo = Number(btn.dataset.attMonth);
-            attendanceSelectedMonths = attendanceSelectedMonths.includes(monthNo)
+            const nextMonths = attendanceSelectedMonths.includes(monthNo)
                 ? attendanceSelectedMonths.filter(x => x !== monthNo)
                 : [...attendanceSelectedMonths, monthNo].sort((a, b) => a - b);
-            renderAttendanceMonthButtons();
-            await resetAttendanceGridForSelectionChange();
+
+            // Check before changing the selection. Otherwise the current table
+            // would be replaced before the unsaved-state check can run.
+            const proceeded = await protectUnsavedChanges("attendance", async () => {
+                attendanceSelectedMonths = nextMonths;
+                renderAttendanceMonthButtons();
+                await resetAttendanceGridForSelectionChange();
+            });
+            return proceeded;
         });
     });
     if (attendanceSelectedLabel) {
@@ -297,10 +282,6 @@ function renderAttendanceTable() {
                 return;
             }
             updateAttendanceCell(rec, month, input.value);
-            const key = attendanceCellKey(rec, month);
-            if (attendanceOriginallyBlankCells.has(key)) {
-                attendanceTouchedBlankCells.add(key);
-            }
             const stored=attendanceData[`${rec}_${month}`]?.present_days;
             if(String(input.value).trim()!=="" && stored===undefined) input.value=""; else if(stored!==undefined) input.value=String(stored);
         });
@@ -311,9 +292,6 @@ function renderAttendanceTable() {
 
 async function loadAttendanceGrid() {
     if (!attendanceSession || !attendanceClass) return;
-    attendanceSavedSnapshot = null;
-    attendanceOriginallyBlankCells.clear();
-    attendanceTouchedBlankCells.clear();
     if (!attendanceSelectedMonths.length) { attendanceShowToast("Please select at least one month.", "error"); return; }
     const sessionId = Number(attendanceSession.value);
     const classNo = Number(attendanceClass.value);
@@ -480,13 +458,11 @@ function printAttendanceSummary() {
 }
 
 function resetAttendanceState() {
-    attendanceSavedSnapshot = null;
-    attendanceOriginallyBlankCells.clear();
-    attendanceTouchedBlankCells.clear();
     if (attendanceToastTimer) {
         clearTimeout(attendanceToastTimer);
         attendanceToastTimer = null;
     }
+    attendanceSavedSnapshot = null;
     const active = sessions.find(s => s.is_active);
     if (attendanceSession && active) attendanceSession.value = String(active.id);
     if (attendanceClass) attendanceClass.value = "1";
