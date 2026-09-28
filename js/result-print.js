@@ -231,8 +231,16 @@ function resultHtml(record,pageNo,totalPages){
         const hv=getPrintMark(record.id,sub.id,"Half-Yearly"), av=getPrintMark(record.id,sub.id,"Annual");
         return `<tr><td class="serial-cell">${index+1}</td><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${hv??""}</td><td>${av??""}</td><td>100</td></tr>`;
     }).join("");
+    const halfYearlyTotal=printSubjects.reduce((sum,sub)=>{
+        const v=getPrintMark(record.id,sub.id,"Half-Yearly");
+        return sum+(v||0);
+    },0);
+    const annualTotal=printSubjects.reduce((sum,sub)=>{
+        const v=getPrintMark(record.id,sub.id,"Annual");
+        return sum+(v||0);
+    },0);
     const tableHeader=`<tr><th>Sl.<br>No.</th><th>Subject</th>${markHeader}</tr>`;
-    const summaryRows=`<tr class="result-total-row"><th colspan="2">Total</th><td>${c.total}</td><td></td><td>${c.max}</td></tr>`;
+    const summaryRows=`<tr class="result-total-row"><th colspan="2">Total</th><td>${halfYearlyTotal}</td><td>${annualTotal}</td><td>${c.max}</td></tr>`;
     return `<div class="result-page">
         ${resultHeaderHtml()}
         ${resultInfoHtml(record,s)}
