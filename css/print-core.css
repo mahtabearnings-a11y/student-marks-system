@@ -1,0 +1,421 @@
+/* =========================================================
+   PRINT CORE STYLES — SHARED BASE / PRINT HOST
+   Split from the original print stylesheet without changing behavior.
+========================================================= */
+
+/* =========================================================
+   PRINT MODULE STYLES
+   The on-screen print controls remain unchanged; these rules
+   define only the printable report and class marks folio.
+========================================================= */
+
+.print-controls { display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:12px; align-items:end; }
+.print-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+.print-student-preview { margin-top:15px; padding:14px; background:#f8fafc; border:1px solid #e5e7eb; border-radius:9px; }
+.print-results-table { width:100%; min-width:700px; border-collapse:collapse; }
+.print-results-table th,.print-results-table td { border:1px solid #cbd5e1; padding:8px; text-align:center; }
+.print-results-table th { background:#f1f5f9; }
+.print-results-table td.name { text-align:left; }
+@media screen and (max-width:700px){ .print-controls{grid-template-columns:1fr;} }
+
+.print-document { display:none; }
+
+@media print {
+  html, body {
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:visible !important;
+    background:#fff !important;
+  }
+
+  body > *:not(#printDocumentHost) { display:none !important; }
+
+  #printDocumentHost {
+    display:block !important;
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:visible !important;
+    background:#fff !important;
+  }
+
+  .print-document {
+    display:block !important;
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    font-family:Arial, Helvetica, sans-serif;
+    color:#10233f;
+    background:#fff;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+
+  /* The approved individual report prints on a portrait A4 page. */
+  @page result-card {
+    size:A4 portrait;
+    margin:8mm;
+  }
+
+  /* Keep the existing class marks folio on its own page definition. */
+  @page folio {
+    size:A4 portrait;
+    margin:8mm;
+  }
+
+  .result-page {
+    page:result-card;
+    box-sizing:border-box;
+    width:100%;
+    min-height:0;
+    margin:0;
+    padding:3.5mm;
+    border:1.3pt solid #1d3557;
+    background:#fff;
+    color:#14213d;
+    page-break-after:auto !important;
+    break-after:auto !important;
+    page-break-inside:avoid;
+    break-inside:avoid-page;
+  }
+
+  .result-page + .result-page {
+    page-break-before:always;
+    break-before:page;
+  }
+
+  /* ==============================
+     Header — same composition as the supplied reference image
+     ============================== */
+  .result-header {
+    width:100%;
+    margin:0;
+    padding:0;
+  }
+
+  .result-header-top {
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:30mm;
+    width:100%;
+  }
+
+  .result-logo-wrap {
+    position:absolute;
+    left:3mm;
+    top:50%;
+    transform:translateY(-50%);
+    width:34mm;
+    height:34mm;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    background:#fff;
+  }
+
+  .result-school-logo {
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+  }
+
+  .result-header-text {
+    min-width:0;
+    text-align:center;
+  }
+
+  .result-header h1 {
+    margin:0;
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:22pt;
+    line-height:1.05;
+    font-weight:800;
+    color:#174a9b;
+    letter-spacing:.2pt;
+    text-align:center !important;
+  }
+
+  .result-estd {
+    margin-top:1mm;
+    font-size:11pt;
+    line-height:1.1;
+    font-weight:800;
+    color:#b48313;
+    letter-spacing:.8pt;
+    text-align:center;
+  }
+
+  .result-location {
+    margin-top:1mm;
+    font-size:10.5pt;
+    line-height:1.1;
+    color:#334e68;
+    text-align:center;
+  }
+
+  .result-divider {
+    width:100%;
+    height:0;
+    margin:1mm 0 1.8mm;
+    border-top:1.2pt solid #253858;
+  }
+
+  .result-title {
+    width:86mm;
+    margin:0 auto 2mm;
+    box-sizing:border-box;
+    padding:1.3mm 3mm;
+    border:1pt solid #1f4f91;
+    background:#eaf2ff;
+    color:#173d78;
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:15pt;
+    line-height:1.05;
+    font-weight:800;
+    letter-spacing:.5pt;
+    text-align:center;
+  }
+
+  .result-session-row {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    align-items:center;
+    gap:8mm;
+    padding:0 1mm 2mm;
+    font-size:10.4pt;
+    line-height:1.1;
+    color:#17365d;
+  }
+
+  .result-session-row span:first-child { text-align:center; }
+  .result-session-row span:last-child { text-align:center; }
+
+  /* ==============================
+     Student information block
+     ============================== */
+  .result-info {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    width:100%;
+    box-sizing:border-box;
+    margin:0 0 2.8mm;
+    border:1pt solid #45627f;
+    background:#fff;
+  }
+
+  .result-info-column {
+    min-width:0;
+    box-sizing:border-box;
+    padding:1.5mm 3.5mm;
+  }
+
+  .result-info-column + .result-info-column {
+    border-left:1pt solid #45627f;
+  }
+
+  .result-info-item {
+    display:grid;
+    grid-template-columns:33mm minmax(0,1fr);
+    gap:2mm;
+    align-items:start;
+    min-width:0;
+    padding:.65mm 0;
+    font-size:10.1pt;
+    line-height:1.14;
+  }
+
+  .result-info-item b {
+    color:#1b365d;
+    font-weight:800;
+    white-space:nowrap;
+  }
+
+  .result-info-item span {
+    min-width:0;
+    color:#1f2937;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:normal;
+  }
+
+  .student-name-value {
+    font-weight:800;
+    font-size:10.9pt;
+  }
+
+  .long-value {
+    overflow-wrap:anywhere;
+    word-break:normal;
+  }
+
+  /* ==============================
+     Marks table
+     ============================== */
+  .result-table {
+    width:100%;
+    max-width:100%;
+    margin:0;
+    border-collapse:collapse;
+    table-layout:fixed;
+    background:#fff;
+    font-size:10.1pt;
+  }
+
+  .result-table th,
+  .result-table td {
+    box-sizing:border-box;
+    border:1pt solid #506b85;
+    padding:1.35mm 1.8mm;
+    text-align:center;
+    vertical-align:middle;
+    line-height:1.1;
+    overflow-wrap:anywhere;
+    word-break:normal;
+  }
+
+  .result-table th {
+    background:#dceaff;
+    color:#163d73;
+    font-size:10.4pt;
+    font-weight:800;
+  }
+
+  .result-table td.subject,
+  .result-table th:nth-child(2) {
+    text-align:left;
+  }
+
+  .result-table td.subject {
+    font-weight:600;
+  }
+
+  .result-table .serial-col { width:13mm; }
+  .result-table .subject-col { width:135mm; }
+  .result-table .marks-col { width:51mm; }
+  .result-table .full-col { width:51mm; }
+
+  .final-result-table .serial-col { width:11mm; }
+  .final-result-table .subject-col { width:70mm; }
+  .final-result-table .marks-col { width:37mm; }
+  .final-result-table .full-col { width:39mm; }
+
+  .result-total-row th,
+  .result-total-row td {
+    background:#edf3f9;
+    color:#102f59;
+    font-weight:800;
+    font-size:11pt;
+  }
+
+  .result-total-row th {
+    text-align:center !important;
+  }
+
+  /* ==============================
+     Bottom summary — four boxes exactly like the reference layout
+     ============================== */
+  .result-summary-grid {
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    width:100%;
+    margin-top:2.5mm;
+  }
+
+  .result-summary-card {
+    min-height:12.5mm;
+    box-sizing:border-box;
+    border:1pt solid #506b85;
+    background:#f5f8fc;
+    padding:1.5mm 2mm;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+
+  .result-summary-card + .result-summary-card {
+    border-left:0;
+  }
+
+  .result-summary-card span {
+    display:block;
+    margin-bottom:1mm;
+    font-size:9pt;
+    line-height:1.05;
+    font-weight:800;
+    color:#4c6076;
+  }
+
+  .result-summary-card strong {
+    display:block;
+    font-size:12.8pt;
+    line-height:1.05;
+    color:#163d73;
+    font-weight:800;
+    overflow-wrap:anywhere;
+  }
+
+  /* ==============================
+     Class marks folio keeps its existing print behavior.
+     ============================== */
+  .folio-print {
+    page:folio !important;
+    min-height:0 !important;
+    border:0 !important;
+    padding:0 !important;
+  }
+
+  .folio-print .result-header {
+    margin-bottom:2.5mm;
+  }
+
+  .folio-print .result-header h1 {
+    font-size:18pt;
+  }
+
+  .attendance-print-table {
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    table-layout:fixed !important;
+    font-size:12pt !important;
+  }
+
+  .attendance-print-table th,
+  .attendance-print-table td {
+    padding:5px 4px !important;
+    word-wrap:break-word;
+  }
+
+  .attendance-print-table th:nth-child(1){width:32px;}
+  .attendance-print-table th:nth-child(2){width:42px;}
+  .attendance-print-table th:nth-child(3){width:34%;}
+  .attendance-print-table th:nth-child(4),
+  .attendance-print-table th:nth-child(5),
+  .attendance-print-table th:nth-child(6){width:14%;white-space:normal;line-height:1.1;}
+  .attendance-print-table th:nth-child(7){width:16%;white-space:normal;line-height:1.1;}
+}
+
+@media print {
+  .print-document,
+  .result-page,
+  .result-table th,
+  .result-table td,
+  .result-summary-card {
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+}
+
+
