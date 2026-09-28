@@ -33,6 +33,17 @@ async function loadMarksGrid() {
     const classNo = Number(marksClass.value);
     const exam = marksExam.value;
 
+    // Do not show/load the marks-entry grid until an examination type
+    // (Half-Yearly, Annual, or Final) has been selected.
+    if (!exam) {
+        marksRecords = [];
+        marksSubjects = [];
+        marksValues = {};
+        marksRecordCount.textContent = "Select an examination type.";
+        marksTableContainer.innerHTML = `<div class="empty-state">Select an examination type to enter marks.</div>`;
+        return;
+    }
+
     if (!sessionId) {
         marksTableContainer.innerHTML = `<div class="empty-state">No academic session is available.</div>`;
         marksRecordCount.textContent = "No session selected.";
