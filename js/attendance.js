@@ -7,12 +7,11 @@ const attendanceMonthNames = [
     "October","November","December","January","February","March"
 ];
 
-// Unsaved-state tracking is limited to editable Present Days cells.
-// Working Days are intentionally excluded from the navigation warning.
+// Dirty-state tracking is based only on editable Present Days cells in the
+// attendance table. Session/class/month/sort controls are navigation context.
 const attendanceOriginallyBlankCells = new Set();
 const attendanceTouchedBlankCells = new Set();
 let attendanceToastTimer = null;
-let attendanceCommittedContext = { session: null, classNo: null };
 
 function attendanceCellKey(recordId, monthNo) {
     return `${recordId}_${monthNo}`;
@@ -57,9 +56,10 @@ function hasUnsavedAttendanceChanges() {
     if (currentRole !== "admin" || attendanceSavedSnapshot === null) return false;
     if (getAttendanceTableSnapshot() !== attendanceSavedSnapshot) return true;
 
-    // For an originally blank cell, any completed edit remains an unsaved
-    // change even when the value is cleared back to blank. For an originally
-    // populated cell, returning to its original value clears the dirty state.
+    // A cell that was originally blank is considered touched once the user
+    // edits it. Therefore blank -> 24 -> blank remains an unsaved edit,
+    // while values that return to their original non-blank value
+    // (for example 25 -> 20 -> 25) are clean again.
     return attendanceTouchedBlankCells.size > 0;
 }
 
@@ -102,17 +102,11 @@ function renderAttendanceMonthButtons() {
     attendanceMonths.querySelectorAll("[data-att-month]").forEach(btn => {
         btn.addEventListener("click", async () => {
             const monthNo = Number(btn.dataset.attMonth);
-            const nextMonths = attendanceSelectedMonths.includes(monthNo)
+            attendanceSelectedMonths = attendanceSelectedMonths.includes(monthNo)
                 ? attendanceSelectedMonths.filter(x => x !== monthNo)
                 : [...attendanceSelectedMonths, monthNo].sort((a, b) => a - b);
-
-            const proceeded = await protectUnsavedChanges("attendance", async () => {
-                attendanceSelectedMonths = nextMonths;
-                renderAttendanceMonthButtons();
-                await resetAttendanceGridForSelectionChange();
-            });
-
-            if (!proceeded) renderAttendanceMonthButtons();
+            renderAttendanceMonthButtons();
+            await resetAttendanceGridForSelectionChange();
         });
     });
     if (attendanceSelectedLabel) {
@@ -305,8 +299,6 @@ function renderAttendanceTable() {
             updateAttendanceCell(rec, month, input.value);
             const key = attendanceCellKey(rec, month);
             if (attendanceOriginallyBlankCells.has(key)) {
-                // Remember that an originally blank cell was actually edited.
-                // Thus blank -> 24 -> blank remains an unsaved edit.
                 attendanceTouchedBlankCells.add(key);
             }
             const stored=attendanceData[`${rec}_${month}`]?.present_days;
@@ -511,35 +503,9 @@ function resetAttendanceState() {
 
 if (attendanceSaveButton) attendanceSaveButton.addEventListener("click", () => saveAttendance());
 if (attendanceSession) attendanceSession.addEventListener("change", async function () {
-    const requested = this.value;
-    const committed = attendanceCommittedContext.session;
-    if (hasUnsavedAttendanceChanges() && committed !== null) {
-        this.value = committed;
-        const proceeded = await protectUnsavedChanges("attendance", async () => {
-            this.value = requested;
-            attendanceCommittedContext.session = requested;
-            await resetAttendanceGridForSelectionChange();
-        });
-        if (!proceeded) this.value = committed;
-        return;
-    }
-    attendanceCommittedContext.session = requested;
     await resetAttendanceGridForSelectionChange();
 });
 if (attendanceClass) attendanceClass.addEventListener("change", async function () {
-    const requested = this.value;
-    const committed = attendanceCommittedContext.classNo;
-    if (hasUnsavedAttendanceChanges() && committed !== null) {
-        this.value = committed;
-        const proceeded = await protectUnsavedChanges("attendance", async () => {
-            this.value = requested;
-            attendanceCommittedContext.classNo = requested;
-            await resetAttendanceGridForSelectionChange();
-        });
-        if (!proceeded) this.value = committed;
-        return;
-    }
-    attendanceCommittedContext.classNo = requested;
     await resetAttendanceGridForSelectionChange();
 });
 if (attendanceSort) attendanceSort.addEventListener("change", renderAttendanceTable);
