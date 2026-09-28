@@ -7,6 +7,81 @@ const attendanceMonthNames = [
     "October","November","December","January","February","March"
 ];
 
+// Dirty-state tracking is based only on editable Present Days cells in the
+// attendance table. Session/class/month/sort controls are navigation context.
+const attendanceOriginallyBlankCells = new Set();
+const attendanceTouchedBlankCells = new Set();
+let attendanceToastTimer = null;
+
+function attendanceCellKey(recordId, monthNo) {
+    return `${recordId}_${monthNo}`;
+}
+
+function getAttendanceTableSnapshot() {
+    const values = [];
+    const months = [...attendanceSelectedMonths].sort((a, b) => a - b);
+    const records = [...attendanceStudents].sort((a, b) => Number(a.id) - Number(b.id));
+
+    records.forEach(record => {
+        months.forEach(monthNo => {
+            const value = attendanceData[attendanceCellKey(record.id, monthNo)]?.present_days;
+            values.push([
+                Number(record.id),
+                Number(monthNo),
+                value === undefined || value === null || value === "" ? null : Number(value)
+            ]);
+        });
+    });
+
+    return JSON.stringify(values);
+}
+
+function captureAttendanceSavedSnapshot() {
+    attendanceSavedSnapshot = getAttendanceTableSnapshot();
+    attendanceOriginallyBlankCells.clear();
+    attendanceTouchedBlankCells.clear();
+
+    attendanceStudents.forEach(record => {
+        attendanceSelectedMonths.forEach(monthNo => {
+            const key = attendanceCellKey(record.id, monthNo);
+            const value = attendanceData[key]?.present_days;
+            if (value === undefined || value === null || value === "") {
+                attendanceOriginallyBlankCells.add(key);
+            }
+        });
+    });
+}
+
+function hasUnsavedAttendanceChanges() {
+    if (currentRole !== "admin" || attendanceSavedSnapshot === null) return false;
+    if (getAttendanceTableSnapshot() !== attendanceSavedSnapshot) return true;
+
+    // A cell that was originally blank is considered touched once the user
+    // edits it. Therefore blank -> 24 -> blank remains an unsaved edit,
+    // while values that return to their original non-blank value
+    // (for example 25 -> 20 -> 25) are clean again.
+    return attendanceTouchedBlankCells.size > 0;
+}
+
+function attendanceShowToast(message, type = "") {
+    const target = document.getElementById("toast");
+    if (!target) {
+        if (typeof showToast === "function") showToast(message, type);
+        return;
+    }
+
+    if (attendanceToastTimer) clearTimeout(attendanceToastTimer);
+    target.textContent = message;
+    target.className = "toast";
+    if (type) target.classList.add(type);
+    target.classList.remove("hidden");
+
+    attendanceToastTimer = setTimeout(() => {
+        target.classList.add("hidden");
+        attendanceToastTimer = null;
+    }, 8000);
+}
+
 function attendanceClassName(n) {
     return className(Number(n));
 }
@@ -218,10 +293,14 @@ function renderAttendanceTable() {
             const working = attendanceWorkingDays[month];
             if (raw !== "" && working === undefined) {
                 input.value = previousValue === undefined ? "" : String(previousValue);
-                showToast(`Enter Working Days for ${attendanceMonthNames[month - 1]} first.`, "error");
+                attendanceShowToast(`Enter Working Days for ${attendanceMonthNames[month - 1]} first.`, "error");
                 return;
             }
             updateAttendanceCell(rec, month, input.value);
+            const key = attendanceCellKey(rec, month);
+            if (attendanceOriginallyBlankCells.has(key)) {
+                attendanceTouchedBlankCells.add(key);
+            }
             const stored=attendanceData[`${rec}_${month}`]?.present_days;
             if(String(input.value).trim()!=="" && stored===undefined) input.value=""; else if(stored!==undefined) input.value=String(stored);
         });
@@ -232,7 +311,10 @@ function renderAttendanceTable() {
 
 async function loadAttendanceGrid() {
     if (!attendanceSession || !attendanceClass) return;
-    if (!attendanceSelectedMonths.length) { showToast("Please select at least one month.", "error"); return; }
+    attendanceSavedSnapshot = null;
+    attendanceOriginallyBlankCells.clear();
+    attendanceTouchedBlankCells.clear();
+    if (!attendanceSelectedMonths.length) { attendanceShowToast("Please select at least one month.", "error"); return; }
     const sessionId = Number(attendanceSession.value);
     const classNo = Number(attendanceClass.value);
     attendanceTableContainer.innerHTML = `<div class="loading">Loading attendance...</div>`;
@@ -282,6 +364,7 @@ async function loadAttendanceGrid() {
     }
     renderAttendanceWorkingDaysInputs();
     renderAttendanceTable();
+    captureAttendanceSavedSnapshot();
     attendanceCommittedContext = {
         session: attendanceSession?.value || null,
         classNo: attendanceClass?.value || null
@@ -289,25 +372,25 @@ async function loadAttendanceGrid() {
 }
 
 async function saveAttendance({ reload = true } = {}) {
-    if (currentRole !== "admin") { showToast("View Only users cannot save attendance.", "error"); return false; }
-    if (!attendanceSelectedMonths.length || !attendanceStudents.length) { showToast("Load a class and select month(s) before saving.", "error"); return false; }
+    if (currentRole !== "admin") { attendanceShowToast("View Only users cannot save attendance.", "error"); return false; }
+    if (!attendanceSelectedMonths.length || !attendanceStudents.length) { attendanceShowToast("Load a class and select month(s) before saving.", "error"); return false; }
 
     for (const monthNo of attendanceSelectedMonths) {
         const working = attendanceWorkingDays[monthNo];
         const hasPresent = attendanceStudents.some(record => attendanceData[`${record.id}_${monthNo}`]?.present_days !== undefined);
         if (hasPresent && (working === undefined || working === null)) {
-            showToast(`Enter Working Days for ${attendanceMonthNames[monthNo - 1]}.`, "error");
+            attendanceShowToast(`Enter Working Days for ${attendanceMonthNames[monthNo - 1]}.`, "error");
             return false;
         }
         if (working !== undefined) {
             const max = attendanceMaxDays(monthNo);
             if (!Number.isInteger(Number(working)) || Number(working) < 0 || Number(working) > max) {
-                showToast(`Invalid Working Days for ${attendanceMonthNames[monthNo - 1]}.`, "error");
+                attendanceShowToast(`Invalid Working Days for ${attendanceMonthNames[monthNo - 1]}.`, "error");
                 return false;
             }
             const maxPresent = attendanceStudents.reduce((m, record) => Math.max(m, Number(attendanceData[`${record.id}_${monthNo}`]?.present_days ?? 0)), 0);
             if (maxPresent > Number(working)) {
-                showToast(`Present Days cannot exceed Working Days for ${attendanceMonthNames[monthNo - 1]}.`, "error");
+                attendanceShowToast(`Present Days cannot exceed Working Days for ${attendanceMonthNames[monthNo - 1]}.`, "error");
                 return false;
             }
         }
@@ -362,11 +445,12 @@ async function saveAttendance({ reload = true } = {}) {
             if (error) throw error;
         }
 
-            showToast("Attendance saved successfully.", "success");
+        captureAttendanceSavedSnapshot();
+        attendanceShowToast("Attendance saved successfully.", "success");
         if (reload) await loadAttendanceGrid();
         return true;
     } catch (error) {
-        showToast("Unable to save attendance: " + (error.message || "Unknown error"), "error");
+        attendanceShowToast("Unable to save attendance: " + (error.message || "Unknown error"), "error");
         return false;
     } finally {
         attendanceSaveButton.disabled = false;
@@ -375,7 +459,7 @@ async function saveAttendance({ reload = true } = {}) {
 }
 
 function printAttendanceSummary() {
-    if (!attendanceSelectedMonths.length || !attendanceStudents.length) { showToast("Load attendance and select month(s) first.", "error"); return; }
+    if (!attendanceSelectedMonths.length || !attendanceStudents.length) { attendanceShowToast("Load attendance and select month(s) first.", "error"); return; }
     const sorted = getAttendanceSortedStudents();
     const classLabel = attendanceClassName(Number(attendanceClass.value));
     const sessionLabel = attendanceSession.options[attendanceSession.selectedIndex]?.text || "";
@@ -396,6 +480,13 @@ function printAttendanceSummary() {
 }
 
 function resetAttendanceState() {
+    attendanceSavedSnapshot = null;
+    attendanceOriginallyBlankCells.clear();
+    attendanceTouchedBlankCells.clear();
+    if (attendanceToastTimer) {
+        clearTimeout(attendanceToastTimer);
+        attendanceToastTimer = null;
+    }
     const active = sessions.find(s => s.is_active);
     if (attendanceSession && active) attendanceSession.value = String(active.id);
     if (attendanceClass) attendanceClass.value = "1";
