@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="css/print-core.css">
 <link rel="stylesheet" href="css/result-print.css">
 <link rel="stylesheet" href="css/folio-print.css">
+<link rel="stylesheet" href="css/student-portal.css">
 
 
 <style id="auth-initialization-style">
@@ -144,39 +145,74 @@ body:not(.auth-ready) #appPage {
 
         <nav class="navbar" aria-label="Primary navigation">
 
-            <button class="nav-btn active" data-section="dashboard">
+            <button class="nav-btn staff-only-nav active" data-section="dashboard">
                 <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3.5 10.7 12 3.8l8.5 6.9V20a1 1 0 0 1-1 1h-5.2v-5.1h-4.6V21H4.5a1 1 0 0 1-1-1z"></path><path d="M8.2 11.2h7.6"></path></svg></span>
                 <span>Dashboard</span>
             </button>
 
-            <button class="nav-btn" data-section="students">
+            <button class="nav-btn staff-only-nav" data-section="students">
                 <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="8.2" r="3.1"></circle><path d="M3.7 19.8c.4-3.1 2.3-5 5.3-5s4.9 1.9 5.3 5"></path><path d="M15.1 6.1a3 3 0 0 1 4.2 2.8 3 3 0 0 1-2.2 2.9M16 15.2c2.3.4 3.7 1.8 4.2 4"></path></svg></span>
                 <span>Students</span>
             </button>
 
-            <button class="nav-btn" data-section="marks">
+            <button class="nav-btn staff-only-nav" data-section="marks">
                 <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 7.8h7M8.5 11.5h7M8.5 15.2h4.2"></path></svg></span>
                 <span>Marks</span>
             </button>
 
-            <button class="nav-btn" data-section="attendance">
+            <button class="nav-btn staff-only-nav" data-section="attendance">
                 <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="4" y="5.5" width="16" height="14.5" rx="2"></rect><path d="M8 3.5v4M16 3.5v4M4 9.5h16M8 13h2M12 13h2M16 13h0M8 16.5h2M12 16.5h2"></path></svg></span>
                 <span>Attendance</span>
             </button>
 
-            <button class="nav-btn" data-section="promotion">
+            <button class="nav-btn staff-only-nav" data-section="promotion">
                 <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 19.5V14"></path><path d="M10 19.5V10"></path><path d="M15 19.5V6"></path><path d="M4 20h13"></path><path d="m7 11 4-4 3 2 5-5"></path><path d="M16.5 4H19v2.5"></path></svg></span>
                 <span>Promotion</span>
             </button>
 
-            <button id="recycleBinNavButton" class="nav-btn hidden" data-section="recycleBin">
+            <button id="recycleBinNavButton" class="nav-btn staff-only-nav hidden" data-section="recycleBin">
                 <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5.5 7h13M9 7V4.5h6V7M8 10.5v7M12 10.5v7M16 10.5v7"></path><path d="m6.5 7 .8 13h9.4l.8-13"></path></svg></span>
                 <span>Recycle Bin</span>
             </button>
 
-            <button class="nav-btn" data-section="backup">
+            <button class="nav-btn staff-only-nav" data-section="backup">
                 <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 4v10"></path><path d="m8 10 4 4 4-4"></path><path d="M5 19.5h14"></path></svg></span>
                 <span>Backup</span>
+            </button>
+
+            <button class="nav-btn student-only-nav hidden" data-section="studentDashboard">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 5.5h16v13H4z"></path><path d="M8 9h8M8 12.5h6M8 16h4"></path></svg></span>
+                <span>Dashboard</span>
+            </button>
+
+            <button class="nav-btn student-only-nav hidden" data-section="studentProfile">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="3"></circle><path d="M5.5 20c.5-4 2.8-6 6.5-6s6 2 6.5 6"></path></svg></span>
+                <span>My Profile</span>
+            </button>
+
+            <button class="nav-btn student-only-nav hidden" data-section="studentMarks">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 7.8h7M8.5 11.5h7M8.5 15.2h4.2"></path></svg></span>
+                <span>My Marks</span>
+            </button>
+
+            <button class="nav-btn student-only-nav hidden" data-section="studentAttendance">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="4" y="5.5" width="16" height="14.5" rx="2"></rect><path d="M8 3.5v4M16 3.5v4M4 9.5h16M8 13h2M12 13h2M16 13h0M8 16.5h2M12 16.5h2"></path></svg></span>
+                <span>Attendance</span>
+            </button>
+
+            <button class="nav-btn student-only-nav hidden" data-section="studentSchedule">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 3.5v4M16 3.5v4M4 9h16"></path></svg></span>
+                <span>Schedule</span>
+            </button>
+
+            <button class="nav-btn student-only-nav hidden" data-section="studentNotices">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 17.5h14M7 17.5V11a5 5 0 0 1 10 0v6M9 20h6"></path></svg></span>
+                <span>Notices</span>
+            </button>
+
+            <button class="nav-btn student-only-nav hidden" data-section="studentSettings">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"></path></svg></span>
+                <span>Account</span>
             </button>
 
         </nav>
@@ -190,7 +226,7 @@ body:not(.auth-ready) #appPage {
 
         <section
             id="dashboardSection"
-            class="app-section">
+            class="app-section staff-only-section">
 
             <div class="dashboard-welcome">
                 <div>
@@ -370,7 +406,7 @@ body:not(.auth-ready) #appPage {
 
         <section
             id="studentsSection"
-            class="app-section hidden">
+            class="app-section staff-only-section hidden">
 
             <div class="page-header students-page-header">
 
@@ -388,6 +424,18 @@ body:not(.auth-ready) #appPage {
 
             </div>
 
+            <div id="studentLoginAccountCard" class="student-account-link-card">
+                <div>
+                    <strong>Student Login Accounts</strong>
+                    <span>Create the student's Auth account in Supabase first, then link it here using the student's school email and Student ID.</span>
+                </div>
+                <div class="student-account-link-form">
+                    <input id="studentLoginStudentId" type="text" placeholder="Student ID">
+                    <input id="studentLoginEmail" type="email" placeholder="Student login email">
+                    <button id="studentLinkAccountButton" class="btn btn-secondary" type="button">Link Login</button>
+                </div>
+                <div id="studentLoginLinkMessage" class="form-help"></div>
+            </div>
 
             <!-- FILTERS -->
 
@@ -589,7 +637,7 @@ body:not(.auth-ready) #appPage {
 
         <section
             id="recycleBinSection"
-            class="app-section hidden">
+            class="app-section staff-only-section hidden">
 
             <div class="page-header">
                 <div>
@@ -677,7 +725,7 @@ body:not(.auth-ready) #appPage {
 
         <section
             id="marksSection"
-            class="app-section hidden">
+            class="app-section staff-only-section hidden">
 
             <div class="page-header marks-page-header">
                 <div class="marks-page-title">
@@ -793,7 +841,7 @@ body:not(.auth-ready) #appPage {
 
         <section
             id="attendanceSection"
-            class="app-section hidden">
+            class="app-section staff-only-section hidden">
 
             <div class="page-header">
                 <div>
@@ -984,7 +1032,7 @@ body:not(.auth-ready) #appPage {
 
         <section
             id="backupSection"
-            class="app-section hidden">
+            class="app-section staff-only-section hidden">
 
             <div class="card">
 
@@ -1022,6 +1070,83 @@ body:not(.auth-ready) #appPage {
 
             </div>
 
+        </section>
+
+        <!-- =================================================
+             STUDENT PORTAL
+        ================================================== -->
+
+        <section id="studentDashboardSection" class="app-section student-only-section hidden">
+            <div class="student-portal-hero">
+                <div>
+                    <div class="student-portal-kicker">U.M.S SASAULI URDU</div>
+                    <h2>Student Dashboard</h2>
+                    <p>View your academic information, results, attendance and school updates.</p>
+                </div>
+                <div class="student-portal-hero-mark">🎓</div>
+            </div>
+            <div id="studentPortalMessage" class="student-portal-message hidden"></div>
+            <div class="student-dashboard-grid">
+                <div class="student-stat-card"><span>Student</span><strong id="studentDashboardName">—</strong><small id="studentDashboardClass">—</small></div>
+                <div class="student-stat-card"><span>Student ID</span><strong id="studentDashboardId">—</strong><small>Permanent ID</small></div>
+                <div class="student-stat-card"><span>Academic Session</span><strong id="studentDashboardSession">—</strong><small>Selected session</small></div>
+                <div class="student-stat-card"><span>Roll Number</span><strong id="studentDashboardRoll">—</strong><small>Current record</small></div>
+            </div>
+            <div class="student-portal-card">
+                <div class="student-portal-card-heading"><div><h3>Quick Access</h3><p>Open the section you need.</p></div></div>
+                <div class="student-quick-links">
+                    <button type="button" data-student-link="studentProfile">My Profile</button>
+                    <button type="button" data-student-link="studentMarks">My Marks</button>
+                    <button type="button" data-student-link="studentAttendance">Attendance</button>
+                    <button type="button" data-student-link="studentSchedule">Schedule</button>
+                    <button type="button" data-student-link="studentNotices">Notices</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="studentProfileSection" class="app-section student-only-section hidden">
+            <div class="page-header"><div><h2>My Profile</h2><p>Your school record is shown here as read-only information.</p></div></div>
+            <div class="student-portal-card"><div id="studentPortalProfile"></div></div>
+        </section>
+
+        <section id="studentMarksSection" class="app-section student-only-section hidden">
+            <div class="page-header"><div><h2>My Marks</h2><p>View your examination marks and calculated result summary.</p></div></div>
+            <div class="student-toolbar">
+                <label>Academic Session <select id="studentPortalSession"></select></label>
+                <label>Examination <select id="studentPortalExam"><option>Half-Yearly</option><option>Annual</option><option>Final</option></select></label>
+                <button id="studentPortalReportButton" class="btn btn-primary" type="button">Print / Save Report Card</button>
+            </div>
+            <div class="student-result-summary" id="studentPortalMarksSummary"></div>
+            <div class="student-portal-card student-table-card"><div class="table-wrapper"><table class="student-portal-table"><thead><tr><th>Sl.</th><th>Subject</th><th>Obtained</th><th>Full Marks</th></tr></thead><tbody id="studentPortalMarksBody"><tr><td colspan="4">Select a session.</td></tr></tbody></table></div></div>
+        </section>
+
+        <section id="studentAttendanceSection" class="app-section student-only-section hidden">
+            <div class="page-header"><div><h2>My Attendance</h2><p>Month-wise attendance for your selected academic session.</p></div></div>
+            <div class="student-portal-card"><div class="table-wrapper"><table class="student-portal-table"><thead><tr><th>Month</th><th>Working Days</th><th>Present</th><th>Absent</th><th>Attendance %</th></tr></thead><tbody id="studentPortalAttendanceBody"></tbody></table></div><div id="studentPortalAttendanceSummary" class="student-attendance-summary"></div></div>
+        </section>
+
+        <section id="studentScheduleSection" class="app-section student-only-section hidden">
+            <div class="page-header"><div><h2>Schedule</h2><p>Your examination schedule and class timetable.</p></div></div>
+            <div class="student-portal-card"><h3>Examination Schedule</h3><div class="table-wrapper"><table class="student-portal-table"><thead><tr><th>Examination</th><th>Date</th><th>Start</th><th>End</th><th>Room</th></tr></thead><tbody id="studentPortalExamSchedule"></tbody></table></div></div>
+            <div class="student-portal-card"><h3>Class Timetable</h3><div class="table-wrapper"><table class="student-portal-table"><thead><tr><th>Day</th><th>Period</th><th>Subject</th><th>Start</th><th>End</th></tr></thead><tbody id="studentPortalTimetable"></tbody></table></div></div>
+        </section>
+
+        <section id="studentNoticesSection" class="app-section student-only-section hidden">
+            <div class="page-header"><div><h2>School Notices</h2><p>Published notices and important school announcements.</p></div></div>
+            <div id="studentPortalNoticeList" class="student-notice-list"></div>
+        </section>
+
+        <section id="studentSettingsSection" class="app-section student-only-section hidden">
+            <div class="page-header"><div><h2>My Account</h2><p>Manage your login password. Your academic information remains read-only.</p></div></div>
+            <div class="student-portal-card" style="max-width:620px;">
+                <h3>Change Password</h3>
+                <form id="studentPortalPasswordForm" class="student-password-form">
+                    <label>New Password<input id="studentNewPassword" type="password" minlength="8" autocomplete="new-password" required></label>
+                    <label>Confirm Password<input id="studentConfirmPassword" type="password" minlength="8" autocomplete="new-password" required></label>
+                    <button class="btn btn-primary" type="submit">Change Password</button>
+                </form>
+                <div class="form-help">Use at least 8 characters. Do not share your password with another student.</div>
+            </div>
         </section>
 
 
@@ -1561,6 +1686,7 @@ body:not(.auth-ready) #appPage {
 
 <script src="js/core.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/student-portal.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/students.js"></script>
 <script src="js/marks.js"></script>
