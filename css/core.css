@@ -3014,6 +3014,12 @@ table td {
     padding: 7px 12px;
 }
 
+.students-table-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .app-shell .student-grid-wrapper {
     max-height: 66vh;
     scrollbar-width: thin;
@@ -5010,35 +5016,5 @@ body.dark-mode #appPage .toast {
 @media (max-width: 720px) {
     .global-search-results {
         max-height: 300px;
-    }
-}
-
-/* =========================================================
-   STUDENT SEARCH CONTROLS
-========================================================= */
-
-.app-shell .student-search-controls {
-    display: flex;
-    align-items: stretch;
-    gap: 8px;
-}
-
-.app-shell .student-search-controls input {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-.app-shell .student-search-clear {
-    min-height: 44px;
-    flex: 0 0 auto;
-}
-
-@media (max-width: 680px) {
-    .app-shell .student-search-controls {
-        flex-direction: column;
-    }
-
-    .app-shell .student-search-clear {
-        width: 100%;
     }
 }
