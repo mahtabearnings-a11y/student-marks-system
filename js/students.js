@@ -178,7 +178,27 @@ function getFilteredStudents() {
 
                         ||
 
+                        String(
+                            student.apaarId ?? ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+
+                        ||
+
                         student.studentName
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        student.fatherName
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        student.motherName
                             .toLowerCase()
                             .includes(search)
 
@@ -186,6 +206,14 @@ function getFilteredStudents() {
 
                         String(
                             student.rollNo ?? ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+
+                        ||
+
+                        className(
+                            student.classNo
                         )
                         .toLowerCase()
                         .includes(search)
@@ -610,6 +638,30 @@ studentSearch.addEventListener(
 
     }
 );
+
+
+const clearStudentSearchButton =
+    document.getElementById(
+        "clearStudentSearchButton"
+    );
+
+
+if (clearStudentSearchButton) {
+
+    clearStudentSearchButton.addEventListener(
+        "click",
+        function() {
+
+            studentSearch.value = "";
+
+            renderStudents();
+
+            studentSearch.focus();
+
+        }
+    );
+
+}
 
 
 studentSort.addEventListener(
