@@ -5092,16 +5092,14 @@ body.dark-mode #appPage .toast {
 
 /* =========================================================
    ANDROID / TOUCH INPUT ZOOM FIX
-   Keep touch form controls at a browser-safe minimum size so
-   Android does not auto-zoom the page when an input receives
-   focus. Manual browser/pinch zoom remains enabled.
+   Keep Android touch form controls at a browser-safe 16px size.
+   This also applies in Android Desktop Site mode, where the browser
+   may report a fine pointer. Manual browser/pinch zoom remains enabled.
 ========================================================= */
-@media (pointer: coarse) {
-    #appPage input,
-    #appPage select,
-    #appPage textarea {
-        font-size: 16px !important;
-        -webkit-text-size-adjust: 100%;
-        text-size-adjust: 100%;
-    }
+html.android-touch-device #appPage input,
+html.android-touch-device #appPage select,
+html.android-touch-device #appPage textarea {
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
