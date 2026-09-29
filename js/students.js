@@ -168,28 +168,21 @@ function getFilteredStudents() {
             list.filter(
                 student => {
 
-                    return (
+                    const searchableFields = [
+                        student.studentId,
+                        student.apaarId,
+                        student.studentName,
+                        student.fatherName,
+                        student.motherName,
+                        student.rollNo,
+                        className(student.classNo),
+                        student.classNo
+                    ];
 
-                        String(
-                            student.studentId
-                        )
-                        .toLowerCase()
-                        .includes(search)
-
-                        ||
-
-                        student.studentName
+                    return searchableFields.some(value =>
+                        String(value ?? "")
                             .toLowerCase()
                             .includes(search)
-
-                        ||
-
-                        String(
-                            student.rollNo ?? ""
-                        )
-                        .toLowerCase()
-                        .includes(search)
-
                     );
 
                 }
@@ -612,6 +605,18 @@ studentSearch.addEventListener(
 );
 
 
+if (clearStudentSearchButton) {
+    clearStudentSearchButton.addEventListener(
+        "click",
+        function() {
+            studentSearch.value = "";
+            renderStudents();
+            studentSearch.focus();
+        }
+    );
+}
+
+
 studentSort.addEventListener(
     "change",
     function() {
@@ -643,6 +648,9 @@ refreshStudentsButton.addEventListener(
 
 const exportStudentsExcelButton =
     document.getElementById("exportStudentsExcelButton");
+
+const clearStudentSearchButton =
+    document.getElementById("clearStudentSearchButton");
 
 function getSelectedSessionName() {
 
