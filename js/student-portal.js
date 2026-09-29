@@ -57,7 +57,7 @@ function studentPortalFormatDate(value) {
 async function getStudentPortalAccount(userId) {
     const { data, error } = await supabaseClient
         .from("student_accounts")
-        .select("student_id")
+        .select("student_id, is_enabled, must_change_password, password_changed_at")
         .eq("user_id", userId)
         .maybeSingle();
     if (error) throw new Error("Unable to load student account.");
@@ -378,11 +378,61 @@ async function studentPortalChangePassword(event) {
     const confirm = document.getElementById("studentConfirmPassword")?.value || "";
     if (password.length < 8) { studentPortalShowMessage("Password must contain at least 8 characters.", "error"); return; }
     if (password !== confirm) { studentPortalShowMessage("The passwords do not match.", "error"); return; }
-    const { error } = await supabaseClient.auth.updateUser({ password });
-    if (error) { studentPortalShowMessage(error.message || "Unable to change password.", "error"); return; }
-    studentPortalPasswordForm.reset();
-    studentPortalShowMessage("Password changed successfully.", "success");
+    try {
+        const { data, error } = await supabaseClient.functions.invoke("manage-student-login", { body: { action: "change_password", password } });
+        if (error) throw new Error(data?.error || error.message || "Unable to change password.");
+        studentPortalPasswordForm.reset();
+        if (studentPortalContext?.account) {
+            studentPortalContext.account.must_change_password = false;
+            studentPortalContext.account.password_changed_at = new Date().toISOString();
+        }
+        closeStudentForcePasswordModal();
+        studentPortalShowMessage("Password changed successfully.", "success");
+    } catch (error) {
+        studentPortalShowMessage(error.message || "Unable to change password.", "error");
+    }
 }
+
+function showStudentForcePasswordModal() {
+    const modal = document.getElementById("studentForcePasswordModal");
+    const form = document.getElementById("studentForcePasswordForm");
+    const message = document.getElementById("studentForcePasswordMessage");
+    if (!modal) return;
+    if (form) form.reset();
+    if (message) { message.textContent = ""; message.className = "student-portal-message hidden"; }
+    modal.classList.remove("hidden");
+    setTimeout(() => document.getElementById("studentForcePassword")?.focus(), 50);
+}
+
+function closeStudentForcePasswordModal() {
+    document.getElementById("studentForcePasswordModal")?.classList.add("hidden");
+}
+
+async function studentForcePasswordSubmit(event) {
+    event.preventDefault();
+    const password = document.getElementById("studentForcePassword")?.value || "";
+    const confirm = document.getElementById("studentForcePasswordConfirm")?.value || "";
+    const message = document.getElementById("studentForcePasswordMessage");
+    const button = document.getElementById("studentForcePasswordButton");
+    if (password.length < 8) { if (message) { message.textContent = "Password must contain at least 8 characters."; message.className = "student-portal-message error"; } return; }
+    if (password !== confirm) { if (message) { message.textContent = "The passwords do not match."; message.className = "student-portal-message error"; } return; }
+    if (button) { button.disabled = true; button.textContent = "Saving..."; }
+    try {
+        const { data, error } = await supabaseClient.functions.invoke("manage-student-login", { body: { action: "change_password", password } });
+        if (error) throw new Error(data?.error || error.message || "Unable to change password.");
+        if (studentPortalContext?.account) {
+            studentPortalContext.account.must_change_password = false;
+            studentPortalContext.account.password_changed_at = new Date().toISOString();
+        }
+        closeStudentForcePasswordModal();
+        studentPortalShowMessage("Password changed successfully. Welcome to the Student Portal.", "success");
+    } catch (error) {
+        if (message) { message.textContent = error.message || "Unable to change password."; message.className = "student-portal-message error"; }
+    } finally {
+        if (button) { button.disabled = false; button.textContent = "Save New Password"; }
+    }
+}
+
 
 async function showStudentApplication(user, options = {}) {
     currentUser = user;
@@ -390,6 +440,7 @@ async function showStudentApplication(user, options = {}) {
     userEmail.textContent = user.email || "Student";
     roleBadge.textContent = "Student";
     if (recycleBinNavButton) recycleBinNavButton.classList.add("hidden");
+    document.getElementById("studentAccountsNavButton")?.classList.add("hidden");
     document.querySelectorAll(".staff-only-nav").forEach(item => item.classList.add("hidden"));
     document.querySelectorAll(".student-only-nav").forEach(item => item.classList.remove("hidden"));
     document.querySelectorAll(".staff-only-section").forEach(item => item.classList.add("hidden"));
@@ -401,14 +452,23 @@ async function showStudentApplication(user, options = {}) {
     if (studentPortalSession) studentPortalSession.value = "";
     studentPortalShowMessage("");
     await loadStudentPortalContext();
+
+    if (!studentPortalContext?.account?.is_enabled) {
+        throw new Error("Student login is currently disabled by the school administrator.");
+    }
+
     showSection("studentDashboard", { updateHash: true, skipReset: true });
 
     loginPage.classList.add("hidden");
     appPage.classList.remove("hidden");
-    document.body.classList.add("auth-ready");
-    document.body.classList.add("student-mode");
+    document.body.classList.add("auth-ready", "student-mode");
     startInactivityTimer();
+
+    if (studentPortalContext.account.must_change_password) {
+        showStudentForcePasswordModal();
+    }
 }
+
 
 function resetStudentPortalView() {
     studentPortalContext = null;
@@ -428,4 +488,5 @@ studentPortalExam?.addEventListener("change", studentPortalRenderMarks);
 studentPortalReportButton?.addEventListener("click", studentPortalPrintReport);
 document.querySelectorAll("[data-student-link]").forEach(button => button.addEventListener("click", () => requestSectionChange(button.dataset.studentLink)));
 studentPortalPasswordForm?.addEventListener("submit", studentPortalChangePassword);
+document.getElementById("studentForcePasswordForm")?.addEventListener("submit", studentForcePasswordSubmit);
 

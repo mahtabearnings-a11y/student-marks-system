@@ -141,7 +141,9 @@ function showSection(section, options = {}) {
     if (section === "promotion") { populatePromotionSessions(); loadAcademicYearManager?.(); loadPromotionStudents(); loadPromotionHistory?.(); }
     if (section === "recycleBin") { loadRecycleBin(); }
     if (section === "backup") { loadBackupSection?.(); }
+    if (section === "studentAccounts" && currentRole === "admin") { loadStudentLoginAccounts?.(); }
 }
+
 
 async function requestSectionChange(section, options = {}) {
     if (!section || section === activeSection) return;

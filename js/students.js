@@ -1339,9 +1339,11 @@ saveStudentButton.addEventListener(
                 sessionId
             });
 
+            let loginWarning = "";
+
             if (editingStudent) {
 
-                await updateExistingStudent({
+                loginWarning = await updateExistingStudent({
 
                     studentId,
                     apaarId,
@@ -1358,7 +1360,7 @@ saveStudentButton.addEventListener(
 
             } else {
 
-                await createNewStudent({
+                const createdResult = await createNewStudent({
 
                     studentId,
                     apaarId,
@@ -1373,6 +1375,8 @@ saveStudentButton.addEventListener(
 
                 });
 
+                loginWarning = createdResult?.loginWarning || "";
+
             }
 
 
@@ -1380,10 +1384,17 @@ saveStudentButton.addEventListener(
 
             await loadStudents();
 
-            showToast(
-                "Student saved successfully.",
-                "success"
-            );
+            if (loginWarning) {
+                showToast(
+                    "Student saved, but login creation/update needs attention: " + loginWarning,
+                    "error"
+                );
+            } else {
+                showToast(
+                    "Student saved successfully.",
+                    "success"
+                );
+            }
 
 
         } catch (error) {
@@ -1513,6 +1524,18 @@ async function createNewStudent(values) {
 
     }
 
+    let loginWarning = "";
+    if (values.studentId && typeof syncStudentLoginAfterCreate === "function") {
+        try {
+            await syncStudentLoginAfterCreate(values.studentId);
+        } catch (loginError) {
+            console.error("Unable to create student login automatically:", loginError);
+            loginWarning = loginError.message || "Student login could not be created.";
+        }
+    }
+
+    return { student, loginWarning };
+
 }
 
 
@@ -1524,6 +1547,9 @@ async function updateExistingStudent(values) {
 
     const studentProfileId =
         editingStudent.studentProfileId;
+
+    const previousStudentId =
+        editingStudent.studentId || "";
 
 
     const {
@@ -1599,6 +1625,24 @@ async function updateExistingStudent(values) {
         throw recordError;
     }
 
+    let loginWarning = "";
+    if (values.studentId && currentRole === "admin") {
+        try {
+            if (previousStudentId && previousStudentId !== values.studentId && typeof invokeStudentLoginManager === "function") {
+                await invokeStudentLoginManager("sync_student_id", {
+                    old_student_id: previousStudentId,
+                    new_student_id: values.studentId
+                });
+            } else if (!previousStudentId && typeof syncStudentLoginAfterCreate === "function") {
+                await syncStudentLoginAfterCreate(values.studentId);
+            }
+        } catch (loginError) {
+            console.error("Unable to synchronize student login:", loginError);
+            loginWarning = loginError.message || "Student login could not be synchronized.";
+        }
+    }
+
+    return loginWarning;
 }
 
 

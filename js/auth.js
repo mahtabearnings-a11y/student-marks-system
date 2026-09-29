@@ -26,10 +26,22 @@ function clearLoginError() {
 }
 
 
+function studentAuthEmailFromId(studentId) {
+    const text = String(studentId ?? "").trim().toUpperCase();
+    const bytes = new TextEncoder().encode(text);
+    let binary = "";
+    bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+    const encoded = btoa(binary)
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/g, "")
+        .toLowerCase();
+    return `student-${encoded}@login.umssasauli.local`;
+}
+
+
 async function getUserRole(userId) {
 
-    // Student accounts are identified by an explicit school-student mapping.
-    // This avoids changing the existing staff-role values in user_roles.
     try {
         const { data: studentLink, error: studentLinkError } = await supabaseClient
             .from("student_accounts")
@@ -41,38 +53,20 @@ async function getUserRole(userId) {
             return "student";
         }
     } catch (error) {
-        // Continue to the existing staff-role lookup. This keeps the existing
-        // application usable before the one-time Student Portal migration runs.
+        // The Student Portal migration may not have been installed yet.
     }
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", userId)
-            .maybeSingle();
+    const { data, error } = await supabaseClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle();
 
-
-    if (error) {
-        throw new Error(
-            "Unable to determine account permissions."
-        );
-    }
-
-
-    if (!data) {
-        throw new Error(
-            "This account has no assigned system role."
-        );
-    }
-
-
+    if (error) throw new Error("Unable to determine account permissions.");
+    if (!data) throw new Error("This account has no assigned system role.");
     return data.role;
-
 }
+
 
 
 async function showApplication(user, options = {}) {
@@ -103,10 +97,6 @@ async function showApplication(user, options = {}) {
         currentRole =
             role;
 
-        if (typeof resetStudentPortalView === "function") {
-            resetStudentPortalView();
-        }
-
         if (typeof clearAcademicSessionEditUnlocks === "function") {
             clearAcademicSessionEditUnlocks();
         }
@@ -132,11 +122,15 @@ async function showApplication(user, options = {}) {
             );
         }
 
+        const studentAccountsNavButton = document.getElementById("studentAccountsNavButton");
+        if (studentAccountsNavButton) {
+            studentAccountsNavButton.classList.toggle("hidden", role !== "admin");
+        }
+
         const studentLoginAccountCard = document.getElementById("studentLoginAccountCard");
         if (studentLoginAccountCard) {
             studentLoginAccountCard.classList.toggle("hidden", role !== "admin");
         }
-
 
         // A successful new login always starts at Dashboard.
         // During an authenticated refresh, restore the current hash instead.
@@ -196,7 +190,7 @@ function getInitialSection(role) {
         );
 
     if (!requestedSection) {
-        return "dashboard";
+        return role === "student" ? "studentDashboard" : "dashboard";
     }
 
     const navButton =
@@ -210,18 +204,28 @@ function getInitialSection(role) {
         );
 
     if (!navButton || !target) {
+        return role === "student" ? "studentDashboard" : "dashboard";
+    }
+
+    if (requestedSection === "recycleBin" && role !== "admin") {
         return "dashboard";
     }
 
-    if (
-        requestedSection === "recycleBin" &&
-        role !== "admin"
-    ) {
+    if (requestedSection === "studentAccounts" && role !== "admin") {
         return "dashboard";
+    }
+
+    if (requestedSection.startsWith("student") && role !== "student") {
+        return "dashboard";
+    }
+
+    if (requestedSection === "dashboard" && role === "student") {
+        return "studentDashboard";
     }
 
     return requestedSection;
 }
+
 
 
 function showLogin() {
@@ -229,10 +233,6 @@ function showLogin() {
     currentUser = null;
 
     currentRole = null;
-
-    if (typeof resetStudentPortalView === "function") {
-        resetStudentPortalView();
-    }
 
     if (typeof clearAcademicSessionEditUnlocks === "function") {
         clearAcademicSessionEditUnlocks();
@@ -259,7 +259,7 @@ loginForm.addEventListener(
 
         clearLoginError();
 
-        const email =
+        const identifier =
             document
                 .getElementById("loginEmail")
                 .value
@@ -269,6 +269,10 @@ loginForm.addEventListener(
             document
                 .getElementById("loginPassword")
                 .value;
+
+        const email = identifier.includes("@")
+            ? identifier.toLowerCase()
+            : studentAuthEmailFromId(identifier);
 
 
         loginButton.disabled =
