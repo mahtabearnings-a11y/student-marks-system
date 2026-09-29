@@ -178,27 +178,7 @@ function getFilteredStudents() {
 
                         ||
 
-                        String(
-                            student.apaarId ?? ""
-                        )
-                        .toLowerCase()
-                        .includes(search)
-
-                        ||
-
                         student.studentName
-                            .toLowerCase()
-                            .includes(search)
-
-                        ||
-
-                        student.fatherName
-                            .toLowerCase()
-                            .includes(search)
-
-                        ||
-
-                        student.motherName
                             .toLowerCase()
                             .includes(search)
 
@@ -206,14 +186,6 @@ function getFilteredStudents() {
 
                         String(
                             student.rollNo ?? ""
-                        )
-                        .toLowerCase()
-                        .includes(search)
-
-                        ||
-
-                        className(
-                            student.classNo
                         )
                         .toLowerCase()
                         .includes(search)
@@ -640,30 +612,6 @@ studentSearch.addEventListener(
 );
 
 
-const clearStudentSearchButton =
-    document.getElementById(
-        "clearStudentSearchButton"
-    );
-
-
-if (clearStudentSearchButton) {
-
-    clearStudentSearchButton.addEventListener(
-        "click",
-        function() {
-
-            studentSearch.value = "";
-
-            renderStudents();
-
-            studentSearch.focus();
-
-        }
-    );
-
-}
-
-
 studentSort.addEventListener(
     "change",
     function() {
@@ -689,6 +637,210 @@ refreshStudentsButton.addEventListener(
 );
 
 
+/* =========================================================
+   EXCEL EXPORT
+========================================================= */
+
+const exportStudentsExcelButton =
+    document.getElementById("exportStudentsExcelButton");
+
+function getSelectedSessionName() {
+
+    const option =
+        sessionFilter?.options?.[sessionFilter.selectedIndex];
+
+    return option?.textContent?.trim() || "";
+
+}
+
+function getExportFileName() {
+
+    const sessionName =
+        getSelectedSessionName()
+            .replace(/[^a-z0-9]+/gi, "-")
+            .replace(/^-+|-+$/g, "")
+            .toLowerCase();
+
+    const suffix =
+        sessionName ? `-${sessionName}` : "";
+
+    const date =
+        new Date()
+            .toISOString()
+            .slice(0, 10);
+
+    return `Students${suffix}-${date}.xlsx`;
+
+}
+
+function exportStudentsToExcel() {
+
+    if (typeof XLSX === "undefined") {
+
+        showToast(
+            "Excel export is unavailable right now. Please refresh the page and try again.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const list =
+        getFilteredStudents();
+
+    if (!list.length) {
+
+        showToast(
+            "There are no student records to export.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const classValue =
+        classFilter?.value || "all";
+
+    const classLabel =
+        classValue === "all"
+            ? "All Classes"
+            : className(classValue);
+
+    const searchValue =
+        studentSearch?.value?.trim() || "";
+
+    const rows = [
+        ["U.M.S SASAULI URDU"],
+        ["Student Records"],
+        ["Academic Session", getSelectedSessionName()],
+        ["Class", classLabel],
+        ...(searchValue ? [["Search", searchValue]] : []),
+        [],
+    ];
+
+    const headerRowIndex = rows.length;
+
+    rows.push([
+        "Sl. No.",
+        "Roll No.",
+        "Student ID",
+        "APAAR ID",
+        "Student Name",
+        "Father's Name",
+        "Mother's Name",
+        "Date of Birth",
+        "Gender",
+        "Class",
+        "Status"
+    ]);
+
+    list.forEach((student, index) => {
+
+        rows.push([
+            index + 1,
+            student.rollNo ?? "",
+            String(student.studentId ?? ""),
+            String(student.apaarId ?? ""),
+            student.studentName || "",
+            student.fatherName || "",
+            student.motherName || "",
+            student.dob || "",
+            student.gender || "",
+            className(student.classNo),
+            student.status || "Current"
+        ]);
+
+    });
+
+    const worksheet =
+        XLSX.utils.aoa_to_sheet(rows);
+
+    worksheet["A1"].s = {
+        font: { bold: true, sz: 16 },
+        alignment: { horizontal: "center" }
+    };
+
+    worksheet["A2"].s = {
+        font: { bold: true, sz: 12 },
+        alignment: { horizontal: "center" }
+    };
+
+    worksheet["A1"].v = "U.M.S SASAULI URDU";
+    worksheet["A2"].v = "Student Records";
+
+    worksheet["!merges"] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }
+    ];
+
+    worksheet["!cols"] = [
+        { wch: 9 },
+        { wch: 11 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 25 },
+        { wch: 24 },
+        { wch: 24 },
+        { wch: 15 },
+        { wch: 12 },
+        { wch: 14 },
+        { wch: 16 }
+    ];
+
+    const headerRange =
+        XLSX.utils.decode_range(worksheet["!ref"]);
+
+    for (let c = headerRange.s.c; c <= headerRange.e.c; c++) {
+
+        const cell =
+            worksheet[XLSX.utils.encode_cell({
+                r: headerRowIndex,
+                c
+            })];
+
+        if (cell) {
+            cell.s = {
+                font: { bold: true },
+                alignment: {
+                    horizontal: "center",
+                    vertical: "center",
+                    wrap_text: true
+                }
+            };
+        }
+
+    }
+
+    const workbook =
+        XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Students"
+    );
+
+    XLSX.writeFile(
+        workbook,
+        getExportFileName(),
+        { bookType: "xlsx" }
+    );
+
+    showToast(
+        `${list.length} student${list.length === 1 ? "" : "s"} exported to Excel.`,
+        "success"
+    );
+
+}
+
+if (exportStudentsExcelButton) {
+    exportStudentsExcelButton.addEventListener(
+        "click",
+        exportStudentsToExcel
+    );
+}
 
 
 /* =========================================================
