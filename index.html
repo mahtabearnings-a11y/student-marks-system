@@ -73,8 +73,8 @@ body:not(.auth-ready) #appPage {
                 <div id="loginError" class="error-message hidden"></div>
 
                 <form id="loginForm">
-                    <label for="loginEmail">Email</label>
-                    <input type="email" id="loginEmail" placeholder="Enter your email" autocomplete="username" required>
+                    <label for="loginEmail">Student ID / Email</label>
+                    <input type="text" id="loginEmail" placeholder="Enter Student ID or staff email" autocomplete="username" autocapitalize="none" required>
 
                     <label for="loginPassword">Password</label>
                     <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" required>
@@ -178,6 +178,11 @@ body:not(.auth-ready) #appPage {
             <button class="nav-btn staff-only-nav" data-section="backup">
                 <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 4v10"></path><path d="m8 10 4 4 4-4"></path><path d="M5 19.5h14"></path></svg></span>
                 <span>Backup</span>
+            </button>
+
+            <button id="studentAccountsNavButton" class="nav-btn staff-only-nav hidden" data-section="studentAccounts">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="8" r="3"></circle><path d="M3.7 19.5c.4-3 2.3-4.8 5.3-4.8s4.9 1.8 5.3 4.8"></path><rect x="14" y="12.5" width="6.5" height="7" rx="1.2"></rect><path d="M15.7 12.5v-1.2a1.55 1.55 0 0 1 3.1 0v1.2"></path></svg></span>
+                <span>Student Logins</span>
             </button>
 
             <button class="nav-btn student-only-nav hidden" data-section="studentDashboard">
@@ -427,12 +432,10 @@ body:not(.auth-ready) #appPage {
             <div id="studentLoginAccountCard" class="student-account-link-card">
                 <div>
                     <strong>Student Login Accounts</strong>
-                    <span>Create the student's Auth account in Supabase first, then link it here using the student's school email and Student ID.</span>
+                    <span>Student accounts are managed from the Student Logins section. New students with a Student ID receive a login automatically after they are saved.</span>
                 </div>
                 <div class="student-account-link-form">
-                    <input id="studentLoginStudentId" type="text" placeholder="Student ID">
-                    <input id="studentLoginEmail" type="email" placeholder="Student login email">
-                    <button id="studentLinkAccountButton" class="btn btn-secondary" type="button">Link Login</button>
+                    <button id="openStudentAccountsButton" class="btn btn-secondary" type="button">Manage Student Logins</button>
                 </div>
                 <div id="studentLoginLinkMessage" class="form-help"></div>
             </div>
@@ -1073,6 +1076,58 @@ body:not(.auth-ready) #appPage {
         </section>
 
         <!-- =================================================
+             STUDENT LOGIN MANAGEMENT
+        ================================================== -->
+
+        <section id="studentAccountsSection" class="app-section staff-only-section hidden">
+            <div class="page-header">
+                <div>
+                    <div class="students-page-kicker">Account Management</div>
+                    <h2>Student Login Accounts</h2>
+                    <p>Create, manage, enable, disable, reset and view student login credentials from the school account.</p>
+                </div>
+                <div class="student-accounts-toolbar">
+                    <button id="provisionStudentAccountsButton" class="btn btn-primary btn-small" type="button">Create Missing Accounts</button>
+                    <button id="refreshStudentAccountsButton" class="btn btn-secondary btn-small" type="button">Refresh</button>
+                </div>
+            </div>
+
+            <div id="studentAccountsMessage" class="student-portal-message hidden"></div>
+
+            <div class="card filter-card">
+                <div class="filter-grid">
+                    <div class="filter-item">
+                        <label for="studentAccountSearch">Search</label>
+                        <input id="studentAccountSearch" type="search" autocomplete="off" placeholder="Search student ID, name, class or roll...">
+                    </div>
+                    <div class="filter-item">
+                        <label for="studentAccountStatusFilter">Login Status</label>
+                        <select id="studentAccountStatusFilter">
+                            <option value="all">All</option>
+                            <option value="active">Active</option>
+                            <option value="disabled">Disabled</option>
+                            <option value="not_created">Not Created</option>
+                            <option value="first_login">First Login / Change Required</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>Overview</label>
+                        <div id="studentAccountOverview" class="student-account-overview">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card table-card">
+                <div class="table-top">
+                    <div id="studentAccountRecordCount" class="record-count">Loading student accounts...</div>
+                </div>
+                <div id="studentAccountsTableContainer" class="table-wrapper">
+                    <div class="loading">Loading student accounts...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================
              STUDENT PORTAL
         ================================================== -->
 
@@ -1684,9 +1739,56 @@ body:not(.auth-ready) #appPage {
 
 </div>
 
+
+<!-- =========================================================
+     STUDENT FIRST-LOGIN PASSWORD MODAL
+========================================================= -->
+<div id="studentForcePasswordModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="studentForcePasswordTitle">
+    <div class="modal student-force-password-modal">
+        <div class="modal-header">
+            <h3 id="studentForcePasswordTitle">Create Your New Password</h3>
+        </div>
+        <div class="modal-body">
+            <p class="student-force-password-note">This is your first login. For security, you must change the temporary password before entering the Student Portal.</p>
+            <form id="studentForcePasswordForm" class="student-password-form">
+                <label>New Password<input id="studentForcePassword" type="password" minlength="8" autocomplete="new-password" required></label>
+                <label>Confirm Password<input id="studentForcePasswordConfirm" type="password" minlength="8" autocomplete="new-password" required></label>
+                <div id="studentForcePasswordMessage" class="student-portal-message hidden"></div>
+                <button id="studentForcePasswordButton" class="btn btn-primary" type="submit">Save New Password</button>
+            </form>
+            <div class="form-help">Use at least 8 characters. After changing it, only the school administrator can reset it.</div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     STUDENT ACCOUNT PASSWORD MODAL (ADMIN)
+========================================================= -->
+<div id="studentPasswordAdminModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="studentPasswordAdminTitle">
+    <div class="modal student-force-password-modal">
+        <div class="modal-header">
+            <h3 id="studentPasswordAdminTitle">Change Student Password</h3>
+            <button id="closeStudentPasswordAdminModal" class="modal-close" type="button">×</button>
+        </div>
+        <div class="modal-body">
+            <div id="studentPasswordAdminStudent" class="student-admin-password-student"></div>
+            <form id="studentPasswordAdminForm" class="student-password-form">
+                <label>New Password<input id="studentAdminNewPassword" type="text" minlength="8" autocomplete="off" required></label>
+                <div class="student-password-admin-actions">
+                    <button id="generateStudentPasswordButton" class="btn btn-secondary btn-small" type="button">Generate Password</button>
+                    <button id="saveStudentPasswordButton" class="btn btn-primary" type="submit">Save Password</button>
+                </div>
+                <div id="studentPasswordAdminMessage" class="student-portal-message hidden"></div>
+            </form>
+            <div class="form-help">The current password is intentionally visible in Admin Mode because you requested school-level password management.</div>
+        </div>
+    </div>
+</div>
+
 <script src="js/core.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/student-portal.js"></script>
+<script src="js/student-accounts.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/students.js"></script>
 <script src="js/marks.js"></script>

@@ -5,7 +5,6 @@ file is the current working master/update baseline; no unrelated files should
 be removed when applying an update-only package.
 
 JavaScript modules:
-- student-portal.js
 - core.js
 - auth.js
 - app.js
@@ -55,14 +54,3 @@ Responsive note:
 - Touch/coarse-pointer layouts keep browser text-size adjustment fixed at 100% so
   focusing inputs does not trigger automatic text/page zoom; user-initiated zoom
   remains available.
-
-
-Student Portal:
-- Student-only navigation and read-only academic views
-- Profile, marks, attendance, report card print/save, schedules, notices, password change
-- Supabase Auth student role with student_accounts mapping and RLS policies
-- One-time database migration: supabase_student_portal.sql
-
-Account setup:
-- Create the student's Auth user in Supabase Authentication.
-- An Admin can link the existing Auth email to a Student ID from the Students page.
