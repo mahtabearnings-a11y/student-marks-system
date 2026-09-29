@@ -1339,11 +1339,9 @@ saveStudentButton.addEventListener(
                 sessionId
             });
 
-            let loginWarning = "";
-
             if (editingStudent) {
 
-                loginWarning = await updateExistingStudent({
+                await updateExistingStudent({
 
                     studentId,
                     apaarId,
@@ -1360,7 +1358,7 @@ saveStudentButton.addEventListener(
 
             } else {
 
-                const createdResult = await createNewStudent({
+                await createNewStudent({
 
                     studentId,
                     apaarId,
@@ -1374,8 +1372,6 @@ saveStudentButton.addEventListener(
                     status
 
                 });
-
-                loginWarning = createdResult?.loginWarning || "";
 
             }
 
@@ -1384,17 +1380,10 @@ saveStudentButton.addEventListener(
 
             await loadStudents();
 
-            if (loginWarning) {
-                showToast(
-                    "Student saved, but login creation/update needs attention: " + loginWarning,
-                    "error"
-                );
-            } else {
-                showToast(
-                    "Student saved successfully.",
-                    "success"
-                );
-            }
+            showToast(
+                "Student saved successfully.",
+                "success"
+            );
 
 
         } catch (error) {
@@ -1524,18 +1513,6 @@ async function createNewStudent(values) {
 
     }
 
-    let loginWarning = "";
-    if (values.studentId && typeof syncStudentLoginAfterCreate === "function") {
-        try {
-            await syncStudentLoginAfterCreate(values.studentId);
-        } catch (loginError) {
-            console.error("Unable to create student login automatically:", loginError);
-            loginWarning = loginError.message || "Student login could not be created.";
-        }
-    }
-
-    return { student, loginWarning };
-
 }
 
 
@@ -1547,9 +1524,6 @@ async function updateExistingStudent(values) {
 
     const studentProfileId =
         editingStudent.studentProfileId;
-
-    const previousStudentId =
-        editingStudent.studentId || "";
 
 
     const {
@@ -1625,24 +1599,6 @@ async function updateExistingStudent(values) {
         throw recordError;
     }
 
-    let loginWarning = "";
-    if (values.studentId && currentRole === "admin") {
-        try {
-            if (previousStudentId && previousStudentId !== values.studentId && typeof invokeStudentLoginManager === "function") {
-                await invokeStudentLoginManager("sync_student_id", {
-                    old_student_id: previousStudentId,
-                    new_student_id: values.studentId
-                });
-            } else if (!previousStudentId && typeof syncStudentLoginAfterCreate === "function") {
-                await syncStudentLoginAfterCreate(values.studentId);
-            }
-        } catch (loginError) {
-            console.error("Unable to synchronize student login:", loginError);
-            loginWarning = loginError.message || "Student login could not be synchronized.";
-        }
-    }
-
-    return loginWarning;
 }
 
 
@@ -2155,46 +2111,3 @@ closeHistoryButton.addEventListener(
 
 
 
-
-
-/* =========================================================
-   STUDENT LOGIN ACCOUNT LINKING
-========================================================= */
-
-const studentLinkAccountButton = document.getElementById("studentLinkAccountButton");
-const studentLoginStudentId = document.getElementById("studentLoginStudentId");
-const studentLoginEmail = document.getElementById("studentLoginEmail");
-const studentLoginLinkMessage = document.getElementById("studentLoginLinkMessage");
-
-studentLinkAccountButton?.addEventListener("click", async () => {
-    if (currentRole !== "admin") {
-        showToast("Only Admin can link student login accounts.", "error");
-        return;
-    }
-    const studentId = String(studentLoginStudentId?.value || "").trim().toUpperCase();
-    const email = String(studentLoginEmail?.value || "").trim();
-    if (!studentId || !email) {
-        if (studentLoginLinkMessage) studentLoginLinkMessage.textContent = "Enter both Student ID and login email.";
-        return;
-    }
-
-    studentLinkAccountButton.disabled = true;
-    studentLinkAccountButton.textContent = "Linking…";
-    if (studentLoginLinkMessage) studentLoginLinkMessage.textContent = "";
-    try {
-        const { error } = await supabaseClient.rpc("link_student_login_by_email", {
-            p_student_id: studentId,
-            p_email: email
-        });
-        if (error) throw error;
-        if (studentLoginLinkMessage) studentLoginLinkMessage.textContent = "Student login linked successfully.";
-        if (typeof showToast === "function") showToast("Student login linked successfully.", "success");
-    } catch (error) {
-        console.error(error);
-        if (studentLoginLinkMessage) studentLoginLinkMessage.textContent = error.message || "Unable to link the login account.";
-        if (typeof showToast === "function") showToast(error.message || "Unable to link the login account.", "error");
-    } finally {
-        studentLinkAccountButton.disabled = false;
-        studentLinkAccountButton.textContent = "Link Login";
-    }
-});

@@ -26,47 +26,36 @@ function clearLoginError() {
 }
 
 
-function studentAuthEmailFromId(studentId) {
-    const text = String(studentId ?? "").trim().toUpperCase();
-    const bytes = new TextEncoder().encode(text);
-    let binary = "";
-    bytes.forEach(byte => { binary += String.fromCharCode(byte); });
-    const encoded = btoa(binary)
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/g, "")
-        .toLowerCase();
-    return `student-${encoded}@login.umssasauli.local`;
-}
-
-
 async function getUserRole(userId) {
 
-    try {
-        const { data: studentLink, error: studentLinkError } = await supabaseClient
-            .from("student_accounts")
-            .select("user_id")
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("user_roles")
+            .select("role")
             .eq("user_id", userId)
             .maybeSingle();
 
-        if (!studentLinkError && studentLink) {
-            return "student";
-        }
-    } catch (error) {
-        // The Student Portal migration may not have been installed yet.
+
+    if (error) {
+        throw new Error(
+            "Unable to determine account permissions."
+        );
     }
 
-    const { data, error } = await supabaseClient
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .maybeSingle();
 
-    if (error) throw new Error("Unable to determine account permissions.");
-    if (!data) throw new Error("This account has no assigned system role.");
+    if (!data) {
+        throw new Error(
+            "This account has no assigned system role."
+        );
+    }
+
+
     return data.role;
-}
 
+}
 
 
 async function showApplication(user, options = {}) {
@@ -76,10 +65,6 @@ async function showApplication(user, options = {}) {
         const role =
             await getUserRole(user.id);
 
-        if (role === "student") {
-            await showStudentApplication(user, options);
-            return;
-        }
 
         if (
             role !== "admin" &&
@@ -122,15 +107,6 @@ async function showApplication(user, options = {}) {
             );
         }
 
-        const studentAccountsNavButton = document.getElementById("studentAccountsNavButton");
-        if (studentAccountsNavButton) {
-            studentAccountsNavButton.classList.toggle("hidden", role !== "admin");
-        }
-
-        const studentLoginAccountCard = document.getElementById("studentLoginAccountCard");
-        if (studentLoginAccountCard) {
-            studentLoginAccountCard.classList.toggle("hidden", role !== "admin");
-        }
 
         // A successful new login always starts at Dashboard.
         // During an authenticated refresh, restore the current hash instead.
@@ -190,7 +166,7 @@ function getInitialSection(role) {
         );
 
     if (!requestedSection) {
-        return role === "student" ? "studentDashboard" : "dashboard";
+        return "dashboard";
     }
 
     const navButton =
@@ -204,28 +180,18 @@ function getInitialSection(role) {
         );
 
     if (!navButton || !target) {
-        return role === "student" ? "studentDashboard" : "dashboard";
-    }
-
-    if (requestedSection === "recycleBin" && role !== "admin") {
         return "dashboard";
     }
 
-    if (requestedSection === "studentAccounts" && role !== "admin") {
+    if (
+        requestedSection === "recycleBin" &&
+        role !== "admin"
+    ) {
         return "dashboard";
-    }
-
-    if (requestedSection.startsWith("student") && role !== "student") {
-        return "dashboard";
-    }
-
-    if (requestedSection === "dashboard" && role === "student") {
-        return "studentDashboard";
     }
 
     return requestedSection;
 }
-
 
 
 function showLogin() {
@@ -259,7 +225,7 @@ loginForm.addEventListener(
 
         clearLoginError();
 
-        const identifier =
+        const email =
             document
                 .getElementById("loginEmail")
                 .value
@@ -269,10 +235,6 @@ loginForm.addEventListener(
             document
                 .getElementById("loginPassword")
                 .value;
-
-        const email = identifier.includes("@")
-            ? identifier.toLowerCase()
-            : studentAuthEmailFromId(identifier);
 
 
         loginButton.disabled =
