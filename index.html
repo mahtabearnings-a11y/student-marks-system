@@ -7,19 +7,13 @@
 <title>Student Marks System | U.M.S SASAULI URDU</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <link rel="stylesheet" href="css/core.css">
 <link rel="stylesheet" href="css/print-core.css">
 <link rel="stylesheet" href="css/result-print.css">
 <link rel="stylesheet" href="css/folio-print.css">
 
-
-<style id="auth-initialization-style">
-body:not(.auth-ready) #loginPage,
-body:not(.auth-ready) #appPage {
-    visibility: hidden;
-}
-</style>
 
 <style id="auth-initialization-style">
 body:not(.auth-ready) #loginPage,
@@ -475,11 +469,22 @@ body:not(.auth-ready) #appPage {
                             Search Student ID / Name / Roll
                         </label>
 
-                        <input
-                            type="text"
-                            id="studentSearch"
-                            placeholder="Search..."
-                        >
+                        <div class="students-search-controls">
+                            <input
+                                type="search"
+                                id="studentSearch"
+                                autocomplete="off"
+                                spellcheck="false"
+                                placeholder="Search by ID, APAAR, name, parent, roll or class..."
+                            >
+                            <button
+                                type="button"
+                                id="clearStudentSearchButton"
+                                class="btn btn-secondary btn-small"
+                                aria-label="Clear student search">
+                                Clear
+                            </button>
+                        </div>
 
                     </div>
 
@@ -544,13 +549,21 @@ body:not(.auth-ready) #appPage {
                         </div>
                     </div>
 
-                    <button
-                        id="refreshStudentsButton"
-                        class="btn btn-secondary btn-small">
+                    <div class="students-table-actions">
+                        <button
+                            type="button"
+                            id="exportStudentsExcelButton"
+                            class="btn btn-primary btn-small">
+                            Export Excel
+                        </button>
 
-                        Refresh
-
-                    </button>
+                        <button
+                            type="button"
+                            id="refreshStudentsButton"
+                            class="btn btn-secondary btn-small">
+                            Refresh
+                        </button>
+                    </div>
 
                 </div>
 
@@ -1488,9 +1501,7 @@ body:not(.auth-ready) #appPage {
 
 
 
-
-</body>
-</html><!-- =========================================================
+<!-- =========================================================
      RECYCLE BIN PASSWORD MODAL
 ========================================================= -->
 
@@ -1564,10 +1575,5 @@ body:not(.auth-ready) #appPage {
 <script src="js/app.js"></script>
 <script src="js/ui-enhancements.js"></script>
 
-
-
-
-
-
-
-
+</body>
+</html>

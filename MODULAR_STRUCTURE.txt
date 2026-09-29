@@ -44,3 +44,13 @@ Notes:
 - Result and Class Marks Folio remain separate print modules.
 - Do not restore the old combined print.js / print.css architecture.
 - Update-only ZIPs contain only files changed for that specific update.
+
+Student features:
+- Student Search: ID, APAAR ID, name, father/mother name, roll number, and class
+- Student Excel Export: exports the currently filtered student list to XLSX
+- Clear Search control resets the student search field
+
+Responsive note:
+- Touch/coarse-pointer layouts keep browser text-size adjustment fixed at 100% so
+  focusing inputs does not trigger automatic text/page zoom; user-initiated zoom
+  remains available.
