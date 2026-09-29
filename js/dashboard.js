@@ -76,5 +76,24 @@ async function updateDashboardCounts() {
     if (malePercentEl) malePercentEl.textContent = `${malePercent}%`;
     if (femalePercentEl) femalePercentEl.textContent = `${femalePercent}%`;
     if (donut) donut.style.background = `conic-gradient(#2e73cc 0deg ${malePercent * 3.6}deg, #7aa9e6 ${malePercent * 3.6}deg 360deg)`;
+
+    // Data health: report only genuinely incomplete required student data.
+    // Student ID, APAAR ID, parent names, DOB, gender and roll may legitimately
+    // be blank in the current student form, so they are not treated as errors.
+    const incompleteRecords = (records || []).filter(record => {
+        const student = record.students || {};
+        const nameMissing = !String(student.student_name || '').trim();
+        const classMissing = record.class_no === null || record.class_no === undefined || record.class_no === '';
+        return nameMissing || classMissing;
+    }).length;
+
+    const dataHealthCount = document.getElementById('dashboardIncompleteStudents');
+    const dataHealthStatus = document.getElementById('dashboardDataHealthStatus');
+    if (dataHealthCount) dataHealthCount.textContent = incompleteRecords;
+    if (dataHealthStatus) {
+        dataHealthStatus.textContent = incompleteRecords === 0 ? 'Healthy' : 'Attention needed';
+        dataHealthStatus.classList.toggle('data-health-ok', incompleteRecords === 0);
+        dataHealthStatus.classList.toggle('data-health-attention', incompleteRecords > 0);
+    }
 }
 
