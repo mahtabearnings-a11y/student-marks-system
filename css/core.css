@@ -5025,3 +5025,67 @@ body.dark-mode #appPage .toast {
 .data-health-item span{display:block;margin-top:4px;color:#6a7f9b;font-size:12px}
 .data-health-ok{background:#ecfdf5 !important;color:#047857 !important}
 .data-health-attention{background:#fff7ed !important;color:#c2410c !important}
+
+/* =========================================================
+   FINAL PREMIUM POLISH
+   Visual-only refinement; no application logic changed.
+========================================================= */
+.app-shell .dashboard-card,
+.app-shell .dashboard-overview,
+.app-shell .dashboard-analytics-card,
+.app-shell .dashboard-data-health {
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .app-shell .dashboard-card:hover,
+    .app-shell .dashboard-overview:hover,
+    .app-shell .dashboard-analytics-card:hover,
+    .app-shell .dashboard-data-health:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(31, 73, 125, 0.10);
+        border-color: #d7e2f0;
+    }
+}
+
+.app-shell button:focus-visible,
+.app-shell input:focus-visible,
+.app-shell select:focus-visible,
+.app-shell textarea:focus-visible {
+    outline: 2px solid #5d8ec7;
+    outline-offset: 2px;
+}
+
+.app-shell .dashboard-data-health {
+    border: 1px solid #dfe8f3;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+}
+
+.app-shell .dashboard-data-health .data-health-item {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+}
+
+@media (max-width: 560px) {
+    .app-shell .dashboard-data-health {
+        padding: 16px;
+    }
+
+    .app-shell .dashboard-data-health .dashboard-section-heading {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .app-shell .dashboard-data-health .dashboard-section-badge {
+        flex-shrink: 0;
+    }
+
+    .app-shell .dashboard-data-health .data-health-item {
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .app-shell .dashboard-data-health .data-health-number {
+        min-width: 36px;
+        font-size: 24pt;
+    }
+}
