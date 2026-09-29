@@ -2111,3 +2111,46 @@ closeHistoryButton.addEventListener(
 
 
 
+
+
+/* =========================================================
+   STUDENT LOGIN ACCOUNT LINKING
+========================================================= */
+
+const studentLinkAccountButton = document.getElementById("studentLinkAccountButton");
+const studentLoginStudentId = document.getElementById("studentLoginStudentId");
+const studentLoginEmail = document.getElementById("studentLoginEmail");
+const studentLoginLinkMessage = document.getElementById("studentLoginLinkMessage");
+
+studentLinkAccountButton?.addEventListener("click", async () => {
+    if (currentRole !== "admin") {
+        showToast("Only Admin can link student login accounts.", "error");
+        return;
+    }
+    const studentId = String(studentLoginStudentId?.value || "").trim().toUpperCase();
+    const email = String(studentLoginEmail?.value || "").trim();
+    if (!studentId || !email) {
+        if (studentLoginLinkMessage) studentLoginLinkMessage.textContent = "Enter both Student ID and login email.";
+        return;
+    }
+
+    studentLinkAccountButton.disabled = true;
+    studentLinkAccountButton.textContent = "Linking…";
+    if (studentLoginLinkMessage) studentLoginLinkMessage.textContent = "";
+    try {
+        const { error } = await supabaseClient.rpc("link_student_login_by_email", {
+            p_student_id: studentId,
+            p_email: email
+        });
+        if (error) throw error;
+        if (studentLoginLinkMessage) studentLoginLinkMessage.textContent = "Student login linked successfully.";
+        if (typeof showToast === "function") showToast("Student login linked successfully.", "success");
+    } catch (error) {
+        console.error(error);
+        if (studentLoginLinkMessage) studentLoginLinkMessage.textContent = error.message || "Unable to link the login account.";
+        if (typeof showToast === "function") showToast(error.message || "Unable to link the login account.", "error");
+    } finally {
+        studentLinkAccountButton.disabled = false;
+        studentLinkAccountButton.textContent = "Link Login";
+    }
+});

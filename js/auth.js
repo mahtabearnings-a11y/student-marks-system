@@ -28,6 +28,23 @@ function clearLoginError() {
 
 async function getUserRole(userId) {
 
+    // Student accounts are identified by an explicit school-student mapping.
+    // This avoids changing the existing staff-role values in user_roles.
+    try {
+        const { data: studentLink, error: studentLinkError } = await supabaseClient
+            .from("student_accounts")
+            .select("user_id")
+            .eq("user_id", userId)
+            .maybeSingle();
+
+        if (!studentLinkError && studentLink) {
+            return "student";
+        }
+    } catch (error) {
+        // Continue to the existing staff-role lookup. This keeps the existing
+        // application usable before the one-time Student Portal migration runs.
+    }
+
     const {
         data,
         error
@@ -65,6 +82,10 @@ async function showApplication(user, options = {}) {
         const role =
             await getUserRole(user.id);
 
+        if (role === "student") {
+            await showStudentApplication(user, options);
+            return;
+        }
 
         if (
             role !== "admin" &&
@@ -81,6 +102,10 @@ async function showApplication(user, options = {}) {
 
         currentRole =
             role;
+
+        if (typeof resetStudentPortalView === "function") {
+            resetStudentPortalView();
+        }
 
         if (typeof clearAcademicSessionEditUnlocks === "function") {
             clearAcademicSessionEditUnlocks();
@@ -105,6 +130,11 @@ async function showApplication(user, options = {}) {
                 "hidden",
                 role !== "admin"
             );
+        }
+
+        const studentLoginAccountCard = document.getElementById("studentLoginAccountCard");
+        if (studentLoginAccountCard) {
+            studentLoginAccountCard.classList.toggle("hidden", role !== "admin");
         }
 
 
@@ -199,6 +229,10 @@ function showLogin() {
     currentUser = null;
 
     currentRole = null;
+
+    if (typeof resetStudentPortalView === "function") {
+        resetStudentPortalView();
+    }
 
     if (typeof clearAcademicSessionEditUnlocks === "function") {
         clearAcademicSessionEditUnlocks();
