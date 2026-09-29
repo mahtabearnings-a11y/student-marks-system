@@ -382,10 +382,10 @@ body:not(.auth-ready) #appPage {
 
                 <div class="students-filter-heading">
                     <div>
-                        <h3>Find &amp; Filter Students</h3>
-                        <p>Use the controls below to narrow the student list.</p>
+                        <h3>Search Students</h3>
+                        <p>Search by Student ID, APAAR ID, name, father/mother name, roll number, or class.</p>
                     </div>
-                    <span class="students-filter-badge">Live filters</span>
+                    
                 </div>
 
                 <div class="filter-grid">
@@ -453,14 +453,23 @@ body:not(.auth-ready) #appPage {
                     <div class="filter-item">
 
                         <label>
-                            Search Student ID / Name / Roll
+                            Search Students
                         </label>
 
-                        <input
-                            type="text"
-                            id="studentSearch"
-                            placeholder="Search..."
-                        >
+                        <div class="student-search-controls">
+                            <input
+                                type="text"
+                                id="studentSearch"
+                                placeholder="Search ID, name, roll, parent name, APAAR ID..."
+                            >
+                            <button
+                                type="button"
+                                id="clearStudentSearchButton"
+                                class="btn btn-secondary btn-small student-search-clear"
+                            >
+                                Clear Search
+                            </button>
+                        </div>
 
                     </div>
 
