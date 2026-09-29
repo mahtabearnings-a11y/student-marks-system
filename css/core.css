@@ -5,11 +5,6 @@
     padding: 0;
 }
 
-html {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-}
-
 body {
     font-family: Arial, Helvetica, sans-serif;
     background: #f4f7fb;
@@ -5095,117 +5090,18 @@ body.dark-mode #appPage .toast {
     }
 }
 
-
 /* =========================================================
-   STUDENT SEARCH / EXPORT CONTROLS
-========================================================= */
-.app-shell .students-search-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.app-shell .students-search-controls input {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-.app-shell .students-search-controls .btn {
-    flex: 0 0 auto;
-    white-space: nowrap;
-}
-
-.app-shell .students-table-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-}
-
-/* =========================================================
-   ANDROID DESKTOP-MODE INPUT / LAYOUT FIX
-   Prevent browser text autosizing / focus-zoom while keeping
-   normal user pinch/browser zoom available.
+   ANDROID / TOUCH INPUT ZOOM FIX
+   Keep touch form controls at a browser-safe minimum size so
+   Android does not auto-zoom the page when an input receives
+   focus. Manual browser/pinch zoom remains enabled.
 ========================================================= */
 @media (pointer: coarse) {
-    html {
-        -webkit-text-size-adjust: 100% !important;
-        text-size-adjust: 100% !important;
-    }
-
-    .app-shell {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .app-shell .main-content,
-    .app-shell .page-header,
-    .app-shell .card,
-    .app-shell .table-card {
-        min-width: 0;
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-
-    .app-shell input,
-    .app-shell select,
-    .app-shell textarea {
+    #appPage input,
+    #appPage select,
+    #appPage textarea {
         font-size: 16px !important;
-    }
-
-    .app-shell .students-filter-card .filter-item input,
-    .app-shell .students-filter-card .filter-item select {
-        font-size: 16px !important;
-    }
-
-    .app-shell .students-search-controls {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .app-shell .students-table-actions {
-        max-width: 100%;
-    }
-}
-
-@media (min-width: 900px) and (pointer: coarse) {
-    .app-shell .main-content {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-
-    .app-shell .students-filter-card .filter-grid {
-        grid-template-columns: 1.2fr 1fr 1.8fr 1fr;
-    }
-
-    .app-shell .student-grid-wrapper,
-    .app-shell .table-wrapper,
-    .app-shell .marks-grid-wrapper,
-    .app-shell .attendance-grid-wrapper {
-        max-width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-}
-
-@media (max-width: 560px) {
-    .app-shell .students-search-controls {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .app-shell .students-search-controls .btn {
-        width: 100%;
-    }
-
-    .app-shell .students-table-actions {
-        width: 100%;
-        justify-content: stretch;
-    }
-
-    .app-shell .students-table-actions .btn {
-        flex: 1 1 0;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
     }
 }
