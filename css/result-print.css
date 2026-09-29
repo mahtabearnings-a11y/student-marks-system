@@ -385,10 +385,22 @@
     table-layout: fixed !important;
   }
 
+  /* Final Result: explicitly size all five columns so the browser does not
+     redistribute the unused width into Subject. This keeps Half-Yearly/Annual
+     headings clear of borders and keeps Full Marks visually centered. */
   .final-result-table .serial-col { width: 8% !important; }
-  .final-result-table .subject-col { width: 36% !important; }
-  .final-result-table .marks-col { width: 14% !important; }
-  .final-result-table .full-col { width: 14% !important; }
+  .final-result-table .subject-col { width: 35% !important; }
+  .final-result-table .marks-col { width: 18% !important; }
+  .final-result-table .full-col { width: 21% !important; }
+
+  .final-result-table thead th:nth-child(3),
+  .final-result-table thead th:nth-child(4),
+  .final-result-table thead th:nth-child(5) {
+    text-align: center !important;
+    white-space: nowrap !important;
+    padding-left: 1.4mm !important;
+    padding-right: 1.4mm !important;
+  }
 
   .result-table th,
   .result-table td {
