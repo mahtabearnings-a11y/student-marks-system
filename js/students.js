@@ -570,6 +570,18 @@ function formatDate(value) {
 
 
 /* =========================================================
+   STUDENT ACTION ELEMENTS
+   Keep these references above the event bindings below.
+========================================================= */
+
+const exportStudentsExcelButton =
+    document.getElementById("exportStudentsExcelButton");
+
+const clearStudentSearchButton =
+    document.getElementById("clearStudentSearchButton");
+
+
+/* =========================================================
    FILTER EVENTS
 ========================================================= */
 
@@ -645,12 +657,6 @@ refreshStudentsButton.addEventListener(
 /* =========================================================
    EXCEL EXPORT
 ========================================================= */
-
-const exportStudentsExcelButton =
-    document.getElementById("exportStudentsExcelButton");
-
-const clearStudentSearchButton =
-    document.getElementById("clearStudentSearchButton");
 
 function getSelectedSessionName() {
 

@@ -95,6 +95,22 @@ let marksLoading = false;
 
 
 /* =========================================================
+   ANDROID TOUCH DEVICE DETECTION
+   Android Desktop Site can report a fine pointer even though the
+   device is still touch-capable. A dedicated class lets CSS prevent
+   focus-triggered input zoom without changing navigation or pinch zoom.
+========================================================= */
+
+const isAndroidTouchDevice =
+    /Android/i.test(navigator.userAgent || "") &&
+    Number(navigator.maxTouchPoints || 0) > 0;
+
+if (isAndroidTouchDevice) {
+    document.documentElement.classList.add("android-touch-device");
+}
+
+
+/* =========================================================
    ELEMENTS
 ========================================================= */
 
