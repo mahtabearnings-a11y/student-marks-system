@@ -3014,12 +3014,6 @@ table td {
     padding: 7px 12px;
 }
 
-.students-table-actions {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
 .app-shell .student-grid-wrapper {
     max-height: 66vh;
     scrollbar-width: thin;
@@ -5018,3 +5012,16 @@ body.dark-mode #appPage .toast {
         max-height: 300px;
     }
 }
+
+
+/* =========================
+   DATA HEALTH
+========================= */
+.dashboard-data-health{margin-top:18px;padding:20px}
+.data-health-grid{display:grid;grid-template-columns:minmax(0,1fr)}
+.data-health-item{display:flex;align-items:center;gap:16px;padding:15px 16px;border:1px solid #e3eaf3;border-radius:10px;background:#fbfdff}
+.data-health-number{font-size:28px;font-weight:700;line-height:1;color:#123b73;min-width:42px;text-align:center}
+.data-health-item strong{display:block;color:#193d6d;font-size:14px}
+.data-health-item span{display:block;margin-top:4px;color:#6a7f9b;font-size:12px}
+.data-health-ok{background:#ecfdf5 !important;color:#047857 !important}
+.data-health-attention{background:#fff7ed !important;color:#c2410c !important}
