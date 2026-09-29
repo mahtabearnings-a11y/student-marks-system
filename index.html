@@ -7,6 +7,7 @@
 <title>Student Marks System | U.M.S SASAULI URDU</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <link rel="stylesheet" href="css/core.css">
 <link rel="stylesheet" href="css/print-core.css">
@@ -382,10 +383,10 @@ body:not(.auth-ready) #appPage {
 
                 <div class="students-filter-heading">
                     <div>
-                        <h3>Search Students</h3>
-                        <p>Search by Student ID, APAAR ID, name, father/mother name, roll number, or class.</p>
+                        <h3>Find &amp; Filter Students</h3>
+                        <p>Use the controls below to narrow the student list.</p>
                     </div>
-                    
+                    <span class="students-filter-badge">Live filters</span>
                 </div>
 
                 <div class="filter-grid">
@@ -453,23 +454,14 @@ body:not(.auth-ready) #appPage {
                     <div class="filter-item">
 
                         <label>
-                            Search Students
+                            Search Student ID / Name / Roll
                         </label>
 
-                        <div class="student-search-controls">
-                            <input
-                                type="text"
-                                id="studentSearch"
-                                placeholder="Search ID, name, roll, parent name, APAAR ID..."
-                            >
-                            <button
-                                type="button"
-                                id="clearStudentSearchButton"
-                                class="btn btn-secondary btn-small student-search-clear"
-                            >
-                                Clear Search
-                            </button>
-                        </div>
+                        <input
+                            type="text"
+                            id="studentSearch"
+                            placeholder="Search..."
+                        >
 
                     </div>
 
@@ -534,13 +526,26 @@ body:not(.auth-ready) #appPage {
                         </div>
                     </div>
 
-                    <button
-                        id="refreshStudentsButton"
-                        class="btn btn-secondary btn-small">
+                    <div class="students-table-actions">
 
-                        Refresh
+                        <button
+                            id="exportStudentsExcelButton"
+                            class="btn btn-secondary btn-small"
+                            type="button">
 
-                    </button>
+                            Export Excel
+
+                        </button>
+
+                        <button
+                            id="refreshStudentsButton"
+                            class="btn btn-secondary btn-small">
+
+                            Refresh
+
+                        </button>
+
+                    </div>
 
                 </div>
 
