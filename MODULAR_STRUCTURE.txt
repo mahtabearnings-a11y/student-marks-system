@@ -1,25 +1,46 @@
-UMS SASAULI MODULAR PROJECT — C-10 REBUILD
+UMS SASAULI URDU — CURRENT MODULAR PROJECT STRUCTURE
 
-This is a working modular copy for testing only.
-It is NOT the master copy.
-The original master remains untouched until the complete website is tested on GitHub and all functionality is verified.
+This file documents the current project structure. The ZIP containing this
+file is the current working master/update baseline; no unrelated files should
+be removed when applying an update-only package.
 
-Modules:
+JavaScript modules:
 - core.js
 - auth.js
+- app.js
 - dashboard.js
 - students.js
 - marks.js
 - attendance.js
 - promotion.js
 - recycle-bin.js
-- print.js
-- app.js
+- backup.js
+- academic-years.js
+- print-core.js
+- result-print.js
+- folio-print.js
+- ui-enhancements.js
 
-CSS:
+CSS modules:
 - core.css
-- print.css
+- print-core.css
+- result-print.css
+- folio-print.css
+- test.txt (test/support file; do not remove unless intentionally cleaning tests)
+
+HTML:
+- index.html
 
 Assets:
-- school-logo.png
 - school-building.jpg
+- school-logo-polished.png
+
+Print architecture:
+- Shared print infrastructure: print-core.js / print-core.css
+- Student Result: result-print.js / result-print.css
+- Class Marks Folio: folio-print.js / folio-print.css
+
+Notes:
+- Result and Class Marks Folio remain separate print modules.
+- Do not restore the old combined print.js / print.css architecture.
+- Update-only ZIPs contain only files changed for that specific update.
