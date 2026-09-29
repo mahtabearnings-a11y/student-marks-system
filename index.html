@@ -7,7 +7,6 @@
 <title>Student Marks System | U.M.S SASAULI URDU</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <link rel="stylesheet" href="css/core.css">
 <link rel="stylesheet" href="css/print-core.css">
@@ -307,6 +306,25 @@ body:not(.auth-ready) #appPage {
                 </section>
             </div>
 
+            <section class="card dashboard-data-health">
+                <div class="dashboard-section-heading">
+                    <div>
+                        <h3>Data Health</h3>
+                        <p>Checks the active academic session for incomplete required student information.</p>
+                    </div>
+                    <span id="dashboardDataHealthStatus" class="dashboard-section-badge data-health-ok">Healthy</span>
+                </div>
+                <div class="data-health-grid">
+                    <div class="data-health-item">
+                        <div class="data-health-number" id="dashboardIncompleteStudents">—</div>
+                        <div>
+                            <strong>Incomplete Student Records</strong>
+                            <span>Missing required student name or class information</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <div class="context-card">
 
                 <h3 style="color:#123b73">
@@ -526,26 +544,13 @@ body:not(.auth-ready) #appPage {
                         </div>
                     </div>
 
-                    <div class="students-table-actions">
+                    <button
+                        id="refreshStudentsButton"
+                        class="btn btn-secondary btn-small">
 
-                        <button
-                            id="exportStudentsExcelButton"
-                            class="btn btn-secondary btn-small"
-                            type="button">
+                        Refresh
 
-                            Export Excel
-
-                        </button>
-
-                        <button
-                            id="refreshStudentsButton"
-                            class="btn btn-secondary btn-small">
-
-                            Refresh
-
-                        </button>
-
-                    </div>
+                    </button>
 
                 </div>
 
