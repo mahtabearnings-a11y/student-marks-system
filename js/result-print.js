@@ -214,7 +214,7 @@ function resultHtml(record,pageNo,totalPages){
     if(!isFinal){
         const rows=printSubjects.map((sub,index)=>{
             const v=getPrintMark(record.id,sub.id,printExam.value);
-            return `<tr><td class="serial-cell">${index+1}</td><td class="subject">${escapeHtml(sub.subject_name)}</td><td>${v??""}</td><td>50</td></tr>`;
+            return `<tr><td class="serial-cell">${index+1}</td><td class="subject">${escapeHtml(displaySubjectName(sub.subject_name))}</td><td>${v??""}</td><td>50</td></tr>`;
         }).join("");
         const tableHeader=`<tr><th>Sl. No.</th><th>Subject</th><th>Obtained Marks</th><th>Full Marks</th></tr>`;
         const summaryRows=`<tr class="result-total-row"><th colspan="2">Total</th><td>${c.total}</td><td>${c.max}</td></tr>`;
@@ -230,7 +230,7 @@ function resultHtml(record,pageNo,totalPages){
     const finalRows=printSubjects.map((sub,index)=>{
         const hv=getPrintMark(record.id,sub.id,"Half-Yearly"), av=getPrintMark(record.id,sub.id,"Annual");
         const subjectTotal=(hv!==null || av!==null) ? (hv||0)+(av||0) : "";
-        return {index, hv, av, subjectTotal, subject:sub.subject_name};
+        return {index, hv, av, subjectTotal, subject:displaySubjectName(sub.subject_name)};
     });
     const rows=finalRows.map(({index,hv,av,subjectTotal,subject})=>{
         return `<tr><td class="serial-cell">${index+1}</td><td class="subject">${escapeHtml(subject)}</td><td>${hv??""}</td><td>${av??""}</td><td>${subjectTotal}</td><td>100</td></tr>`;

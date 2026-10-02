@@ -56,7 +56,7 @@ function autoFitFolioTable(table){
     }));
 }
 function formatFolioSubjectLabel(subjectName){
-    const normalized = String(subjectName || "").trim().replace(/\s+/g, " ");
+    const normalized = String(displaySubjectName(subjectName || "")).trim().replace(/\s+/g, " ");
     const key = normalized.toLowerCase();
 
     // Keep the folio universal: only genuinely long/awkward labels receive

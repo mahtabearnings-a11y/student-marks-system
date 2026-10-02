@@ -95,6 +95,23 @@ let marksLoading = false;
 
 
 /* =========================================================
+   SUBJECT DISPLAY NAMES
+   Keep the stored database subject names unchanged while presenting
+   the exact subject labels used by E-Shikshakosh throughout the UI.
+========================================================= */
+
+function displaySubjectName(subjectName) {
+    const original = String(subjectName ?? "").trim();
+    const key = original.replace(/\s+/g, " ").toLowerCase();
+
+    if (key === "hindi") return "Rastrabhasa";
+    if (key === "environmental science") return "Environmental Studies";
+
+    return original;
+}
+
+
+/* =========================================================
    ANDROID TOUCH DEVICE DETECTION
    Android Desktop Site can report a fine pointer even though the
    device is still touch-capable. A dedicated class lets CSS prevent

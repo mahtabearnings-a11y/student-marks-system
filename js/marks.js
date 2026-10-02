@@ -256,7 +256,7 @@ function renderMarksGrid() {
     const maxPerSubject = finalExam ? 100 : 50;
     marksRecordCount.textContent = `${marksRecords.length} students • ${marksSubjects.length} subjects • ${marksExam.value} • ${marksSort?.selectedOptions[0]?.text || "Roll Number — Low to High"}`;
 
-    const head = marksSubjects.map(s => `<th>${escapeHtml(s.subject_name)}<br><small>/ ${maxPerSubject}</small></th>`).join("");
+    const head = marksSubjects.map(s => `<th>${escapeHtml(displaySubjectName(s.subject_name))}<br><small>/ ${maxPerSubject}</small></th>`).join("");
     const sortedMarksRecords = getMarksSortedRecords();
     const rows = sortedMarksRecords.map((record, index) => {
         const calc = calculateRow(record.id);
