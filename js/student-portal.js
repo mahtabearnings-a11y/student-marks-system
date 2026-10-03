@@ -174,7 +174,13 @@ async function studentPortalLoadMarks(record) {
         .eq("class_no", record.class_no)
         .order("display_order", { ascending: true });
     if (subjectError) throw subjectError;
-    studentPortalSubjects = subjects || [];
+    studentPortalSubjects = (subjects || []).map(subject => ({
+        ...subject,
+        subject_name:
+            subject.subject_name === "Rastrabhasa" ? "Rashtrabhasha" :
+            subject.subject_name === "Environmental Science" ? "Environmental Studies" :
+            subject.subject_name
+    }));
 
     const { data: marks, error: marksError } = await supabaseClient
         .from("exam_marks")
@@ -224,7 +230,7 @@ function studentPortalRenderMarks() {
         }
 
         const rowClass = obtained === "" ? "" : obtained < (full * 0.33) ? "student-mark-low" : "";
-        return `<tr class="${rowClass}"><td>${index + 1}</td><td class="student-subject-cell">${studentPortalEsc(displaySubjectName(subject.subject_name))}</td><td>${obtained === "" ? "—" : studentPortalEsc(obtained)}</td><td>${full}</td></tr>`;
+        return `<tr class="${rowClass}"><td>${index + 1}</td><td class="student-subject-cell">${studentPortalEsc(subject.subject_name)}</td><td>${obtained === "" ? "—" : studentPortalEsc(obtained)}</td><td>${full}</td></tr>`;
     }).join("");
 
     const pct = max ? (total / max) * 100 : 0;
@@ -320,7 +326,7 @@ async function studentPortalLoadSchedules(record) {
             .order("day_order", { ascending: true })
             .order("period_no", { ascending: true });
         if (!error && data?.length) {
-            studentPortalTimetable.innerHTML = data.map(row => `<tr><td>${studentPortalEsc(row.day_name)}</td><td>${studentPortalEsc(row.period_no)}</td><td>${studentPortalEsc(displaySubjectName(row.subject_name))}</td><td>${studentPortalEsc(row.start_time || "—")}</td><td>${studentPortalEsc(row.end_time || "—")}</td></tr>`).join("");
+            studentPortalTimetable.innerHTML = data.map(row => `<tr><td>${studentPortalEsc(row.day_name)}</td><td>${studentPortalEsc(row.period_no)}</td><td>${studentPortalEsc(row.subject_name)}</td><td>${studentPortalEsc(row.start_time || "—")}</td><td>${studentPortalEsc(row.end_time || "—")}</td></tr>`).join("");
         } else {
             studentPortalTimetable.innerHTML = `<tr><td colspan="5">No timetable published yet.</td></tr>`;
         }
@@ -347,11 +353,11 @@ function studentPortalReportHtml() {
             const half = Number(studentPortalMarks[`${subject.id}_Half-Yearly`]?.marks);
             const annual = Number(studentPortalMarks[`${subject.id}_Annual`]?.marks);
             if (Number.isFinite(half) || Number.isFinite(annual)) value = (Number.isFinite(half) ? half : 0) + (Number.isFinite(annual) ? annual : 0);
-            return `<tr><td>${index + 1}</td><td>${studentPortalEsc(displaySubjectName(subject.subject_name))}</td><td>${value === "" ? "" : value}</td><td>100</td></tr>`;
+            return `<tr><td>${index + 1}</td><td>${studentPortalEsc(subject.subject_name)}</td><td>${value === "" ? "" : value}</td><td>100</td></tr>`;
         }
         const mark = studentPortalMarks[`${subject.id}_${exam}`]?.marks;
         value = mark === null || mark === undefined || mark === "" ? "" : mark;
-        return `<tr><td>${index + 1}</td><td>${studentPortalEsc(displaySubjectName(subject.subject_name))}</td><td>${studentPortalEsc(value)}</td><td>50</td></tr>`;
+        return `<tr><td>${index + 1}</td><td>${studentPortalEsc(subject.subject_name)}</td><td>${studentPortalEsc(value)}</td><td>50</td></tr>`;
     }).join("");
 
     return `<!doctype html><html><head><meta charset="utf-8"><title>${studentPortalEsc(s.student_name)} - ${studentPortalEsc(exam)} Result</title><style>

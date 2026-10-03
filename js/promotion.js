@@ -83,9 +83,14 @@ async function loadPromotionStudents(){
     if(error){promotionMessage.textContent="Unable to load students: "+error.message;showToast("Unable to load promotion data.","error");return;}
     const {data:subjects,error:se}=await supabaseClient.from("subjects").select("id,subject_name,display_order").eq("class_no",classNo).order("display_order",{ascending:true});
     if(se){promotionMessage.textContent="Unable to load subjects: "+se.message;return;}
+    const normalizedSubjects=(subjects||[]).map(subject=>({...subject,subject_name:
+        subject.subject_name === "Rastrabhasa" ? "Rashtrabhasha" :
+        subject.subject_name === "Environmental Science" ? "Environmental Studies" :
+        subject.subject_name
+    }));
     let marks={};
-    try{marks=await getPromotionMarks(records||[],subjects||[]);}catch(e){promotionMessage.textContent="Unable to load marks: "+e.message;return;}
-    promotionStudents=(records||[]).map(r=>({...r,calc:promotionCalc(r,subjects||[],marks)}));
+    try{marks=await getPromotionMarks(records||[],normalizedSubjects);}catch(e){promotionMessage.textContent="Unable to load marks: "+e.message;return;}
+    promotionStudents=(records||[]).map(r=>({...r,calc:promotionCalc(r,normalizedSubjects,marks)}));
     const ranked=[...promotionStudents].sort((a,b)=>b.calc.total-a.calc.total||String(a.students?.student_name||"").localeCompare(String(b.students?.student_name||"")));
     const rankMap=new Map(ranked.map((r,i)=>[r.id,i+1]));
     promotionStudents.forEach(r=>r.rank=rankMap.get(r.id));

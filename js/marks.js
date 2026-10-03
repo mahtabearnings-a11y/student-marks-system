@@ -65,7 +65,15 @@ async function loadMarksGrid() {
         return;
     }
 
-    marksSubjects = subjects || [];
+    // Keep the website subject labels aligned with E-Shikshakosh.
+    // Database IDs/codes remain unchanged; only the displayed subject name is normalized.
+    marksSubjects = (subjects || []).map(subject => ({
+        ...subject,
+        subject_name:
+            subject.subject_name === "Rastrabhasa" ? "Rashtrabhasha" :
+            subject.subject_name === "Environmental Science" ? "Environmental Studies" :
+            subject.subject_name
+    }));
 
     const { data: records, error: recordError } = await supabaseClient
         .from("academic_records")
@@ -256,7 +264,7 @@ function renderMarksGrid() {
     const maxPerSubject = finalExam ? 100 : 50;
     marksRecordCount.textContent = `${marksRecords.length} students • ${marksSubjects.length} subjects • ${marksExam.value} • ${marksSort?.selectedOptions[0]?.text || "Roll Number — Low to High"}`;
 
-    const head = marksSubjects.map(s => `<th>${escapeHtml(displaySubjectName(s.subject_name))}<br><small>/ ${maxPerSubject}</small></th>`).join("");
+    const head = marksSubjects.map(s => `<th>${escapeHtml(s.subject_name)}<br><small>/ ${maxPerSubject}</small></th>`).join("");
     const sortedMarksRecords = getMarksSortedRecords();
     const rows = sortedMarksRecords.map((record, index) => {
         const calc = calculateRow(record.id);

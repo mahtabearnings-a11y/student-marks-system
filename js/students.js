@@ -1785,7 +1785,13 @@ window.viewHistory =
             const marksRows = marksResult.data || [];
             const attendanceRows = attendanceResult.data || [];
             const promotionRows = promotionResult.data || [];
-            const subjectRows = subjectsResult.data || [];
+            const subjectRows = (subjectsResult.data || []).map(subject => ({
+                ...subject,
+                subject_name:
+                    subject.subject_name === "Rastrabhasa" ? "Rashtrabhasha" :
+                    subject.subject_name === "Environmental Science" ? "Environmental Studies" :
+                    subject.subject_name
+            }));
 
             const recordMap = new Map(records.map(record => [String(record.id), record]));
             const subjectMap = new Map(subjectRows.map(subject => [String(subject.id), subject]));
