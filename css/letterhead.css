@@ -1,0 +1,130 @@
+/* =========================================================
+   LETTERHEAD MODULE — scoped styles
+========================================================= */
+#letterheadSection { color: #1e293b; }
+#letterheadSection .lh-page-header { align-items: center; }
+#letterheadSection .lh-page-header p,
+#letterheadSection .lh-workspace-heading p,
+#letterheadSection .lh-register-heading p { color: #64748b; font-size: 13px; margin-top: 5px; }
+#letterheadSection .lh-header-actions { display: flex; gap: 9px; flex-wrap: wrap; }
+#letterheadSection .lh-stat-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; margin: 0 0 18px; }
+#letterheadSection .lh-stat-card { min-height: 104px; padding: 17px 19px; background: linear-gradient(135deg,#fff,#f1f7ff); border: 1px solid #d8e6f7; border-radius: 13px; box-shadow: 0 2px 8px rgba(15,59,115,.045); display: flex; flex-direction: column; gap: 3px; }
+#letterheadSection .lh-stat-label { color: #52657c; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .45px; }
+#letterheadSection .lh-stat-card strong { font-size: 25px; color: #123b73; line-height: 1.25; }
+#letterheadSection .lh-stat-card small { color: #8795a8; font-size: 11px; }
+#letterheadSection .lh-workspace { padding: 0; overflow: hidden; border: 1px solid #d9e5f3; }
+#letterheadSection .lh-workspace-heading { padding: 18px 20px; display: flex; justify-content: space-between; gap: 12px; align-items: center; background: linear-gradient(100deg,#f4f8ff,#fff); border-bottom: 1px solid #e2eaf5; }
+#letterheadSection .lh-workspace-heading h3,
+#letterheadSection .lh-register-heading h3 { color: #123b73; font-size: 18px; margin: 0; }
+#letterheadSection .lh-status-pill { white-space: nowrap; border-radius: 30px; padding: 6px 11px; font-size: 11px; font-weight: 700; }
+#letterheadSection .lh-status-draft { background: #fff5d9; color: #8a5a00; }
+#letterheadSection .lh-status-issued { background: #e3f6ec; color: #16713f; }
+#letterheadSection .lh-editor-grid { display: grid; grid-template-columns: minmax(220px,.82fr) minmax(330px,1.4fr) minmax(200px,.72fr); gap: 14px; padding: 16px; align-items: start; }
+#letterheadSection .lh-meta-column { display: flex; flex-direction: column; gap: 12px; }
+#letterheadSection .form-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+#letterheadSection .form-group label { color: #334155; font-size: 12px; font-weight: 700; }
+#letterheadSection .required-star { color: #dc2626; }
+#letterheadSection .form-group textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; color: #172033; font: 13px/1.55 Arial,Helvetica,sans-serif; padding: 10px 11px; resize: vertical; min-height: 52px; outline: none; }
+#letterheadSection .form-group textarea:focus { border-color: #3881c9; box-shadow: 0 0 0 3px rgba(56,129,201,.10); }
+#letterheadSection .form-group textarea:disabled,
+#letterheadSection .form-group input:disabled,
+#letterheadSection .form-group select:disabled { background: #f8fafc; color: #64748b; }
+#letterheadSection .lh-field-help { color: #8492a6; font-size: 10px; line-height: 1.4; }
+#letterheadSection .lh-language-column { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+#letterheadSection .lh-language-panel { border: 1px solid #c8d9ec; border-radius: 11px; overflow: hidden; background: #fff; }
+#letterheadSection .lh-english-panel { border-top: 3px solid #3d87cf; }
+#letterheadSection .lh-hindi-panel { border-top: 3px solid #37966a; }
+#letterheadSection .lh-language-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 12px; background: #eff6ff; border-bottom: 1px solid #dce8f5; }
+#letterheadSection .lh-hindi-panel .lh-language-heading { background: #effaf3; border-color: #d8eee0; }
+#letterheadSection .lh-language-heading > div { display: flex; align-items: center; gap: 9px; min-width: 0; }
+#letterheadSection .lh-language-heading strong { display: block; color: #173f71; font-size: 14px; }
+#letterheadSection .lh-language-heading small { display: block; color: #76879a; font-size: 10px; margin-top: 2px; }
+#letterheadSection .lh-language-mark { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; flex: 0 0 30px; border-radius: 8px; background: #d9eafe; color: #155b9e; font-weight: 700; font-size: 19px; }
+#letterheadSection .lh-hindi-panel .lh-language-mark { background: #dff4e7; color: #187047; font-family: "Nirmala UI","Mangal",sans-serif; }
+#letterheadSection .lh-language-chip { color: #3f6b9a; background: #dcecff; border-radius: 20px; padding: 4px 7px; font-size: 9px; font-weight: 800; letter-spacing: .4px; }
+#letterheadSection .lh-translation-fields { padding: 12px; display: flex; flex-direction: column; gap: 11px; }
+#letterheadSection .lh-translation-fields .form-group textarea { font-family: Arial,Helvetica,sans-serif; }
+#letterheadSection .lh-hindi-panel textarea { font-family: "Nirmala UI","Mangal","Noto Sans Devanagari",Arial,sans-serif !important; font-size: 14px !important; }
+#letterheadSection .lh-hindi-note { padding: 9px 12px; color: #47725d; background: #f2fbf5; border-top: 1px solid #e1f1e6; font-size: 10px; line-height: 1.45; }
+#letterheadSection .btn-small { padding: 6px 9px; font-size: 11px; }
+#letterheadSection .lh-preview-column { min-width: 0; padding: 12px; background: #f7faff; border: 1px solid #dce8f5; border-radius: 11px; }
+#letterheadSection .lh-preview-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+#letterheadSection .lh-preview-heading h4 { color: #123b73; font-size: 14px; }
+#letterheadSection .lh-preview-heading span { color: #64748b; font-size: 10px; }
+#letterheadSection .lh-preview-pages { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+#letterheadSection .lh-mini-page { position: relative; min-height: 176px; padding: 22px 9px 25px; border: 1px solid #cbd5e1; border-radius: 5px; background: linear-gradient(#fff,#fff); box-shadow: 0 2px 5px rgba(15,23,42,.06); overflow: hidden; }
+#letterheadSection .lh-mini-page > span { position: absolute; top: 5px; right: 6px; color: #fff; background: #1c66a6; font-size: 8px; padding: 2px 4px; border-radius: 3px; }
+#letterheadSection .lh-mini-logo { width: 28px; height: 28px; margin: 0 auto 5px; border-radius: 50%; background: #edf5ff url('../school-logo-polished.png') center/contain no-repeat; }
+#letterheadSection .lh-mini-title { min-height: 8px; text-align: center; color: #123b73; font-size: 7px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-bottom: 1px solid #1f5c98; padding-bottom: 5px; margin-bottom: 10px; }
+#letterheadSection .lh-mini-page i { display: block; height: 3px; margin: 8px 0; background: #dbe3ec; border-radius: 2px; }
+#letterheadSection .lh-mini-page i:nth-of-type(2) { width: 85%; }
+#letterheadSection .lh-mini-page i:nth-of-type(3) { width: 92%; }
+#letterheadSection .lh-mini-page i:nth-of-type(4) { width: 68%; }
+#letterheadSection .lh-mini-page small { position: absolute; bottom: 7px; left: 0; right: 0; text-align: center; font-size: 8px; color: #52657c; }
+#letterheadSection .lh-mini-hindi .lh-mini-title { font-family: "Nirmala UI","Mangal",sans-serif; }
+#letterheadSection .lh-print-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+#letterheadSection .lh-print-actions > button { width: 100%; white-space: normal; line-height: 1.35; }
+#letterheadSection .lh-print-split { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+#letterheadSection .lh-print-split button { padding: 8px 5px; font-size: 11px; white-space: normal; }
+#letterheadSection .lh-preview-footnote { color: #8492a6; font-size: 10px; line-height: 1.45; margin-top: 10px; }
+#letterheadSection .lh-form-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px 16px; background: #f7faff; border-top: 1px solid #e1eaf5; }
+#letterheadSection .lh-editor-help { color: #718096; font-size: 11px; line-height: 1.45; }
+#letterheadSection .lh-footer-buttons { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+#letterheadSection .btn-success { border: 1px solid #15803d; background: #15803d; color: #fff; padding: 9px 13px; border-radius: 7px; font-weight: 700; }
+#letterheadSection .btn-success:hover { background: #166534; }
+#letterheadSection .lh-register-card { margin-top: 18px; padding: 18px; }
+#letterheadSection .lh-register-heading { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 13px; }
+#letterheadSection .lh-register-search { display: grid; grid-template-columns: minmax(200px,1fr) 160px 145px 145px 145px; gap: 8px; width: min(850px,68%); align-items: center; }
+#letterheadSection .lh-date-filter { display: flex; align-items: center; gap: 5px; color: #64748b; font-size: 10px; white-space: nowrap; }
+#letterheadSection .lh-date-filter input { min-width: 0; padding: 8px 6px; font-size: 11px; }
+#letterheadSection .lh-register-tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid #dbe5f0; margin-bottom: 12px; }
+#letterheadSection .lh-register-tabs button { border: 0; background: transparent; padding: 10px 13px; color: #64748b; border-bottom: 3px solid transparent; font-size: 12px; white-space: nowrap; }
+#letterheadSection .lh-register-tabs button.active { border-color: #1764a6; color: #174f91; font-weight: 700; }
+#letterheadSection .lh-register-table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 12px; }
+#letterheadSection .lh-register-table th { background: #1764a6; color: #fff; padding: 10px 9px; text-align: left; white-space: nowrap; }
+#letterheadSection .lh-register-table td { padding: 10px 9px; border-bottom: 1px solid #e4ebf3; vertical-align: middle; }
+#letterheadSection .lh-register-table tbody tr:hover { background: #f7faff; }
+#letterheadSection .lh-table-status { display: inline-block; border-radius: 18px; padding: 4px 8px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+#letterheadSection .lh-table-status.lh-row-issued { background: #e2f5e9; color: #176c3c; }
+#letterheadSection .lh-table-status.lh-row-draft { background: #fff3d5; color: #865900; }
+#letterheadSection .lh-table-status.lh-row-deleted { background: #fee8e8; color: #9f2525; }
+#letterheadSection .lh-row-actions { display: flex; flex-wrap: wrap; gap: 5px; min-width: 180px; }
+#letterheadSection .lh-action { border: 1px solid #c6d8eb; background: #f7fbff; color: #174f91; border-radius: 5px; padding: 5px 7px; font-size: 10px; font-weight: 700; }
+#letterheadSection .lh-action:hover { background: #eaf3ff; }
+#letterheadSection .lh-action.danger { color: #b42318; border-color: #f2c9c5; background: #fffafa; }
+#letterheadSection .lh-empty-cell { padding: 26px 12px !important; color: #728197; text-align: center; }
+#letterheadSection .lh-history-panel { margin-top: 16px; padding: 14px; border: 1px solid #dbe5f0; border-radius: 9px; background: #f8fbff; }
+#letterheadSection .lh-history-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+#letterheadSection .lh-history-heading h4 { color: #123b73; }
+#letterheadSection .lh-history-row { display: grid; grid-template-columns: 110px 230px 1fr; gap: 10px; padding: 9px 0; border-top: 1px solid #e1e9f2; font-size: 11px; }
+#letterheadSection .lh-history-row span { color: #64748b; }
+#letterheadSection .lh-history-row small { color: #516176; }
+
+@media (max-width: 1120px) {
+    #letterheadSection .lh-editor-grid { grid-template-columns: minmax(220px,.7fr) minmax(300px,1.3fr); }
+    #letterheadSection .lh-preview-column { grid-column: 1 / -1; }
+    #letterheadSection .lh-preview-pages { grid-template-columns: repeat(2,100px); justify-content: start; }
+    #letterheadSection .lh-mini-page { min-height: 140px; }
+    #letterheadSection .lh-print-actions { max-width: 420px; }
+}
+@media (max-width: 760px) {
+    #letterheadSection .lh-page-header { align-items: flex-start; flex-direction: column; }
+    #letterheadSection .lh-header-actions { width: 100%; }
+    #letterheadSection .lh-header-actions button { flex: 1; }
+    #letterheadSection .lh-stat-grid { grid-template-columns: 1fr 1fr; }
+    #letterheadSection .lh-stat-card:last-child { grid-column: 1 / -1; }
+    #letterheadSection .lh-editor-grid { grid-template-columns: 1fr; padding: 12px; }
+    #letterheadSection .lh-form-footer { align-items: stretch; flex-direction: column; }
+    #letterheadSection .lh-footer-buttons { justify-content: stretch; }
+    #letterheadSection .lh-footer-buttons button { flex: 1 1 45%; }
+    #letterheadSection .lh-register-heading { align-items: stretch; flex-direction: column; }
+    #letterheadSection .lh-register-search { width: 100%; grid-template-columns: 1fr 1fr; }
+    #letterheadSection .lh-register-search > input { grid-column: 1 / -1; }
+    #letterheadSection .lh-history-row { grid-template-columns: 1fr; gap: 3px; }
+}
+@media print {
+    #letterheadSection { display: none !important; }
+}
+
+#letterheadSection .lh-review-confirm { display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; color: #295b42; background: #f2fbf5; border-top: 1px solid #e1f1e6; font-size: 11px; line-height: 1.45; cursor: pointer; }
+#letterheadSection .lh-review-confirm input { width: 15px; height: 15px; flex: 0 0 15px; margin-top: 1px; accent-color: #218653; }
