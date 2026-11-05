@@ -141,6 +141,7 @@ function showSection(section, options = {}) {
     if (section === "promotion") { populatePromotionSessions(); loadAcademicYearManager?.(); loadPromotionStudents(); loadPromotionHistory?.(); }
     if (section === "recycleBin") { loadRecycleBin(); }
     if (section === "backup") { loadBackupSection?.(); }
+    if (section === "letterhead" && typeof loadLetterheadSection === "function") { loadLetterheadSection(); }
 }
 
 async function requestSectionChange(section, options = {}) {
