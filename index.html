@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="css/print-core.css">
 <link rel="stylesheet" href="css/result-print.css">
 <link rel="stylesheet" href="css/folio-print.css">
+<link rel="stylesheet" href="css/letterhead.css">
 
 
 <style id="auth-initialization-style">
@@ -167,6 +168,11 @@ body:not(.auth-ready) #appPage {
             <button class="nav-btn" data-section="promotion">
                 <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 19.5V14"></path><path d="M10 19.5V10"></path><path d="M15 19.5V6"></path><path d="M4 20h13"></path><path d="m7 11 4-4 3 2 5-5"></path><path d="M16.5 4H19v2.5"></path></svg></span>
                 <span>Promotion</span>
+            </button>
+
+            <button class="nav-btn" data-section="letterhead">
+                <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 3.5h8l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20z"></path><path d="M14 3.5V8h4M8.5 12h7M8.5 15.5h7M8.5 19h4"></path></svg></span>
+                <span>Letterhead</span>
             </button>
 
             <button id="recycleBinNavButton" class="nav-btn hidden" data-section="recycleBin">
@@ -982,6 +988,147 @@ body:not(.auth-ready) #appPage {
             </div>
         </section>
 
+        <section id="letterheadSection" class="app-section hidden">
+            <div class="page-header lh-page-header">
+                <div>
+                    <h2>Letterhead Management</h2>
+                    <p>School correspondence, bilingual letters and outgoing register.</p>
+                </div>
+                <div class="lh-header-actions">
+                    <button type="button" class="btn btn-secondary" id="lhRefreshButton">Refresh</button>
+                    <button type="button" class="btn btn-primary" id="lhNewButton">+ Create New Letter</button>
+                </div>
+            </div>
+
+            <div class="lh-stat-grid">
+                <div class="lh-stat-card"><span class="lh-stat-label">Issued Documents</span><strong id="lhIssuedCount">0</strong><small>All academic sessions</small></div>
+                <div class="lh-stat-card"><span class="lh-stat-label">Drafts</span><strong id="lhDraftCount">0</strong><small>Not yet numbered</small></div>
+                <div class="lh-stat-card"><span class="lh-stat-label">Current Session</span><strong id="lhSessionLabel">—</strong><small>Patrank sequence</small></div>
+            </div>
+
+            <div class="lh-workspace card">
+                <div class="lh-workspace-heading">
+                    <div>
+                        <h3 id="lhEditorTitle">Create New Letter</h3>
+                        <p>Write in English. Hindi can be generated and corrected separately.</p>
+                    </div>
+                    <span class="lh-status-pill lh-status-draft" id="lhDocumentStatus">New draft</span>
+                </div>
+
+                <div class="lh-editor-grid">
+                    <div class="lh-meta-column">
+                        <div class="form-group">
+                            <label for="lhDocumentType">Document Type <span class="required-star">*</span></label>
+                            <select id="lhDocumentType">
+                                <option value="official_letter">Official Letter (कार्यालय पत्र)</option>
+                                <option value="notice">Notice (सूचना)</option>
+                                <option value="office_order">Office Order (कार्यालय आदेश)</option>
+                                <option value="certificate">Certificate (प्रमाण-पत्र)</option>
+                                <option value="application">Application (आवेदन)</option>
+                                <option value="general">Other / General Document</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lhAcademicSession">Academic Session <span class="required-star">*</span></label>
+                            <select id="lhAcademicSession"><option value="">Loading sessions...</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lhLetterNumber">Letter No. (Patrank)</label>
+                            <input id="lhLetterNumber" type="text" placeholder="Generated when issued" autocomplete="off">
+                            <small class="lh-field-help">A new number is assigned only when you issue the document.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="lhLetterDate">Date <span class="required-star">*</span></label>
+                            <input id="lhLetterDate" type="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lhRecipient">To (Recipient) <span class="required-star">*</span></label>
+                            <textarea id="lhRecipient" rows="3" placeholder="Recipient name and designation" maxlength="1000"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="lhSubject">Subject <span class="required-star">*</span></label>
+                            <textarea id="lhSubject" rows="3" placeholder="Enter the subject" maxlength="1500"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="lh-language-column">
+                        <div class="lh-language-panel lh-english-panel">
+                            <div class="lh-language-heading">
+                                <div><span class="lh-language-mark">A</span><div><strong>English</strong><small>You type here</small></div></div>
+                                <span class="lh-language-chip">SOURCE</span>
+                            </div>
+                            <div class="lh-translation-fields">
+                                <div class="form-group"><label for="lhEnglishBody">Letter Content <span class="required-star">*</span></label><textarea id="lhEnglishBody" rows="15" placeholder="Sir/Madam,&#10;&#10;Write your letter here..." maxlength="12000"></textarea></div>
+                            </div>
+                        </div>
+
+                        <div class="lh-language-panel lh-hindi-panel">
+                            <div class="lh-language-heading">
+                                <div><span class="lh-language-mark">अ</span><div><strong>हिन्दी</strong><small>Auto-generated · editable</small></div></div>
+                                <button type="button" class="btn btn-secondary btn-small" id="lhTranslateButton">↻ Generate Hindi</button>
+                            </div>
+                            <div class="lh-translation-fields">
+                                <div class="form-group"><label for="lhHindiRecipient">प्राप्तकर्ता</label><textarea id="lhHindiRecipient" rows="2" placeholder="हिन्दी में प्राप्तकर्ता"></textarea></div>
+                                <div class="form-group"><label for="lhHindiSubject">विषय</label><textarea id="lhHindiSubject" rows="2" placeholder="हिन्दी में विषय"></textarea></div>
+                                <div class="form-group"><label for="lhHindiBody">पत्र की सामग्री</label><textarea id="lhHindiBody" rows="10" placeholder="हिन्दी अनुवाद यहाँ दिखाई देगा"></textarea></div>
+                            </div>
+                            <div class="lh-hindi-note" id="lhHindiNote">Please review the generated Hindi text before issuing. Manual corrections will not be overwritten without confirmation.</div>
+                            <label class="lh-review-confirm"><input type="checkbox" id="lhHindiReviewed"> I have reviewed and approved the Hindi translation.</label>
+                        </div>
+                    </div>
+
+                    <aside class="lh-preview-column">
+                        <div class="lh-preview-heading"><h4>Print Preview</h4><span>A4 Portrait</span></div>
+                        <div class="lh-preview-pages">
+                            <div class="lh-mini-page"><span>EN</span><div class="lh-mini-logo"></div><div class="lh-mini-title"></div><i></i><i></i><i></i><i></i><small>Page 1 · English</small></div>
+                            <div class="lh-mini-page lh-mini-hindi"><span>हि</span><div class="lh-mini-logo"></div><div class="lh-mini-title"></div><i></i><i></i><i></i><i></i><small>Page 2 · हिन्दी</small></div>
+                        </div>
+                        <div class="lh-print-actions">
+                            <button type="button" class="btn btn-primary" id="lhPrintBothButton">Print English + Hindi (2 pages)</button>
+                            <div class="lh-print-split">
+                                <button type="button" class="btn btn-secondary" id="lhPrintEnglishButton">Print English</button>
+                                <button type="button" class="btn btn-secondary" id="lhPrintHindiButton">Print Hindi</button>
+                            </div>
+                        </div>
+                        <div class="lh-preview-footnote">The final print uses the school's original logo, Hindi name artwork and authorised signature.</div>
+                    </aside>
+                </div>
+
+                <div class="lh-form-footer">
+                    <div class="lh-editor-help" id="lhEditorHelp">Drafts do not receive a permanent Patrank.</div>
+                    <div class="lh-footer-buttons">
+                        <button type="button" class="btn btn-secondary" id="lhCancelButton">Clear / New</button>
+                        <button type="button" class="btn btn-secondary" id="lhSaveDraftButton">Save Draft</button>
+                        <button type="button" class="btn btn-success" id="lhIssueButton">Issue &amp; Finalise</button>
+                        <button type="button" class="btn btn-primary hidden" id="lhSaveIssuedButton">Save Protected Changes</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card lh-register-card">
+                <div class="lh-register-heading">
+                    <div><h3>Outgoing Register</h3><p>Search, view, edit, print and restore school correspondence.</p></div>
+                    <div class="lh-register-search"><input id="lhSearchInput" type="search" placeholder="Search Patrank, subject or recipient..."><select id="lhTypeFilter"><option value="">All document types</option><option value="official_letter">Official Letter</option><option value="notice">Notice</option><option value="office_order">Office Order</option><option value="certificate">Certificate</option><option value="application">Application</option><option value="general">Other</option></select><select id="lhSessionFilter"><option value="">All academic sessions</option></select><label class="lh-date-filter">From <input id="lhDateFrom" type="date"></label><label class="lh-date-filter">To <input id="lhDateTo" type="date"></label></div>
+                </div>
+                <div class="lh-register-tabs" role="tablist" aria-label="Letter register filter">
+                    <button type="button" class="active" data-lh-tab="all">All Documents</button>
+                    <button type="button" data-lh-tab="draft">Drafts</button>
+                    <button type="button" data-lh-tab="issued">Issued</button>
+                    <button type="button" data-lh-tab="recycle">Recycle Bin</button>
+                </div>
+                <div class="table-wrapper lh-register-table-wrap">
+                    <table class="lh-register-table">
+                        <thead><tr><th>Sl.</th><th>Patrank</th><th>Date</th><th>Document</th><th>Subject</th><th>Recipient</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="lhRegisterBody"><tr><td colspan="8" class="lh-empty-cell">Open Letterhead to load documents.</td></tr></tbody>
+                    </table>
+                </div>
+                <div id="lhHistoryPanel" class="lh-history-panel hidden">
+                    <div class="lh-history-heading"><h4>Revision History</h4><button type="button" class="btn btn-secondary btn-small" id="lhCloseHistoryButton">Close</button></div>
+                    <div id="lhHistoryContent"></div>
+                </div>
+            </div>
+        </section>
+
         <section
             id="backupSection"
             class="app-section hidden">
@@ -1573,6 +1720,7 @@ body:not(.auth-ready) #appPage {
 <script src="js/result-print.js"></script>
 <script src="js/folio-print.js"></script>
 <script src="js/app.js"></script>
+<script src="js/letterhead.js"></script>
 <script src="js/ui-enhancements.js"></script>
 
 </body>
